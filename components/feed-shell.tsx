@@ -405,7 +405,7 @@ export function FeedShell() {
 
   return (
     <div className="feed-page">
-      <div className="pt-cover" aria-hidden><div className="pt-mark"><div className="pt-ring" /><div className="pt-logo">Y<span className="pt-plus">++</span></div></div></div>
+      <div className="pt-cover" aria-hidden><div className="pt-mark"><div className="pt-ring" /><div className="pt-logo">Y</div></div></div>
       {/* Background layers */}
       <div className="bg-layers" aria-hidden>
         <div className="bg-code-feed">{CODE_RAIN}</div>
@@ -417,7 +417,6 @@ export function FeedShell() {
           <Link className="logo" href="/highlights">
             <div className="logo-box" aria-label="HN++" style={{ position: 'relative' }}>
               Y
-              <span style={{ position: 'absolute', top: '-6px', right: '-9px', background: 'white', color: 'var(--accent)', fontFamily: "'Syne', sans-serif", fontSize: '8px', fontWeight: 800, borderRadius: '4px', padding: '1px 3px', lineHeight: '1' }}>++</span>
             </div>
             <span className="logo-rotator">
               <span className="logo-rot-spacer">A HACKER NEWS REDESIGN</span>

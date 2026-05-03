@@ -25,7 +25,7 @@ export function TrendingSidebar({ items }: { items: HNItem[] }) {
           ))}
         </div>
         <div className="pod-title">Today's HN++ Pod</div>
-        <div className="pod-sub">A multi-voice digest of the front page</div>
+        <div className="pod-sub">The hottest discussions in the valley</div>
         <div className="pod-listen">
           <Headphones size={12} /> Listen now <ArrowRight size={11} />
         </div>

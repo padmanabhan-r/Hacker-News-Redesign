@@ -1,9 +1,4 @@
 <svg width="180" height="180" viewBox="0 0 180 180" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <!-- Orange square -->
   <rect width="180" height="180" rx="40" fill="#ff6600"/>
-  <!-- White Y, nudged left to balance the ++ badge -->
-  <text x="82" y="128" text-anchor="middle" font-family="Verdana, sans-serif" font-size="106" font-weight="700" fill="white">Y</text>
-  <!-- White ++ superscript badge top-right -->
-  <rect x="106" y="6" width="66" height="36" rx="9" fill="white"/>
-  <text x="139" y="32" text-anchor="middle" font-family="Verdana, sans-serif" font-size="22" font-weight="800" fill="#ff6600">++</text>
+  <text x="90" y="128" text-anchor="middle" font-family="Verdana, sans-serif" font-size="106" font-weight="700" fill="white">Y</text>
 </svg>

@@ -1,7 +1,7 @@
-import { Headphones, Sparkles } from 'lucide-react';
+import { Headphones, Sparkles, Bot } from 'lucide-react';
 
 const ROWS = [
-  { score: 842, title: 'Show HN: I built a glassmorphic Hacker News reader with AI narration', domain: 'hn-plus-plus.app', meta: ['312 cmts', '2h ago', 'by you'], dur: '4:12', featured: true },
+  { score: 842, title: 'Show HN: I built a glassmorphic Hacker News reader with AI narration', domain: 'hn-plus-plus.vercel.app', meta: ['312 cmts', '2h ago', 'by you'], dur: '4:12', featured: true },
   { score: 591, title: 'The unreasonable effectiveness of small models in production', domain: 'arxiv.org', meta: ['184 cmts', '4h ago'], dur: '6:48' },
   { score: 428, title: 'A retrospective on five years of running a side project to $1M ARR', domain: 'stripe.com/blog', meta: ['96 cmts', '5h ago'], dur: '11:02' },
   { score: 317, title: "Why we rewrote our build system in Rust (and you probably shouldn't)", domain: 'github.io', meta: ['240 cmts', '7h ago'], dur: '8:30' },
@@ -15,7 +15,6 @@ export function LandingPreview() {
           <div className="pv-brand">
             <div className="pv-mark" style={{ position: 'relative' }}>
               Y
-              <span style={{ position: 'absolute', top: '-5px', right: '-8px', background: 'white', color: 'var(--accent)', fontFamily: "'Syne', sans-serif", fontSize: '6px', fontWeight: 800, borderRadius: '3px', padding: '1px 2px', lineHeight: '1' }}>++</span>
             </div>
             <div className="pv-name">HN<span style={{ color: 'var(--accent)' }}>++</span></div>
           </div>
@@ -37,7 +36,7 @@ export function LandingPreview() {
               <div className="pv-domain">{r.domain}</div>
               <div className="pv-meta">{r.meta.map((m, j) => <span key={j}>{m}</span>)}</div>
             </div>
-            <div className="pv-listen">▶ {r.dur}</div>
+            <div className="pv-listen">▶ Listen</div>
           </div>
         ))}
       </div>
@@ -48,8 +47,8 @@ export function LandingPreview() {
           <Headphones size={16} />
         </div>
         <div>
-          <div className="fc-text-1">Today's HN++ Pod</div>
-          <div className="fc-text-2">8 STORIES · ~9 MIN</div>
+          <div className="fc-text-1">HN++ Pod</div>
+          <div className="fc-text-2">VALLEY'S HOTTEST TALKS, DAILY</div>
         </div>
         <div className="fc-bars">
           <div className="fc-bar" />
@@ -66,8 +65,19 @@ export function LandingPreview() {
           <Sparkles size={16} />
         </div>
         <div>
-          <div className="fc-text-1">Listen · TL;DR audio</div>
-          <div className="fc-text-2">UNDER 2 MIN PER STORY</div>
+          <div className="fc-text-1">Get the gist, skip the scroll</div>
+          <div className="fc-text-2">AI AUDIO SUMMARY PER STORY</div>
+        </div>
+      </div>
+
+      {/* Floating chip 3 — HN++ Bot */}
+      <div className="float-chip fc-bot">
+        <div className="fc-icon" style={{ background: 'linear-gradient(135deg,#1a1a2e,#16213e)', boxShadow: '0 2px 8px rgba(0,0,0,0.4)' }}>
+          <Bot size={16} />
+        </div>
+        <div>
+          <div className="fc-text-1">HN++ Bot</div>
+          <div className="fc-text-2">JUST ASK. NO SEARCHING.</div>
         </div>
       </div>
     </div>
