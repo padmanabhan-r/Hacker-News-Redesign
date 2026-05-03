@@ -2,12 +2,13 @@
 
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useTheme } from 'next-themes';
 import { useStories } from '@/hooks/use-stories';
 import { categorize, gradientForCat, getLinkPreview, getFavicon, parseDomain, timeAgo, CAT_EMOJI, type HNItem } from '@/lib/hn';
 import { generateThumbnail } from '@/lib/thumbnail';
-import { ConvAgent } from './conv-agent';
+import { TalkBotButton } from './talk-bot-button';
+import { SubmitButton } from './submit-button';
 import { LoginModal, UserChip, getStoredUser, clearStoredUser, type HNUser } from '@/components/login-modal';
 
 const ALL_CATS = ['All', 'AI', 'Security', 'Hardware', 'Startups', 'Engineering', 'Web', 'Science', 'Business'];
@@ -20,6 +21,52 @@ const MoonIco = () => <svg width="13" height="13" fill="none" stroke="currentCol
 const StarIco = () => <svg width="10" height="10" fill="currentColor" viewBox="0 0 24 24"><polygon points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26 12,2"/></svg>;
 const MsgIco = () => <svg width="10" height="10" fill="none" stroke="currentColor" strokeWidth="2.2" viewBox="0 0 24 24"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>;
 const ArrowIco = () => <svg width="11" height="11" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12,5 19,12 12,19"/></svg>;
+const PlayIco = () => <svg width="10" height="10" fill="currentColor" viewBox="0 0 24 24"><polygon points="5,3 19,12 5,21"/></svg>;
+const PauseIco = () => <svg width="10" height="10" fill="currentColor" viewBox="0 0 24 24"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>;
+const SpinIco = () => <svg className="hn-spinner" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round"><path d="M21 12a9 9 0 11-6.219-8.56"/></svg>;
+const ChevLIco = () => <svg width="13" height="13" fill="none" stroke="currentColor" strokeWidth="2.2" viewBox="0 0 24 24"><polyline points="15,18 9,12 15,6"/></svg>;
+const SkipFIco = () => <svg width="11" height="11" fill="currentColor" viewBox="0 0 24 24"><polygon points="5,4 15,12 5,20"/><line x1="19" y1="5" x2="19" y2="19" stroke="currentColor" strokeWidth="2" fill="none"/></svg>;
+const XIco = () => <svg width="11" height="11" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>;
+
+type ListenButtonState = { playing: boolean; loading: boolean };
+function listenLabel({ playing, loading }: ListenButtonState, msg?: string) {
+  return loading ? (msg || 'Fetching…') : playing ? 'Playing' : 'Listen';
+}
+function listenIcon({ playing, loading }: ListenButtonState) {
+  if (loading) return <SpinIco />;
+  return playing ? <PauseIco /> : <PlayIco />;
+}
+
+function ListenOverlay({ playing, loading, onClick, style }: ListenButtonState & { onClick: (e: React.MouseEvent) => void; style?: React.CSSProperties }) {
+  return (
+    <button
+      type="button"
+      className={`listen-overlay${playing ? ' playing' : ''}${loading ? ' loading' : ''}`}
+      onClick={onClick}
+      disabled={loading}
+      style={style}
+      aria-label={listenLabel({ playing, loading })}
+      title={listenLabel({ playing, loading })}
+    >
+      {listenIcon({ playing, loading })}
+    </button>
+  );
+}
+
+function ListenPill({ playing, loading, msg, onClick }: ListenButtonState & { msg?: string; onClick: (e: React.MouseEvent) => void }) {
+  return (
+    <button
+      type="button"
+      className={`listen-pill${playing ? ' playing' : ''}${loading ? ' loading' : ''}`}
+      onClick={onClick}
+      disabled={loading}
+      aria-label={listenLabel({ playing, loading }, msg)}
+    >
+      {listenIcon({ playing, loading })}
+      {listenLabel({ playing, loading }, msg)}
+    </button>
+  );
+}
 
 function CatPill({ cat }: { cat: { label: string; color: string; bg: string } }) {
   return (
@@ -47,12 +94,17 @@ function useThumb(story: HNItem | undefined) {
   return thumb;
 }
 
-function HeroCard({ story, onOpen }: { story?: HNItem; onOpen: (s: HNItem) => void }) {
+type CardAudioProps = { audioStoryId?: number; audioPlaying: boolean; audioLoading: boolean; audioMsg?: string };
+
+function HeroCard({ story, onOpen, onListen, audioStoryId, audioPlaying, audioLoading }: { story?: HNItem; onOpen: (s: HNItem) => void; onListen: (s: HNItem) => void } & CardAudioProps) {
   const thumb = useThumb(story);
   if (!story) return <div className="hero-card"><div className="sk" style={{ position: 'absolute', inset: 0, borderRadius: 20 }} /></div>;
   const cat = categorize(story.title);
   const fav = story.url ? getFavicon(story.url, 64) : null;
   const bg = thumb || gradientForCat(cat);
+  const isCurrent = audioStoryId === story.id;
+  const playing = isCurrent && audioPlaying;
+  const loading = isCurrent && audioLoading;
   return (
     <div className="hero-card" onClick={() => onOpen(story)}>
       <div className="hero-card-bg" style={{ backgroundImage: thumb ? `url(${thumb})` : bg }} />
@@ -69,16 +121,20 @@ function HeroCard({ story, onOpen }: { story?: HNItem; onOpen: (s: HNItem) => vo
           <span className="card-score"><StarIco /> {story.score ?? 0}</span>
         </div>
       </div>
+      <ListenOverlay playing={playing} loading={loading} onClick={(e) => { e.stopPropagation(); onListen(story); }} style={{ top: 13, right: 46 }} />
     </div>
   );
 }
 
-function SecondaryCard({ story, num, onOpen }: { story?: HNItem; num: number; onOpen: (s: HNItem) => void }) {
+function SecondaryCard({ story, num, onOpen, onListen, audioStoryId, audioPlaying, audioLoading }: { story?: HNItem; num: number; onOpen: (s: HNItem) => void; onListen: (s: HNItem) => void } & CardAudioProps) {
   const thumb = useThumb(story);
   if (!story) return <div className="secondary-card"><div className="sk" style={{ position: 'absolute', inset: 0, borderRadius: 16 }} /></div>;
   const cat = categorize(story.title);
   const fav = story.url ? getFavicon(story.url, 48) : null;
   const bg = thumb || gradientForCat(cat);
+  const isCurrent = audioStoryId === story.id;
+  const playing = isCurrent && audioPlaying;
+  const loading = isCurrent && audioLoading;
   return (
     <div className="secondary-card" onClick={() => onOpen(story)}>
       <div className="secondary-card-bg" style={{ backgroundImage: thumb ? `url(${thumb})` : bg }} />
@@ -97,6 +153,7 @@ function SecondaryCard({ story, num, onOpen }: { story?: HNItem; num: number; on
           <span className="card-score" style={{ fontSize: 9.5 }}><StarIco /> {story.score ?? 0}</span>
         </div>
       </div>
+      <ListenOverlay playing={playing} loading={loading} onClick={(e) => { e.stopPropagation(); onListen(story); }} style={{ top: 8, left: 38 }} />
     </div>
   );
 }
@@ -128,11 +185,15 @@ function HeadlinesPanel({ stories, onOpen }: { stories: HNItem[]; onOpen: (s: HN
   );
 }
 
-function LatestItem({ story, onOpen }: { story: HNItem; onOpen: (s: HNItem) => void }) {
+function LatestItem({ story, onOpen, onListen, audioStoryId, audioPlaying, audioLoading, audioMsg }: { story: HNItem; onOpen: (s: HNItem) => void; onListen: (s: HNItem) => void } & CardAudioProps) {
   const cat = categorize(story.title);
   const emoji = CAT_EMOJI[cat.label] || '💡';
   const thumb = useThumb(story);
   const fav = story.url ? getFavicon(story.url, 32) : null;
+  const isCurrent = audioStoryId === story.id;
+  const playing = isCurrent && audioPlaying;
+  const loading = isCurrent && audioLoading;
+  const msg = isCurrent ? audioMsg : undefined;
   return (
     <div className="latest-item" onClick={() => onOpen(story)}>
       {thumb ? (
@@ -154,6 +215,7 @@ function LatestItem({ story, onOpen }: { story: HNItem; onOpen: (s: HNItem) => v
           <span style={{ marginLeft: 'auto', display: 'flex', gap: 6, alignItems: 'center' }}>
             <span style={{ display: 'flex', alignItems: 'center', gap: 3 }}><StarIco /> {story.score ?? 0}</span>
             <span style={{ display: 'flex', alignItems: 'center', gap: 3 }}><MsgIco /> {story.descendants ?? 0}</span>
+            <ListenPill playing={playing} loading={loading} msg={msg} onClick={(e) => { e.stopPropagation(); onListen(story); }} />
           </span>
         </div>
       </div>
@@ -194,19 +256,108 @@ export function HighlightsShell() {
   useEffect(() => { setMounted(true); setUser(getStoredUser()); }, []);
   const isDark = mounted && theme === 'dark';
 
+  const [audioStory, setAudioStory] = useState<HNItem | null>(null);
+  const [audioPlaying, setAudioPlaying] = useState(false);
+  const [audioLoading, setAudioLoading] = useState(false);
+  const [audioMsg, setAudioMsg] = useState('Fetching…');
+  const [audioProgress, setAudioProgress] = useState(0);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+  const blobUrlRef = useRef<string | null>(null);
+
+  useEffect(() => {
+    return () => {
+      audioRef.current?.pause();
+      if (blobUrlRef.current) URL.revokeObjectURL(blobUrlRef.current);
+      audioRef.current = null;
+      blobUrlRef.current = null;
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!audioLoading) return;
+    const start = Date.now();
+    const STEPS: Array<[number, string]> = [
+      [0,     'Fetching…'],
+      [1500,  'Reading…'],
+      [3500,  'Thinking…'],
+      [6000,  'Casting…'],
+      [9000,  'Baking…'],
+      [13000, 'Almost there…'],
+      [18000, 'Hang tight…'],
+    ];
+    const tick = () => {
+      const ms = Date.now() - start;
+      let cur = STEPS[0][1];
+      for (const [t, s] of STEPS) if (ms >= t) cur = s;
+      setAudioMsg(cur);
+    };
+    tick();
+    const id = setInterval(tick, 400);
+    return () => clearInterval(id);
+  }, [audioLoading]);
+
+  function stopAudio() {
+    audioRef.current?.pause();
+    if (blobUrlRef.current) URL.revokeObjectURL(blobUrlRef.current);
+    audioRef.current = null;
+    blobUrlRef.current = null;
+    setAudioPlaying(false);
+    setAudioProgress(0);
+  }
+
+  async function handleListen(story: HNItem) {
+    if (audioStory?.id === story.id && audioRef.current) {
+      if (audioPlaying) audioRef.current.pause();
+      else audioRef.current.play();
+      return;
+    }
+    if (audioLoading) return;
+    stopAudio();
+    setAudioStory(story);
+    setAudioProgress(0);
+    setAudioLoading(true);
+    try {
+      const r = await fetch('/api/listen', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ storyId: story.id }),
+      });
+      if (!r.ok) throw new Error('listen failed');
+      const blob = await r.blob();
+      const url = URL.createObjectURL(blob);
+      blobUrlRef.current = url;
+      const a = new Audio(url);
+      audioRef.current = a;
+      a.addEventListener('play', () => setAudioPlaying(true));
+      a.addEventListener('pause', () => setAudioPlaying(false));
+      a.addEventListener('timeupdate', () => { if (a.duration) setAudioProgress(a.currentTime / a.duration); });
+      a.addEventListener('ended', () => { setAudioPlaying(false); setAudioProgress(1); });
+      await a.play();
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setAudioLoading(false);
+    }
+  }
+
+  const [searchInput, setSearchInput] = useState('');
+
   const filtered = useMemo(() => {
-    if (activeCat === 'All') return items;
-    return items.filter((s) => categorize(s?.title ?? '').label === activeCat);
-  }, [items, activeCat]);
+    let list = activeCat === 'All' ? items : items.filter((s) => categorize(s?.title ?? '').label === activeCat);
+    if (searchInput.trim()) {
+      const q = searchInput.toLowerCase();
+      list = list.filter((s) => s.title?.toLowerCase().includes(q));
+    }
+    return list;
+  }, [items, activeCat, searchInput]);
 
   return (
     <div className="highlights-page">
-      <div className="pt-cover" aria-hidden><div className="pt-mark"><div className="pt-ring" /><div className="pt-logo">Y<span className="pt-plus">++</span></div></div></div>
+      <div className="pt-cover" aria-hidden><div className="pt-mark"><div className="pt-ring" /><div className="pt-logo">Y</div></div></div>
       <header className="hdr">
         <Link className="logo" href="/highlights">
           <div className="logo-box" aria-label="HN++" style={{ position: 'relative' }}>
             Y
-            <span style={{ position: 'absolute', top: '-6px', right: '-9px', background: 'white', color: 'var(--accent)', fontFamily: "'Syne', sans-serif", fontSize: '8px', fontWeight: 800, borderRadius: '4px', padding: '1px 3px', lineHeight: '1' }}>++</span>
           </div>
           <span className="logo-rotator">
             <span className="logo-rot-spacer">A HACKER NEWS REDESIGN</span>
@@ -221,11 +372,11 @@ export function HighlightsShell() {
         </nav>
         <div className="search-wrap">
           <span className="search-ico"><SearchIco /></span>
-          <input className="search-input" placeholder="Search stories…" />
+          <input className="search-input" placeholder="Search stories…" value={searchInput} onChange={(e) => setSearchInput(e.target.value)} />
           <span className="search-kbd">⌘K</span>
         </div>
         <div className="hdr-right">
-          <ConvAgent />
+          <TalkBotButton />
           <button
             type="button"
             className="theme-toggle"
@@ -234,7 +385,7 @@ export function HighlightsShell() {
           >
             {isDark ? <SunIco /> : <MoonIco />}
           </button>
-          <button type="button" className="submit-btn"><PlusIco /> Submit</button>
+          <SubmitButton />
           {user ? (
             <UserChip user={user} onLogout={() => { clearStoredUser(); setUser(null); }} />
           ) : (
@@ -255,14 +406,14 @@ export function HighlightsShell() {
             <div style={{ height: 440, borderRadius: 20, marginBottom: 36 }} className="sk" />
           ) : (
             <div className="hero-grid">
-              <HeroCard story={items[0]} onOpen={openStory} />
+              <HeroCard story={items[0]} onOpen={openStory} onListen={handleListen} audioStoryId={audioStory?.id} audioPlaying={audioPlaying} audioLoading={audioLoading} />
               <div className="secondary-col">
-                <SecondaryCard story={items[1]} num={2} onOpen={openStory} />
-                <SecondaryCard story={items[2]} num={3} onOpen={openStory} />
+                <SecondaryCard story={items[1]} num={2} onOpen={openStory} onListen={handleListen} audioStoryId={audioStory?.id} audioPlaying={audioPlaying} audioLoading={audioLoading} />
+                <SecondaryCard story={items[2]} num={3} onOpen={openStory} onListen={handleListen} audioStoryId={audioStory?.id} audioPlaying={audioPlaying} audioLoading={audioLoading} />
               </div>
               <div className="secondary-col">
-                <SecondaryCard story={items[3]} num={4} onOpen={openStory} />
-                <SecondaryCard story={items[4]} num={5} onOpen={openStory} />
+                <SecondaryCard story={items[3]} num={4} onOpen={openStory} onListen={handleListen} audioStoryId={audioStory?.id} audioPlaying={audioPlaying} audioLoading={audioLoading} />
+                <SecondaryCard story={items[4]} num={5} onOpen={openStory} onListen={handleListen} audioStoryId={audioStory?.id} audioPlaying={audioPlaying} audioLoading={audioLoading} />
               </div>
               <HeadlinesPanel stories={items} onOpen={openStory} />
             </div>
@@ -303,9 +454,19 @@ export function HighlightsShell() {
                       </div>
                     </div>
                   ))
-                : filtered.slice(3).map((s) => (
-                    <LatestItem key={s.id} story={s} onOpen={openStory} />
-                  ))}
+                : (() => {
+                    const list = (activeCat === 'All' && !searchInput.trim()) ? filtered.slice(3) : filtered;
+                    if (list.length === 0) {
+                      return (
+                        <div style={{ padding: '32px 16px', textAlign: 'center', color: 'var(--text-3)', fontSize: 13 }}>
+                          Nothing in <strong style={{ color: 'var(--text-2)' }}>{activeCat}</strong> right now. Try another tag.
+                        </div>
+                      );
+                    }
+                    return list.map((s) => (
+                      <LatestItem key={s.id} story={s} onOpen={openStory} onListen={handleListen} audioStoryId={audioStory?.id} audioPlaying={audioPlaying} audioLoading={audioLoading} audioMsg={audioMsg} />
+                    ));
+                  })()}
             </div>
 
             <div className="side-panels">
@@ -315,6 +476,42 @@ export function HighlightsShell() {
 
         </div>
       </div>
+      {audioStory && (
+        <div className="audio-player-bar">
+          <div className="ap-thumb" style={{ backgroundImage: getLinkPreview(audioStory) ? `url(${getLinkPreview(audioStory)})` : undefined }} />
+          <div className="ap-info">
+            <div className="ap-title">{audioStory.title}</div>
+            <div className="ap-sub">{audioLoading ? audioMsg : `Story audio · ${audioStory.by}`}</div>
+          </div>
+          <div className="ap-controls">
+            <button type="button" className="ap-skip" aria-label="Back"><ChevLIco /></button>
+            <button
+              type="button"
+              className="ap-play-btn"
+              onClick={() => handleListen(audioStory)}
+              disabled={audioLoading}
+              aria-label={audioLoading ? 'Loading' : audioPlaying ? 'Pause' : 'Play'}
+            >
+              {audioLoading ? <SpinIco /> : audioPlaying ? <PauseIco /> : <PlayIco />}
+            </button>
+            <button type="button" className="ap-skip" aria-label="Forward"><SkipFIco /></button>
+          </div>
+          <div className="ap-progress-wrap">
+            <div className="ap-progress-track">
+              <div className="ap-progress-fill" style={{ width: `${Math.min(100, Math.max(0, audioProgress * 100))}%` }} />
+            </div>
+          </div>
+          <span className="ap-time">{Math.round(audioProgress * 100)}%</span>
+          <button
+            type="button"
+            className="ap-close"
+            onClick={() => { stopAudio(); setAudioStory(null); }}
+            aria-label="Close"
+          >
+            <XIco />
+          </button>
+        </div>
+      )}
       {showLogin && <LoginModal onLogin={(u) => { setUser(u); setShowLogin(false); }} onClose={() => setShowLogin(false)} />}
     </div>
   );

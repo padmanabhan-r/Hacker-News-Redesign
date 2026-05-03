@@ -3,6 +3,7 @@ import { PodcastShell } from '@/components/podcast-shell';
 import './podcast.css';
 
 export const metadata = { title: 'HN++ · Daily Podcast' };
+export const revalidate = 300;
 
 export default function PodcastPage() {
   return (

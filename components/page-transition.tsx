@@ -19,7 +19,6 @@ export function PageTransition() {
         <div className="pt-ring" />
         <div className="pt-logo">
           Y
-          <span className="pt-plus">++</span>
         </div>
       </div>
     </div>

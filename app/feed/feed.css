@@ -312,6 +312,11 @@
 .feed-page .empty-title { font-family: 'Syne', sans-serif; font-size: 15px; font-weight: 700; color: var(--text-1); margin-bottom: 6px; letter-spacing: -0.2px; }
 .feed-page .empty-sub { font-size: 12px; color: var(--text-3); max-width: 340px; margin: 0 auto; line-height: 1.5; }
 .feed-page .feed-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
+.feed-page .past-nav { display: flex; flex-direction: column; gap: 6px; margin-bottom: 16px; padding: 10px 14px; background: var(--bg-glass); border: 1px solid var(--border); border-radius: 10px; backdrop-filter: var(--blur); }
+.feed-page .past-nav-label { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--text-2); letter-spacing: 0.04em; }
+.feed-page .past-nav-links { display: flex; gap: 8px; flex-wrap: wrap; }
+.feed-page .past-nav-links button { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--accent); background: none; border: 1px solid var(--accent-border); border-radius: 6px; padding: 3px 9px; cursor: pointer; transition: background 0.12s; }
+.feed-page .past-nav-links button:hover { background: var(--accent); color: #fff; }
 .feed-page .feed-title { font-family: 'Syne', sans-serif; font-size: 17px; font-weight: 700; color: var(--text-1); letter-spacing: -0.3px; line-height: 1.4; padding-bottom: 2px; }
 
 /* ── Story card ── */
@@ -403,12 +408,12 @@
 .feed-page .cmts-btn:hover { background: var(--bg-card-hover); border-color: var(--border-med); color: var(--text-2); }
 .feed-page .audio-btn {
   display: flex; align-items: center; gap: 4px; height: 24px; padding: 0 9px;
-  border-radius: 6px; background: var(--accent-bg); border: 1px solid var(--accent-border);
-  font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--accent-text);
+  border-radius: 999px; background: rgba(255,102,0,0.14); border: 1px solid rgba(255,102,0,0.34);
+  font-family: 'JetBrains Mono', monospace; font-size: 10px; font-weight: 600; color: var(--accent);
   cursor: pointer; transition: all 0.13s; white-space: nowrap;
 }
-.feed-page .audio-btn:hover { background: rgba(255,102,0,0.15); border-color: rgba(255,102,0,0.35); }
-.feed-page .audio-btn.playing { background: rgba(255,102,0,0.18); border-color: rgba(255,102,0,0.4); }
+.feed-page .audio-btn:hover { background: rgba(255,102,0,0.22); }
+.feed-page .audio-btn.playing { background: rgba(255,102,0,0.28); border-color: rgba(255,102,0,0.55); }
 
 /* ── Right panel ── */
 .feed-page .right-panel {
@@ -503,7 +508,7 @@
   margin-bottom: 11px; text-wrap: pretty; padding-bottom: 3px;
 }
 .feed-page .detail-meta-bar { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin-bottom: 18px; }
-.feed-page .detail-meta-item { display: flex; align-items: center; gap: 4px; font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--text-3); }
+.feed-page .detail-meta-item { display: flex; align-items: center; gap: 4px; font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--text-1); }
 .feed-page .detail-actions { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 22px; }
 .feed-page .visit-btn {
   display: inline-flex; align-items: center; gap: 5px; height: 34px; padding: 0 16px;
@@ -515,17 +520,17 @@
 .feed-page .visit-btn:hover { transform: translateY(-1px); box-shadow: 0 4px 14px rgba(255,102,0,0.38); }
 .feed-page .listen-btn {
   display: inline-flex; align-items: center; gap: 5px; height: 34px; padding: 0 16px;
-  background: var(--accent-bg); border: 1px solid var(--accent-border);
-  border-radius: 9px; color: var(--accent-text); font-family: 'Syne', sans-serif;
-  font-size: 12.5px; font-weight: 600; cursor: pointer; transition: all 0.13s;
+  background: rgba(255,102,0,0.22); border: 1px solid rgba(255,102,0,0.45);
+  border-radius: 999px; color: var(--accent); font-family: 'JetBrains Mono', monospace;
+  font-size: 11px; font-weight: 600; cursor: pointer; transition: all 0.13s;
 }
-.feed-page .listen-btn:hover { background: rgba(255,102,0,0.15); border-color: rgba(255,102,0,0.35); }
-.feed-page .listen-btn.active { background: rgba(255,102,0,0.18); border-color: rgba(255,102,0,0.4); }
+.feed-page .listen-btn:hover { background: rgba(255,102,0,0.30); border-color: rgba(255,102,0,0.60); }
+.feed-page .listen-btn.active { background: rgba(255,102,0,0.35); border-color: rgba(255,102,0,0.65); }
 
 .feed-page .comments-divider { height: 1px; background: var(--border); margin: 22px 0 18px; position: relative; }
 .feed-page .comments-divider::before { content: ''; position: absolute; left: 0; top: 0; width: 60px; height: 2px; background: var(--accent); opacity: 0.5; border-radius: 99px; }
 .feed-page .comments-hdr { display: flex; align-items: center; gap: 9px; margin-bottom: 14px; }
-.feed-page .comments-hdr-lbl { font-family: 'Syne', sans-serif; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-3); line-height: 1.4; }
+.feed-page .comments-hdr-lbl { font-family: 'Syne', sans-serif; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-1); line-height: 1.4; }
 .feed-page .comments-badge { font-family: 'JetBrains Mono', monospace; font-size: 10.5px; color: var(--accent-text); background: var(--accent-bg); border: 1px solid var(--accent-border); padding: 1px 7px; border-radius: 99px; }
 
 .feed-page .comment-block {
@@ -600,3 +605,19 @@
 /* ── Skeleton ── */
 @keyframes sk { 0%, 100% { opacity: .4; } 50% { opacity: .7; } }
 .feed-page .sk { background: var(--border-med); border-radius: 6px; animation: sk 1.6s ease-in-out infinite; }
+
+/* ── Comment card ── */
+.feed-page .comment-card {
+  padding: 13px 16px; border-radius: 12px; margin-bottom: 6px;
+  background: var(--bg-card); border: 1px solid var(--border);
+  display: flex; flex-direction: column; gap: 6px;
+  transition: border-color 0.13s;
+}
+.feed-page .comment-card:hover { border-color: var(--border-med); }
+.feed-page .cc-meta { display: flex; align-items: center; gap: 6px; }
+.feed-page .cc-author { font-family: 'Syne', sans-serif; font-size: 12px; font-weight: 700; color: var(--accent); }
+.feed-page .cc-sep { color: var(--text-4); font-size: 11px; }
+.feed-page .cc-time { font-family: 'JetBrains Mono', monospace; font-size: 10.5px; color: var(--text-3); }
+.feed-page .cc-text { font-size: 13.5px; line-height: 1.55; color: var(--text-1); }
+.feed-page .cc-story { font-family: 'JetBrains Mono', monospace; font-size: 10.5px; color: var(--text-3); text-decoration: none; transition: color 0.12s; }
+.feed-page .cc-story:hover { color: var(--accent); }

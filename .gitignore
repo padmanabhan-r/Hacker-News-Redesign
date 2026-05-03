@@ -76,3 +76,6 @@ service-account*.json
 misc/
 docs/
 .mcp.json
+
+# Generated daily podcast episodes (mp3 + manifest)
+.podcast-store/

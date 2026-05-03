@@ -83,6 +83,14 @@ export default function Landing() {
                   </svg>
                   Gemini
                 </div>
+                <div className="logo-pill">
+                  <svg width="16" height="10" viewBox="361 0 342 155" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M674.9 91.8L632 67.2l-7.4-3.2-175.5 1.2v89.1h225.8z" fill="#fff"/>
+                    <path fill="#F38020" d="M596.8 146c2.1-7.2 1.3-13.8-2.2-18.7-3.2-4.5-8.6-7.1-15.1-7.4l-123.1-1.6c-.8 0-1.5-.4-1.9-1-.4-.6-.5-1.4-.3-2.2.4-1.2 1.6-2.1 2.9-2.2l124.2-1.6c14.7-.7 30.7-12.6 36.3-27.2l7.1-18.5c.3-.8.4-1.6.2-2.4C616.9 27 584.6 0 546 0c-35.6 0-65.8 23-76.6 54.9-7-5.2-15.9-8-25.5-7.1-17.1 1.7-30.8 15.4-32.5 32.5-.4 4.4-.1 8.7.9 12.7-27.9.8-50.2 23.6-50.2 51.7 0 2.5.2 5 .5 7.5.2 1.2 1.2 2.1 2.4 2.1h227.2c1.3 0 2.5-.9 2.9-2.2z"/>
+                    <path fill="#FAAE40" d="M636 67.1c-1.1 0-2.3 0-3.4.1-.8 0-1.5.6-1.8 1.4L626 85.3c-2.1 7.2-1.3 13.8 2.2 18.7 3.2 4.5 8.6 7.1 15.1 7.4l26.2 1.6c.8 0 1.5.4 1.9 1 .4.6.5 1.5.3 2.2-.4 1.2-1.6 2.1-2.9 2.2l-27.3 1.6c-14.8.7-30.7 12.6-36.3 27.2l-2 5.1c-.4 1 .3 2 1.4 2h93.8c1.1 0 2.1-.7 2.4-1.8 1.6-5.8 2.5-11.9 2.5-18.2 0-37-30.2-67.2-67.3-67.2"/>
+                  </svg>
+                  Cloudflare
+                </div>
               </div>
             </div>
           </div>
@@ -101,17 +109,17 @@ export default function Landing() {
           </p>
 
           <div className="features-grid">
-            <Feature tag="01 / VOICE" title="AI-narrated stories" icon={<Headphones size={20} />}>
-              Tap the play icon on any story. ElevenLabs reads the full article in a calm, natural voice.
-              Continue listening as you scroll.
+            <Feature tag="01 / VOICE" title="Listen — TL;DR audio" icon={<Headphones size={20} />}>
+              Tap the play icon on any story. Under two minutes, ElevenLabs reads you a tight TL;DR — what
+              the article says, plus what the comments crowd is feeling.
             </Feature>
-            <Feature tag="02 / DIGEST" title="Daily AI Highlights" icon={<Sparkles size={20} />} violet>
-              A two-minute, hand-picked recap of the day on HN — the ten stories actually worth your attention,
-              summarized with sources.
+            <Feature tag="02 / DIGEST" title="Smart article scraping" icon={<Sparkles size={20} />} violet>
+              Firecrawl reads the linked page, Gemini writes the script, ElevenLabs voices it. You get the
+              substance — not the SEO filler, not the comment scrollback.
             </Feature>
             <Feature tag="03 / PODCAST" title="The HN Pod" icon={<Clock size={20} />}>
-              A daily 30-min podcast generated from the top stories and best comments, with chapter markers.
-              Ship it to your phone.
+              A daily 8–10 min HN++ Pod — a host and a rotating guest dig into the day's top stories
+              and best comments, with chapter markers. Ready every morning at 7 AM PT.
             </Feature>
             <Feature tag="04 / THREADS" title="Smarter comment threads" icon={<MessageSquareText size={20} />}>
               Collapsible, color-coded by depth, with a "best replies" filter. Same content. Less work to read.
@@ -200,6 +208,19 @@ export default function Landing() {
                   <div className="badge-l2">Gemini</div>
                 </div>
               </div>
+              <div className="badge b-cloudflare">
+                <div className="badge-icon cloudflare">
+                  <svg width="22" height="14" viewBox="361 0 342 155" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M674.9 91.8L632 67.2l-7.4-3.2-175.5 1.2v89.1h225.8z" fill="#fff"/>
+                    <path fill="#F38020" d="M596.8 146c2.1-7.2 1.3-13.8-2.2-18.7-3.2-4.5-8.6-7.1-15.1-7.4l-123.1-1.6c-.8 0-1.5-.4-1.9-1-.4-.6-.5-1.4-.3-2.2.4-1.2 1.6-2.1 2.9-2.2l124.2-1.6c14.7-.7 30.7-12.6 36.3-27.2l7.1-18.5c.3-.8.4-1.6.2-2.4C616.9 27 584.6 0 546 0c-35.6 0-65.8 23-76.6 54.9-7-5.2-15.9-8-25.5-7.1-17.1 1.7-30.8 15.4-32.5 32.5-.4 4.4-.1 8.7.9 12.7-27.9.8-50.2 23.6-50.2 51.7 0 2.5.2 5 .5 7.5.2 1.2 1.2 2.1 2.4 2.1h227.2c1.3 0 2.5-.9 2.9-2.2z"/>
+                    <path fill="#FAAE40" d="M636 67.1c-1.1 0-2.3 0-3.4.1-.8 0-1.5.6-1.8 1.4L626 85.3c-2.1 7.2-1.3 13.8 2.2 18.7 3.2 4.5 8.6 7.1 15.1 7.4l26.2 1.6c.8 0 1.5.4 1.9 1 .4.6.5 1.5.3 2.2-.4 1.2-1.6 2.1-2.9 2.2l-27.3 1.6c-14.8.7-30.7 12.6-36.3 27.2l-2 5.1c-.4 1 .3 2 1.4 2h93.8c1.1 0 2.1-.7 2.4-1.8 1.6-5.8 2.5-11.9 2.5-18.2 0-37-30.2-67.2-67.3-67.2"/>
+                  </svg>
+                </div>
+                <div className="badge-text">
+                  <div className="badge-l1">MEDIA STORED ON</div>
+                  <div className="badge-l2">Cloudflare R2</div>
+                </div>
+              </div>
             </div>
           </div>
         </section>
@@ -208,7 +229,7 @@ export default function Landing() {
         <footer className="footer">
           <div className="footer-left">
             <span className="footer-mark" style={{ position: 'relative', width: 24, height: 18 }}>
-              Y<span style={{ position: 'absolute', top: '-5px', right: '-8px', background: 'white', color: 'var(--accent)', fontFamily: "'Syne', sans-serif", fontSize: '6px', fontWeight: 800, borderRadius: '3px', padding: '1px 2px', lineHeight: '1' }}>++</span>
+              Y
             </span>
             HN++ &nbsp;·&nbsp; ElevenHacks 2026 &nbsp;·&nbsp; not affiliated with Y Combinator &nbsp;·&nbsp; built by <a href="https://x.com/__padmanabhan" target="_blank" rel="noopener" className="footer-link">Limb</a>
           </div>

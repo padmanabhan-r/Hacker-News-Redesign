@@ -11,6 +11,8 @@ import {
 } from '@/lib/hn';
 import { generateThumbnail } from '@/lib/thumbnail';
 import { LoginModal, UserChip, getStoredUser, clearStoredUser, type HNUser } from '@/components/login-modal';
+import { TalkBotButton } from './talk-bot-button';
+import { SubmitButton } from './submit-button';
 
 const Ico = {
   Home: () => <svg width="13" height="13" fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9,22 9,12 15,12 15,22"/></svg>,
@@ -34,19 +36,22 @@ const Ico = {
   Sun: () => <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>,
   Moon: () => <svg width="13" height="13" fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg>,
   X: () => <svg width="11" height="11" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>,
+  Spin: () => <svg className="hn-spinner" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round"><path d="M21 12a9 9 0 11-6.219-8.56"/></svg>,
 };
 
 const NAV = [
   { id: 'top', label: 'Top', icon: <Ico.Home /> },
   { id: 'new', label: 'New', icon: <Ico.New /> },
-  { id: 'best', label: 'Best', icon: <Ico.Save /> },
-  { id: 'ask', label: 'Ask HN', icon: <Ico.Ask /> },
-  { id: 'show', label: 'Show HN', icon: <Ico.Show /> },
+  { id: 'past', label: 'Past', icon: <Ico.Save /> },
+  { id: 'comments', label: 'Comments', icon: <Ico.Ask /> },
+  { id: 'ask', label: 'Ask', icon: <Ico.Ask /> },
+  { id: 'show', label: 'Show', icon: <Ico.Show /> },
   { id: 'jobs', label: 'Jobs', icon: <Ico.Jobs /> },
 ] as const;
 
 const FEED_TITLES: Record<string, string> = {
-  top: 'Top Stories', new: 'Newest', best: 'Best Stories',
+  top: 'Top Stories', new: 'New', best: 'Best',
+  past: 'Past', comments: 'Comments',
   ask: 'Ask HN', show: 'Show HN', jobs: 'Jobs',
 };
 
@@ -85,14 +90,17 @@ GROUP BY s.id ORDER BY s.score DESC LIMIT 30;
 # why? because Hacker News deserves better.
 `.repeat(3);
 
-function StoryCard({ story, onOpen, voted, onVote, onListen, playingId }: {
+function StoryCard({ story, onOpen, voted, onVote, onListen, audioStoryId, audioPlaying, audioLoading, audioMsg }: {
   story: HNItem; onOpen: (s: HNItem) => void; voted: boolean;
-  onVote: (id: number) => void; onListen: (s: HNItem) => void; playingId?: number;
+  onVote: (id: number) => void; onListen: (s: HNItem) => void;
+  audioStoryId?: number; audioPlaying?: boolean; audioLoading?: boolean; audioMsg?: string;
 }) {
   const realThumb = getLinkPreview(story);
   const fav = getFavicon(story.url, 64);
   const dom = parseDomain(story.url);
-  const isPlaying = playingId === story.id;
+  const isCurrent = audioStoryId === story.id;
+  const isLoading = isCurrent && !!audioLoading;
+  const isPlaying = isCurrent && !!audioPlaying;
   const cat = categorize(story.title);
   // Always have a thumbnail: canvas is the base, Microlink upgrades it on success.
   const [thumb, setThumb] = useState<string | null>(null);
@@ -116,7 +124,7 @@ function StoryCard({ story, onOpen, voted, onVote, onListen, playingId }: {
       >
         {fav && <img className="story-thumb-fav" src={fav} alt="" onError={(e) => (e.target as HTMLImageElement).style.display = 'none'} />}
         <div className="story-thumb-play">
-          <div className="play-icon-sm">{isPlaying ? <Ico.Pause /> : <Ico.Play />}</div>
+          <div className="play-icon-sm">{isLoading ? <Ico.Spin /> : isPlaying ? <Ico.Pause /> : <Ico.Play />}</div>
         </div>
       </div>
       <div className="vote-col">
@@ -136,10 +144,36 @@ function StoryCard({ story, onOpen, voted, onVote, onListen, playingId }: {
       </div>
       <div className="story-actions" onClick={(e) => e.stopPropagation()}>
         <button type="button" className="cmts-btn" onClick={() => onOpen(story)}><Ico.Msg /> {story.descendants ?? 0}</button>
-        <button type="button" className={`audio-btn${isPlaying ? ' playing' : ''}`} onClick={() => onListen(story)}>
-          {isPlaying ? <Ico.Pause /> : <Ico.Play />} {isPlaying ? 'Playing' : 'Listen'}
+        <button type="button" className={`audio-btn${isPlaying ? ' playing' : ''}${isLoading ? ' loading' : ''}`} onClick={() => onListen(story)} disabled={isLoading}>
+          {isLoading ? <Ico.Spin /> : isPlaying ? <Ico.Pause /> : <Ico.Play />}
+          {isLoading ? (audioMsg || 'Fetching…') : isPlaying ? 'Playing' : 'Listen'}
         </button>
       </div>
+    </article>
+  );
+}
+
+function CommentCard({ item }: { item: HNItem }) {
+  const raw = item.text ?? '';
+  const text = raw.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
+  const preview = text.length > 280 ? text.slice(0, 280) + '…' : text;
+  return (
+    <article className="comment-card">
+      <div className="cc-meta">
+        <span className="cc-author">{item.by}</span>
+        <span className="cc-sep">·</span>
+        <span className="cc-time">{timeAgo(item.time)}</span>
+      </div>
+      <div className="cc-text">{preview}</div>
+      {item.title && item.url && (
+        <Link
+          className="cc-story"
+          href={item.url}
+          onClick={(e) => e.stopPropagation()}
+        >
+          on: {item.title}
+        </Link>
+      )}
     </article>
   );
 }
@@ -189,13 +223,16 @@ function CommentNode({ node, depth = 0 }: { node: AlgoliaComment; depth?: number
   );
 }
 
-function DetailView({ story, onBack, onListen, playingId }: {
-  story: HNItem; onBack: () => void; onListen: (s: HNItem) => void; playingId?: number;
+function DetailView({ story, onBack, onListen, audioStoryId, audioPlaying, audioLoading, audioMsg }: {
+  story: HNItem; onBack: () => void; onListen: (s: HNItem) => void;
+  audioStoryId?: number; audioPlaying?: boolean; audioLoading?: boolean; audioMsg?: string;
 }) {
   const { thread, isLoading } = useStoryThread(story.id);
   const realThumb = getLinkPreview(story);
   const cat = categorize(story.title);
-  const isPlaying = playingId === story.id;
+  const isCurrent = audioStoryId === story.id;
+  const isAudioLoading = isCurrent && !!audioLoading;
+  const isPlaying = isCurrent && !!audioPlaying;
   // Always have a hero image: canvas first, Microlink upgrades.
   const [hero, setHero] = useState<string | null>(null);
   useEffect(() => {
@@ -228,8 +265,8 @@ function DetailView({ story, onBack, onListen, playingId }: {
       </div>
       <div className="detail-actions">
         {story.url && <a className="visit-btn" href={story.url} target="_blank" rel="noopener">Visit site <Ico.Ext /></a>}
-        <button type="button" className={`listen-btn${isPlaying ? ' active' : ''}`} onClick={() => onListen(story)}>
-          {isPlaying ? <><Ico.Pause /> Playing…</> : <><Ico.Play /> Listen to story</>}
+        <button type="button" className={`listen-btn${isPlaying ? ' active' : ''}${isAudioLoading ? ' loading' : ''}`} onClick={() => onListen(story)} disabled={isAudioLoading}>
+          {isAudioLoading ? <><Ico.Spin /> {audioMsg || 'Fetching…'}</> : isPlaying ? <><Ico.Pause /> Playing…</> : <><Ico.Play /> Listen to story</>}
         </button>
       </div>
       <div className="comments-divider" />
@@ -252,8 +289,8 @@ function DetailView({ story, onBack, onListen, playingId }: {
   );
 }
 
-function AudioBar({ story, playing, onPlayPause, onClose, progress }: {
-  story: HNItem; playing: boolean; onPlayPause: () => void; onClose: () => void; progress: number;
+function AudioBar({ story, playing, loading, msg, onPlayPause, onClose, progress }: {
+  story: HNItem; playing: boolean; loading: boolean; msg?: string; onPlayPause: () => void; onClose: () => void; progress: number;
 }) {
   const thumb = getLinkPreview(story);
   const pct = Math.min(100, Math.max(0, progress * 100));
@@ -262,11 +299,13 @@ function AudioBar({ story, playing, onPlayPause, onClose, progress }: {
       <div className="ap-thumb" style={{ backgroundImage: thumb ? `url(${thumb})` : undefined }} />
       <div className="ap-info">
         <div className="ap-title">{story.title}</div>
-        <div className="ap-sub">Story audio · {story.by}</div>
+        <div className="ap-sub">{loading ? (msg || 'Fetching…') : `Story audio · ${story.by}`}</div>
       </div>
       <div className="ap-controls">
         <button type="button" className="ap-skip"><Ico.ChevL /></button>
-        <button type="button" className="ap-play-btn" onClick={onPlayPause}>{playing ? <Ico.Pause /> : <Ico.Play />}</button>
+        <button type="button" className="ap-play-btn" onClick={onPlayPause} disabled={loading}>
+          {loading ? <Ico.Spin /> : playing ? <Ico.Pause /> : <Ico.Play />}
+        </button>
         <button type="button" className="ap-skip"><Ico.SkipF /></button>
       </div>
       <div className="ap-progress-wrap">
@@ -278,15 +317,61 @@ function AudioBar({ story, playing, onPlayPause, onClose, progress }: {
   );
 }
 
+function shiftDay(ymd: string, days: number): string {
+  const d = new Date(`${ymd}T00:00:00Z`);
+  d.setUTCDate(d.getUTCDate() + days);
+  return d.toISOString().slice(0, 10);
+}
+
+function shiftMonth(ymd: string, months: number): string {
+  const d = new Date(`${ymd}T00:00:00Z`);
+  d.setUTCMonth(d.getUTCMonth() + months);
+  return d.toISOString().slice(0, 10);
+}
+
+function shiftYear(ymd: string, years: number): string {
+  const d = new Date(`${ymd}T00:00:00Z`);
+  d.setUTCFullYear(d.getUTCFullYear() + years);
+  return d.toISOString().slice(0, 10);
+}
+
+function PastNav({ day, router }: { day: string; router: ReturnType<typeof import('next/navigation').useRouter> }) {
+  const todayYmd = new Date().toISOString().slice(0, 10);
+  const label = new Date(`${day}T00:00:00Z`).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric', timeZone: 'UTC' });
+  const nav = (d: string) => router.push(`/feed?feed=past&day=${d}`);
+  const canFwdDay = shiftDay(day, 1) <= todayYmd;
+  const canFwdMonth = shiftMonth(day, 1) <= todayYmd;
+  const canFwdYear = shiftYear(day, 1) <= todayYmd;
+  return (
+    <div className="past-nav">
+      <span className="past-nav-label">Stories from {label} (UTC)</span>
+      <div className="past-nav-links">
+        <button type="button" onClick={() => nav(shiftDay(day, -1))}>← day</button>
+        <button type="button" onClick={() => nav(shiftMonth(day, -1))}>← month</button>
+        <button type="button" onClick={() => nav(shiftYear(day, -1))}>← year</button>
+        {canFwdDay && <button type="button" onClick={() => nav(shiftDay(day, 1))}>day →</button>}
+        {canFwdMonth && <button type="button" onClick={() => nav(shiftMonth(day, 1))}>month →</button>}
+        {canFwdYear && <button type="button" onClick={() => nav(shiftYear(day, 1))}>year →</button>}
+      </div>
+    </div>
+  );
+}
+
 export function FeedShell() {
   const params = useSearchParams();
   const router = useRouter();
   const activeNav = (params.get('feed') || 'top') as FeedKind;
   const id = params.get('id');
   const search = params.get('q') || '';
+  const dayParam = params.get('day') || undefined;
   const [page, setPage] = useState(1);
+  const [timeFilter, setTimeFilter] = useState<'all' | '24h' | 'week' | 'month'>('all');
   const pageSize = page * 30;
-  const { items, isLoading, hasMore } = useStories(activeNav, 1, pageSize);
+  const sinceTs = timeFilter === '24h' ? Math.floor(Date.now() / 1000) - 86400
+    : timeFilter === 'week' ? Math.floor(Date.now() / 1000) - 604800
+    : timeFilter === 'month' ? Math.floor(Date.now() / 1000) - 2592000
+    : undefined;
+  const { items, isLoading, hasMore, day: resolvedDay } = useStories(activeNav, 1, pageSize, sinceTs, dayParam);
   const [voted, setVoted] = useState<Record<number, boolean>>({});
   const [searchInput, setSearchInput] = useState(search);
   const { theme, setTheme } = useTheme();
@@ -298,9 +383,43 @@ export function FeedShell() {
 
   const [audioStory, setAudioStory] = useState<HNItem | null>(null);
   const [audioPlaying, setAudioPlaying] = useState(false);
+  const [audioLoading, setAudioLoading] = useState(false);
+  const [audioMsg, setAudioMsg] = useState('Fetching…');
   const [audioProgress, setAudioProgress] = useState(0);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const blobUrlRef = useRef<string | null>(null);
+
+  useEffect(() => {
+    return () => {
+      audioRef.current?.pause();
+      if (blobUrlRef.current) URL.revokeObjectURL(blobUrlRef.current);
+      audioRef.current = null;
+      blobUrlRef.current = null;
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!audioLoading) return;
+    const start = Date.now();
+    const STEPS: Array<[number, string]> = [
+      [0,     'Fetching…'],
+      [1500,  'Reading…'],
+      [3500,  'Thinking…'],
+      [6000,  'Casting…'],
+      [9000,  'Baking…'],
+      [13000, 'Almost there…'],
+      [18000, 'Hang tight…'],
+    ];
+    const tick = () => {
+      const ms = Date.now() - start;
+      let cur = STEPS[0][1];
+      for (const [t, s] of STEPS) if (ms >= t) cur = s;
+      setAudioMsg(cur);
+    };
+    tick();
+    const id = setInterval(tick, 400);
+    return () => clearInterval(id);
+  }, [audioLoading]);
 
   const filtered = useMemo(() => {
     if (!searchInput) return items;
@@ -318,34 +437,36 @@ export function FeedShell() {
 
   async function handleListen(story: HNItem) {
     if (audioStory?.id === story.id && audioRef.current) {
-      if (audioPlaying) { audioRef.current.pause(); setAudioPlaying(false); }
-      else { audioRef.current.play(); setAudioPlaying(true); }
+      if (audioPlaying) audioRef.current.pause();
+      else audioRef.current.play();
       return;
     }
+    if (audioLoading) return;
     stopAudio();
     setAudioStory(story);
-    setAudioPlaying(false);
     setAudioProgress(0);
+    setAudioLoading(true);
     try {
-      const dom = parseDomain(story.url);
-      const text = `${story.title}. Posted by ${story.by} on ${dom || 'Hacker News'}. ${story.score ?? 0} points and ${story.descendants ?? 0} comments. ${timeAgo(story.time)}.`;
-      const r = await fetch('/api/tts', {
+      const r = await fetch('/api/listen', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ storyId: story.id, text }),
+        body: JSON.stringify({ storyId: story.id }),
       });
-      if (!r.ok) throw new Error('tts failed');
+      if (!r.ok) throw new Error('listen failed');
       const blob = await r.blob();
       const url = URL.createObjectURL(blob);
       blobUrlRef.current = url;
       const a = new Audio(url);
       audioRef.current = a;
+      a.addEventListener('play', () => setAudioPlaying(true));
+      a.addEventListener('pause', () => setAudioPlaying(false));
       a.addEventListener('timeupdate', () => { if (a.duration) setAudioProgress(a.currentTime / a.duration); });
       a.addEventListener('ended', () => { setAudioPlaying(false); setAudioProgress(1); });
-      a.play();
-      setAudioPlaying(true);
+      await a.play();
     } catch (e) {
       console.error(e);
+    } finally {
+      setAudioLoading(false);
     }
   }
 
@@ -357,7 +478,7 @@ export function FeedShell() {
 
   return (
     <div className="feed-page">
-      <div className="pt-cover" aria-hidden><div className="pt-mark"><div className="pt-ring" /><div className="pt-logo">Y<span className="pt-plus">++</span></div></div></div>
+      <div className="pt-cover" aria-hidden><div className="pt-mark"><div className="pt-ring" /><div className="pt-logo">Y</div></div></div>
       {/* Background layers */}
       <div className="bg-layers" aria-hidden>
         <div className="bg-code-feed">{CODE_RAIN}</div>
@@ -369,7 +490,6 @@ export function FeedShell() {
           <Link className="logo" href="/highlights">
             <div className="logo-box" aria-label="HN++" style={{ position: 'relative' }}>
               Y
-              <span style={{ position: 'absolute', top: '-6px', right: '-9px', background: 'white', color: 'var(--accent)', fontFamily: "'Syne', sans-serif", fontSize: '8px', fontWeight: 800, borderRadius: '4px', padding: '1px 3px', lineHeight: '1' }}>++</span>
             </div>
             <span className="logo-rotator">
               <span className="logo-rot-spacer">A HACKER NEWS REDESIGN</span>
@@ -393,10 +513,11 @@ export function FeedShell() {
             <span className="search-kbd">⌘K</span>
           </div>
           <div className="hdr-right">
+            <TalkBotButton />
             <button type="button" className="theme-toggle" title="Toggle theme" onClick={() => setTheme(isDark ? 'light' : 'dark')}>
               {isDark ? <Ico.Sun /> : <Ico.Moon />}
             </button>
-            <button type="button" className="submit-btn"><Ico.Plus /> Submit</button>
+            <SubmitButton />
             {user ? (
               <UserChip user={user} onLogout={() => { clearStoredUser(); setUser(null); }} />
             ) : (
@@ -420,10 +541,10 @@ export function FeedShell() {
             ))}
             <div className="sb-divider" />
             <div className="sb-section">Filter</div>
-            {['All time', 'Past 24h', 'Past week', 'Past month'].map((f, i) => (
-              <div key={f} className={`filter-row${i === 0 ? ' active' : ''}`}>
+            {([['Live feed', 'all'], ['Past 24h', '24h'], ['Past week', 'week'], ['Past month', 'month']] as const).map(([label, val]) => (
+              <div key={val} className={`filter-row${timeFilter === val ? ' active' : ''}`} onClick={() => setTimeFilter(val)} style={{ cursor: 'pointer' }}>
                 <div className="filter-pip" />
-                {f}
+                {label}
               </div>
             ))}
             <div className="sb-divider" />
@@ -438,13 +559,17 @@ export function FeedShell() {
               story={openStory}
               onBack={back}
               onListen={handleListen}
-              playingId={audioStory?.id}
+              audioStoryId={audioStory?.id}
+              audioPlaying={audioPlaying}
+              audioLoading={audioLoading}
+              audioMsg={audioMsg}
             />
           ) : (
             <main className="feed-wrap">
               <div className="feed-header">
                 <h1 className="feed-title">{feedTitle}</h1>
               </div>
+              {activeNav === 'past' && resolvedDay && <PastNav day={resolvedDay} router={router} />}
 
               {isLoading && !items.length ? (
                 Array.from({ length: 9 }).map((_, i) => <SkeletonCard key={i} />)
@@ -455,7 +580,9 @@ export function FeedShell() {
                 </div>
               ) : (
                 <>
-                  {filtered.map((s) => (
+                  {filtered.map((s) => activeNav === 'comments' ? (
+                    <CommentCard key={s.id} item={s} />
+                  ) : (
                     <StoryCard
                       key={s.id}
                       story={s}
@@ -463,7 +590,10 @@ export function FeedShell() {
                       voted={!!voted[s.id]}
                       onVote={(id) => setVoted((v) => ({ ...v, [id]: !v[id] }))}
                       onListen={handleListen}
-                      playingId={audioStory?.id}
+                      audioStoryId={audioStory?.id}
+                      audioPlaying={audioPlaying}
+                      audioLoading={audioLoading}
+                      audioMsg={audioMsg}
                     />
                   ))}
                   {hasMore && (
@@ -481,6 +611,8 @@ export function FeedShell() {
           <AudioBar
             story={audioStory}
             playing={audioPlaying}
+            loading={audioLoading}
+            msg={audioMsg}
             onPlayPause={() => handleListen(audioStory)}
             onClose={() => { stopAudio(); setAudioStory(null); }}
             progress={audioProgress}

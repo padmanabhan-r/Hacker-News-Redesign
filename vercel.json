@@ -1,0 +1,11 @@
+{
+  "regions": ["iad1"],
+  "functions": {
+    "app/api/listen/route.ts": { "maxDuration": 60, "memory": 1024 },
+    "app/api/podcast/cron/route.ts": { "maxDuration": 60, "memory": 1024 },
+    "app/api/podcast/audio/[date]/route.ts": { "maxDuration": 10 },
+    "app/api/podcast/today/route.ts": { "maxDuration": 10 },
+    "app/api/podcast/archive/route.ts": { "maxDuration": 10 },
+    "app/api/hn/route.ts": { "maxDuration": 15 }
+  }
+}
