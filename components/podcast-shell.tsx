@@ -411,10 +411,9 @@ export function PodcastShell() {
           </div>
         )}
 
-        <div style={{ marginTop: 28, marginBottom: 40, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
-          <span style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '8px 14px', borderRadius: 99, background: 'linear-gradient(var(--accent-bg),var(--accent-bg)),var(--bg-card)', border: '1px solid var(--accent-border)', fontFamily: "'JetBrains Mono',monospace", fontSize: 12, fontWeight: 600, color: 'var(--accent-text)', letterSpacing: '0.04em' }}>
-            <span style={{ width: 6, height: 6, borderRadius: '50%', background: 'var(--accent)', animation: 'hn-pulse 1.5s ease-in-out infinite' }} />
-            Coming up: tomorrow's episode at 7 AM Pacific
+        <div style={{ marginTop: 28, marginBottom: 40, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <span style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: 11, color: 'var(--text-1)', letterSpacing: '0.04em' }}>
+            Next episode drops at 7 AM Pacific
           </span>
         </div>
       </div>

@@ -503,7 +503,7 @@
   margin-bottom: 11px; text-wrap: pretty; padding-bottom: 3px;
 }
 .feed-page .detail-meta-bar { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin-bottom: 18px; }
-.feed-page .detail-meta-item { display: flex; align-items: center; gap: 4px; font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--text-3); }
+.feed-page .detail-meta-item { display: flex; align-items: center; gap: 4px; font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--text-1); }
 .feed-page .detail-actions { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 22px; }
 .feed-page .visit-btn {
   display: inline-flex; align-items: center; gap: 5px; height: 34px; padding: 0 16px;
@@ -525,7 +525,7 @@
 .feed-page .comments-divider { height: 1px; background: var(--border); margin: 22px 0 18px; position: relative; }
 .feed-page .comments-divider::before { content: ''; position: absolute; left: 0; top: 0; width: 60px; height: 2px; background: var(--accent); opacity: 0.5; border-radius: 99px; }
 .feed-page .comments-hdr { display: flex; align-items: center; gap: 9px; margin-bottom: 14px; }
-.feed-page .comments-hdr-lbl { font-family: 'Syne', sans-serif; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-3); line-height: 1.4; }
+.feed-page .comments-hdr-lbl { font-family: 'Syne', sans-serif; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-1); line-height: 1.4; }
 .feed-page .comments-badge { font-family: 'JetBrains Mono', monospace; font-size: 10.5px; color: var(--accent-text); background: var(--accent-bg); border: 1px solid var(--accent-border); padding: 1px 7px; border-radius: 99px; }
 
 .feed-page .comment-block {

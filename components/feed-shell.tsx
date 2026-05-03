@@ -317,6 +317,15 @@ export function FeedShell() {
   const blobUrlRef = useRef<string | null>(null);
 
   useEffect(() => {
+    return () => {
+      audioRef.current?.pause();
+      if (blobUrlRef.current) URL.revokeObjectURL(blobUrlRef.current);
+      audioRef.current = null;
+      blobUrlRef.current = null;
+    };
+  }, []);
+
+  useEffect(() => {
     if (!audioLoading) return;
     const start = Date.now();
     const STEPS: Array<[number, string]> = [
