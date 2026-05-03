@@ -3,9 +3,9 @@
 const HN = "https://hacker-news.firebaseio.com/v0";
 const ALGOLIA = "https://hn.algolia.com/api/v1";
 
-export type FeedKind = "top" | "new" | "best" | "ask" | "show" | "jobs";
+export type FeedKind = "top" | "new" | "best" | "ask" | "show" | "jobs" | "past" | "comments";
 
-const FEED_ENDPOINT: Record<FeedKind, string> = {
+const FEED_ENDPOINT: Partial<Record<FeedKind, string>> = {
   top: "topstories",
   new: "newstories",
   best: "beststories",
@@ -91,18 +91,23 @@ export async function getTopStories(n = 30): Promise<HNItem[]> {
  * @param dateYmd YYYY-MM-DD (interpreted as a 24h UTC bucket; close enough for daily grouping)
  * @param n      number of top-ranked stories to return
  */
-export async function getTopStoriesByDate(dateYmd: string, n = 8): Promise<HNItem[]> {
-  const startMs = Date.parse(`${dateYmd}T00:00:00Z`);
-  if (!Number.isFinite(startMs)) throw new Error(`invalid date ${dateYmd}`);
-  const start = Math.floor(startMs / 1000);
-  const end = start + 86400;
-  const url = `${ALGOLIA}/search?tags=story&numericFilters=created_at_i>=${start},created_at_i<${end}&hitsPerPage=50`;
+export async function getTopStoriesByDate(dateYmd: string, n = 30): Promise<HNItem[]> {
+  const endMs = Date.parse(`${dateYmd}T00:00:00Z`);
+  if (!Number.isFinite(endMs)) throw new Error(`invalid date ${dateYmd}`);
+  const dayEnd = Math.floor(endMs / 1000) + 86400; // end of target day (midnight next day)
+  const start = dayEnd - 3 * 86400;                // 3-day lookback window
+  const url = `${ALGOLIA}/search?tags=story&numericFilters=created_at_i>=${start},created_at_i<${dayEnd}&hitsPerPage=200`;
   const r = await fetch(url, { next: { revalidate: 600 } }).then((res) => res.json());
-  const hits = ((r?.hits ?? []) as Array<{
-    objectID: string; title?: string; url?: string | null; author?: string;
-    points?: number; num_comments?: number; created_at_i?: number; story_text?: string | null;
-  }>).filter((h) => h.title);
-  hits.sort((a, b) => (b.points ?? 0) - (a.points ?? 0));
+  type Hit = { objectID: string; title?: string; url?: string | null; author?: string; points?: number; num_comments?: number; created_at_i?: number; story_text?: string | null };
+  const hits = ((r?.hits ?? []) as Hit[]).filter((h) => h.title && (h.points ?? 0) >= 5);
+  // Approximate HN gravity ranking: score / (age_hours + 2)^1.8, evaluated at end of day
+  hits.sort((a, b) => {
+    const ageA = (dayEnd - (a.created_at_i ?? dayEnd)) / 3600;
+    const ageB = (dayEnd - (b.created_at_i ?? dayEnd)) / 3600;
+    const rankA = ((a.points ?? 1) - 1) / Math.pow(ageA + 2, 1.8);
+    const rankB = ((b.points ?? 1) - 1) / Math.pow(ageB + 2, 1.8);
+    return rankB - rankA;
+  });
   return hits.slice(0, n).map((h) => ({
     id: parseInt(h.objectID, 10),
     title: h.title,
@@ -114,6 +119,55 @@ export async function getTopStoriesByDate(dateYmd: string, n = 8): Promise<HNIte
     text: h.story_text ?? undefined,
     type: "story" as const,
   }));
+}
+
+export async function getStoriesSince(
+  since: number,
+  pageSize = 30
+): Promise<{ items: HNItem[]; totalIds: number; hasMore: boolean }> {
+  const url = `${ALGOLIA}/search?tags=story&numericFilters=created_at_i>=${since}&hitsPerPage=${pageSize}`;
+  const r = await fetch(url, { next: { revalidate: 120 } }).then((res) => res.json());
+  const hits = ((r?.hits ?? []) as Array<{
+    objectID: string; title?: string; url?: string | null; author?: string;
+    points?: number; num_comments?: number; created_at_i?: number; story_text?: string | null;
+  }>).filter((h) => h.title);
+  hits.sort((a, b) => (b.points ?? 0) - (a.points ?? 0));
+  const items = hits.map((h) => ({
+    id: parseInt(h.objectID, 10),
+    title: h.title,
+    url: h.url ?? undefined,
+    by: h.author,
+    score: h.points ?? 0,
+    descendants: h.num_comments ?? 0,
+    time: h.created_at_i,
+    text: h.story_text ?? undefined,
+    type: "story" as const,
+  }));
+  return { items, totalIds: r?.nbHits ?? items.length, hasMore: false };
+}
+
+export async function getRecentComments(
+  pageSize = 30
+): Promise<{ items: HNItem[]; totalIds: number; hasMore: boolean }> {
+  const url = `${ALGOLIA}/search_by_date?tags=comment&hitsPerPage=${pageSize}`;
+  const r = await fetch(url, { next: { revalidate: 60 } }).then((res) => res.json());
+  const hits = ((r?.hits ?? []) as Array<{
+    objectID: string; author?: string; comment_text?: string;
+    created_at_i?: number; parent_id?: number; story_id?: number;
+    story_title?: string; story_url?: string;
+  }>);
+  const items: HNItem[] = hits.map((h) => ({
+    id: parseInt(h.objectID, 10),
+    by: h.author,
+    text: h.comment_text ?? undefined,
+    time: h.created_at_i,
+    parent: h.parent_id,
+    // story_id and story_title stored in url/title for rendering
+    url: h.story_id ? `/feed?id=${h.story_id}` : undefined,
+    title: h.story_title ?? undefined,
+    type: "comment" as const,
+  }));
+  return { items, totalIds: r?.nbHits ?? items.length, hasMore: false };
 }
 
 export async function getStoryThread(id: number): Promise<AlgoliaStory> {

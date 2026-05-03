@@ -312,6 +312,11 @@
 .feed-page .empty-title { font-family: 'Syne', sans-serif; font-size: 15px; font-weight: 700; color: var(--text-1); margin-bottom: 6px; letter-spacing: -0.2px; }
 .feed-page .empty-sub { font-size: 12px; color: var(--text-3); max-width: 340px; margin: 0 auto; line-height: 1.5; }
 .feed-page .feed-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
+.feed-page .past-nav { display: flex; flex-direction: column; gap: 6px; margin-bottom: 16px; padding: 10px 14px; background: var(--bg-glass); border: 1px solid var(--border); border-radius: 10px; backdrop-filter: var(--blur); }
+.feed-page .past-nav-label { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--text-2); letter-spacing: 0.04em; }
+.feed-page .past-nav-links { display: flex; gap: 8px; flex-wrap: wrap; }
+.feed-page .past-nav-links button { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--accent); background: none; border: 1px solid var(--accent-border); border-radius: 6px; padding: 3px 9px; cursor: pointer; transition: background 0.12s; }
+.feed-page .past-nav-links button:hover { background: var(--accent); color: #fff; }
 .feed-page .feed-title { font-family: 'Syne', sans-serif; font-size: 17px; font-weight: 700; color: var(--text-1); letter-spacing: -0.3px; line-height: 1.4; padding-bottom: 2px; }
 
 /* ── Story card ── */
@@ -600,3 +605,19 @@
 /* ── Skeleton ── */
 @keyframes sk { 0%, 100% { opacity: .4; } 50% { opacity: .7; } }
 .feed-page .sk { background: var(--border-med); border-radius: 6px; animation: sk 1.6s ease-in-out infinite; }
+
+/* ── Comment card ── */
+.feed-page .comment-card {
+  padding: 13px 16px; border-radius: 12px; margin-bottom: 6px;
+  background: var(--bg-card); border: 1px solid var(--border);
+  display: flex; flex-direction: column; gap: 6px;
+  transition: border-color 0.13s;
+}
+.feed-page .comment-card:hover { border-color: var(--border-med); }
+.feed-page .cc-meta { display: flex; align-items: center; gap: 6px; }
+.feed-page .cc-author { font-family: 'Syne', sans-serif; font-size: 12px; font-weight: 700; color: var(--accent); }
+.feed-page .cc-sep { color: var(--text-4); font-size: 11px; }
+.feed-page .cc-time { font-family: 'JetBrains Mono', monospace; font-size: 10.5px; color: var(--text-3); }
+.feed-page .cc-text { font-size: 13.5px; line-height: 1.55; color: var(--text-1); }
+.feed-page .cc-story { font-family: 'JetBrains Mono', monospace; font-size: 10.5px; color: var(--text-3); text-decoration: none; transition: color 0.12s; }
+.feed-page .cc-story:hover { color: var(--accent); }

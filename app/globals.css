@@ -336,10 +336,10 @@ body {
   color: var(--text-3); letter-spacing: 0.05em;
 }
 .built-divider { width: 1px; height: 14px; background: var(--border-med); }
-.built-logos { display: flex; align-items: center; gap: 8px; flex-wrap: nowrap; }
+.built-logos { display: flex; align-items: center; gap: 5px; flex-wrap: nowrap; }
 .logo-pill {
-  display: flex; align-items: center; gap: 5px;
-  padding: 4px 8px; border-radius: 7px;
+  display: flex; align-items: center; gap: 4px;
+  padding: 3px 6px; border-radius: 7px;
   background: var(--bg-glass); border: 1px solid var(--border);
   backdrop-filter: var(--blur);
   -webkit-backdrop-filter: var(--blur);

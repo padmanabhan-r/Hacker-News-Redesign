@@ -36,6 +36,7 @@ export const NARRATOR_VOICE_SETTINGS = {
   similarityBoost: 0.90,
   style: 0.45,
   useSpeakerBoost: true,
+  speed: 0.85,
 };
 
 export const NARRATION_OUTPUT_FORMAT = "mp3_44100_128" as const;
