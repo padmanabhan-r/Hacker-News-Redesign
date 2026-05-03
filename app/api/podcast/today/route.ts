@@ -1,19 +1,11 @@
 import { NextResponse } from "next/server";
 import { getEpisodeManifest, listRecent } from "@/lib/podcast-store";
+import { istDateBucket } from "@/lib/date-bucket";
 
 export const runtime = "nodejs";
 
-function ptDateBucket(d = new Date()): string {
-  return new Intl.DateTimeFormat("en-CA", {
-    timeZone: "America/Los_Angeles",
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
-  }).format(d);
-}
-
 export async function GET() {
-  const today = ptDateBucket();
+  const today = istDateBucket();
   const m = await getEpisodeManifest(today);
   if (m) {
     return NextResponse.json({ ...m, stale: false });

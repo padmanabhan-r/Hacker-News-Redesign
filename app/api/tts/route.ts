@@ -40,9 +40,9 @@ export async function POST(req: NextRequest) {
     });
 
     const chunks: Uint8Array[] = [];
-    for await (const chunk of audioStream as AsyncIterable<Uint8Array>) chunks.push(chunk);
+    for await (const chunk of audioStream as unknown as AsyncIterable<Uint8Array>) chunks.push(chunk);
     const buffer = Buffer.concat(chunks);
-    await writeCache(key, buffer);
+    void writeCache(key, buffer).catch(() => {});
 
     return new NextResponse(new Uint8Array(buffer), {
       headers: {
@@ -52,7 +52,6 @@ export async function POST(req: NextRequest) {
       },
     });
   } catch (e) {
-    console.error("[tts]", e);
     return NextResponse.json({ error: (e as Error).message }, { status: 500 });
   }
 }

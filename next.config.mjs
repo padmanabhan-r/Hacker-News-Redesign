@@ -1,11 +1,13 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  typescript: {
-    ignoreBuildErrors: true,
-  },
+  compress: true,
+  poweredByHeader: false,
   images: {
     unoptimized: true,
   },
-}
+  experimental: {
+    optimizePackageImports: ["lucide-react"],
+  },
+};
 
-export default nextConfig
+export default nextConfig;

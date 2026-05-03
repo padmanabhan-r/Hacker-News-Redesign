@@ -66,8 +66,8 @@ export async function POST(req: NextRequest) {
     }
 
     const audio = await narrationToBuffer(summary, { voiceId });
-    await writeCache(cacheKey, audio);
-    await writeJsonCache(cacheKey, { summary, scraped: !!article, commentCount: comments.length });
+    void writeCache(cacheKey, audio).catch(() => {});
+    void writeJsonCache(cacheKey, { summary, scraped: !!article, commentCount: comments.length }).catch(() => {});
 
     return new NextResponse(new Uint8Array(audio), {
       headers: {
@@ -78,7 +78,6 @@ export async function POST(req: NextRequest) {
       },
     });
   } catch (e) {
-    console.error("[listen]", e);
     return NextResponse.json({ error: (e as Error).message }, { status: 500 });
   }
 }

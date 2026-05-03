@@ -60,7 +60,7 @@ export function PostCard({ item }: { item: HNItem }) {
       </div>
 
       <div className="story-actions">
-        <ListenButton storyId={item.id} text={item.title} />
+        <ListenButton storyId={item.id} text={item.title ?? ""} />
         <a
           href={linkHref}
           target="_blank"

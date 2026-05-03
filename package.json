@@ -2,13 +2,19 @@
   "name": "my-project",
   "version": "0.1.0",
   "private": true,
+  "engines": {
+    "node": ">=20"
+  },
   "scripts": {
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint ."
+    "lint": "eslint .",
+    "bake": "tsx scripts/bake-episode.ts",
+    "migrate-r2": "tsx scripts/migrate-podcast-store-to-r2.ts"
   },
   "dependencies": {
+    "@aws-sdk/client-s3": "^3.682.0",
     "@elevenlabs/client": "^1.4.0",
     "@elevenlabs/elevenlabs-js": "^2.45.0",
     "@google/genai": "^1.51.0",

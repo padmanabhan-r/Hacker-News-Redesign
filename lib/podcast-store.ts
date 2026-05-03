@@ -1,5 +1,9 @@
-import { promises as fs } from "node:fs";
-import path from "node:path";
+import {
+  GetObjectCommand,
+  PutObjectCommand,
+} from "@aws-sdk/client-s3";
+import type { GetObjectCommandOutput } from "@aws-sdk/client-s3";
+import { r2, r2PublicUrl } from "./r2-client";
 
 export type DailyManifest = {
   date: string;
@@ -9,64 +13,105 @@ export type DailyManifest = {
   guest: { name: string; persona: string; voiceId: string };
   segments: { title: string; startMs: number; endMs: number }[];
   generatedAt: string;
+  audioUrl?: string;
 };
 
-const STORE_DIR = process.env.PODCAST_STORE_DIR
-  ? path.resolve(process.env.PODCAST_STORE_DIR)
-  : path.join(process.cwd(), ".podcast-store");
+const PODCAST_PREFIX = "podcast";
+const INDEX_KEY = `${PODCAST_PREFIX}/index.json`;
 
-async function ensureDir() {
-  await fs.mkdir(STORE_DIR, { recursive: true });
+function audioKey(date: string) { return `${PODCAST_PREFIX}/${date}.mp3`; }
+function manifestKey(date: string) { return `${PODCAST_PREFIX}/${date}.json`; }
+function scriptKey(date: string) { return `${PODCAST_PREFIX}/${date}.script.json`; }
+
+async function streamToBuffer(out: GetObjectCommandOutput): Promise<Buffer> {
+  const body = out.Body as { transformToByteArray?: () => Promise<Uint8Array> } | undefined;
+  if (!body?.transformToByteArray) throw new Error("R2 GetObject Body missing");
+  return Buffer.from(await body.transformToByteArray());
 }
 
-function audioPath(date: string) { return path.join(STORE_DIR, `${date}.mp3`); }
-function manifestPath(date: string) { return path.join(STORE_DIR, `${date}.json`); }
-function scriptPath(date: string) { return path.join(STORE_DIR, `${date}.script.json`); }
+function isNotFound(e: unknown): boolean {
+  const err = e as { name?: string; Code?: string; $metadata?: { httpStatusCode?: number } };
+  return err?.name === "NoSuchKey" || err?.Code === "NoSuchKey" || err?.$metadata?.httpStatusCode === 404;
+}
+
+async function getJson<T>(key: string): Promise<T | null> {
+  const { client, bucket } = r2();
+  try {
+    const out = await client.send(new GetObjectCommand({ Bucket: bucket, Key: key }));
+    const buf = await streamToBuffer(out);
+    return JSON.parse(buf.toString("utf8")) as T;
+  } catch (e) {
+    if (isNotFound(e)) return null;
+    throw e;
+  }
+}
+
+async function putJson(key: string, value: unknown): Promise<void> {
+  const { client, bucket } = r2();
+  await client.send(new PutObjectCommand({
+    Bucket: bucket,
+    Key: key,
+    Body: JSON.stringify(value, null, 2),
+    ContentType: "application/json",
+    CacheControl: "public, max-age=60",
+  }));
+}
+
+async function readIndex(): Promise<{ dates: string[] }> {
+  return (await getJson<{ dates: string[] }>(INDEX_KEY)) ?? { dates: [] };
+}
+
+async function writeIndex(dates: string[]): Promise<void> {
+  const unique = Array.from(new Set(dates.filter((d) => /^\d{4}-\d{2}-\d{2}$/.test(d))));
+  unique.sort().reverse();
+  await putJson(INDEX_KEY, { dates: unique });
+}
 
 export async function putEpisode(date: string, mp3: Buffer, manifest: DailyManifest): Promise<void> {
-  await ensureDir();
+  const enriched: DailyManifest = { ...manifest, audioUrl: r2PublicUrl(audioKey(date)) };
+  const { client, bucket } = r2();
   await Promise.all([
-    fs.writeFile(audioPath(date), mp3),
-    fs.writeFile(manifestPath(date), JSON.stringify(manifest, null, 2)),
+    client.send(new PutObjectCommand({
+      Bucket: bucket,
+      Key: audioKey(date),
+      Body: mp3,
+      ContentType: "audio/mpeg",
+      CacheControl: "public, max-age=31536000, immutable",
+    })),
+    putJson(manifestKey(date), enriched),
   ]);
+  const index = await readIndex();
+  if (!index.dates.includes(date)) {
+    await writeIndex([date, ...index.dates]);
+  }
 }
 
 export async function getEpisodeAudio(date: string): Promise<Buffer | null> {
-  try { return await fs.readFile(audioPath(date)); }
-  catch { return null; }
+  const { client, bucket } = r2();
+  try {
+    const out = await client.send(new GetObjectCommand({ Bucket: bucket, Key: audioKey(date) }));
+    return await streamToBuffer(out);
+  } catch (e) {
+    if (isNotFound(e)) return null;
+    throw e;
+  }
 }
 
 export async function getEpisodeManifest(date: string): Promise<DailyManifest | null> {
-  try {
-    const buf = await fs.readFile(manifestPath(date));
-    return JSON.parse(buf.toString("utf8")) as DailyManifest;
-  } catch { return null; }
+  return getJson<DailyManifest>(manifestKey(date));
 }
 
 export async function putEpisodeScript(date: string, script: unknown): Promise<void> {
-  await ensureDir();
-  await fs.writeFile(scriptPath(date), JSON.stringify(script, null, 2));
+  await putJson(scriptKey(date), script);
 }
 
 export async function getEpisodeScript<T = unknown>(date: string): Promise<T | null> {
-  try {
-    const buf = await fs.readFile(scriptPath(date));
-    return JSON.parse(buf.toString("utf8")) as T;
-  } catch { return null; }
+  return getJson<T>(scriptKey(date));
 }
 
 export async function listRecent(days: number): Promise<DailyManifest[]> {
-  await ensureDir();
-  const entries = await fs.readdir(STORE_DIR);
-  const dates = entries
-    .filter((f) => f.endsWith(".json"))
-    .map((f) => f.slice(0, -5))
-    .filter((d) => /^\d{4}-\d{2}-\d{2}$/.test(d))
-    .sort()
-    .reverse()
-    .slice(0, days);
-  const manifests = await Promise.all(dates.map(getEpisodeManifest));
+  const { dates } = await readIndex();
+  const top = dates.slice(0, days);
+  const manifests = await Promise.all(top.map(getEpisodeManifest));
   return manifests.filter((m): m is DailyManifest => !!m);
 }
-
-export const PODCAST_STORE_DIR = STORE_DIR;
