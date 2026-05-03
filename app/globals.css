@@ -229,6 +229,8 @@ body {
 
 /* ─── Animations ─── */
 @keyframes hn-pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
+@keyframes hn-spin { to { transform: rotate(360deg); } }
+.hn-spinner { animation: hn-spin 0.9s linear infinite; transform-origin: 50% 50%; transform-box: fill-box; display: inline-block; }
 @keyframes hn-wave { 0%, 100% { transform: scaleY(0.4); } 50% { transform: scaleY(1); } }
 @keyframes float-main {
   0%, 100% { transform: perspective(1400px) rotateY(-7deg) rotateX(3deg) translateY(0); }

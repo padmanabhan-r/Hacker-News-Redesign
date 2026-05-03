@@ -12,7 +12,7 @@ export type CastMember = {
 };
 
 export const CAST: CastMember[] = [
-  { persona: "anchor",   name: "Anchor Aiden",   role: "Host",            voiceId: DEFAULT_VOICES.anchor },
+  { persona: "anchor",   name: "Brielle",        role: "Host",            voiceId: DEFAULT_VOICES.anchor },
   { persona: "curious",  name: "Curious Maya",   role: "Co-host",         voiceId: DEFAULT_VOICES.curious },
   { persona: "skeptic",  name: "Skeptic Marcus", role: "Skeptic",         voiceId: DEFAULT_VOICES.skeptic },
   { persona: "hype",     name: "Hype Riley",     role: "Hype",            voiceId: DEFAULT_VOICES.hype },

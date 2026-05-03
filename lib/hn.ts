@@ -83,6 +83,39 @@ export async function getTopStories(n = 30): Promise<HNItem[]> {
   return items;
 }
 
+/**
+ * Historical "top stories of a day" — uses Algolia search filtered by created_at_i,
+ * then ranks by points to approximate the day's front page.
+ * Use this for back-baking podcast episodes for past dates.
+ *
+ * @param dateYmd YYYY-MM-DD (interpreted as a 24h UTC bucket; close enough for daily grouping)
+ * @param n      number of top-ranked stories to return
+ */
+export async function getTopStoriesByDate(dateYmd: string, n = 8): Promise<HNItem[]> {
+  const startMs = Date.parse(`${dateYmd}T00:00:00Z`);
+  if (!Number.isFinite(startMs)) throw new Error(`invalid date ${dateYmd}`);
+  const start = Math.floor(startMs / 1000);
+  const end = start + 86400;
+  const url = `${ALGOLIA}/search?tags=story&numericFilters=created_at_i>=${start},created_at_i<${end}&hitsPerPage=50`;
+  const r = await fetch(url, { next: { revalidate: 600 } }).then((res) => res.json());
+  const hits = ((r?.hits ?? []) as Array<{
+    objectID: string; title?: string; url?: string | null; author?: string;
+    points?: number; num_comments?: number; created_at_i?: number; story_text?: string | null;
+  }>).filter((h) => h.title);
+  hits.sort((a, b) => (b.points ?? 0) - (a.points ?? 0));
+  return hits.slice(0, n).map((h) => ({
+    id: parseInt(h.objectID, 10),
+    title: h.title,
+    url: h.url ?? undefined,
+    by: h.author,
+    score: h.points ?? 0,
+    descendants: h.num_comments ?? 0,
+    time: h.created_at_i,
+    text: h.story_text ?? undefined,
+    type: "story" as const,
+  }));
+}
+
 export async function getStoryThread(id: number): Promise<AlgoliaStory> {
   return fetch(`${ALGOLIA}/items/${id}`, { next: { revalidate: 300 } }).then(
     (r) => r.json()

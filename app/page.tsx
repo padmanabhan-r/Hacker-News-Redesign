@@ -101,17 +101,17 @@ export default function Landing() {
           </p>
 
           <div className="features-grid">
-            <Feature tag="01 / VOICE" title="AI-narrated stories" icon={<Headphones size={20} />}>
-              Tap the play icon on any story. ElevenLabs reads the full article in a calm, natural voice.
-              Continue listening as you scroll.
+            <Feature tag="01 / VOICE" title="Listen — TL;DR audio" icon={<Headphones size={20} />}>
+              Tap the play icon on any story. Under two minutes, ElevenLabs reads you a tight TL;DR — what
+              the article says, plus what the comments crowd is feeling.
             </Feature>
-            <Feature tag="02 / DIGEST" title="Daily AI Highlights" icon={<Sparkles size={20} />} violet>
-              A two-minute, hand-picked recap of the day on HN — the ten stories actually worth your attention,
-              summarized with sources.
+            <Feature tag="02 / DIGEST" title="Smart article scraping" icon={<Sparkles size={20} />} violet>
+              Firecrawl reads the linked page, Gemini writes the script, ElevenLabs voices it. You get the
+              substance — not the SEO filler, not the comment scrollback.
             </Feature>
             <Feature tag="03 / PODCAST" title="The HN Pod" icon={<Clock size={20} />}>
-              A daily 30-min podcast generated from the top stories and best comments, with chapter markers.
-              Ship it to your phone.
+              A daily 8–10 min HN++ Pod — a host and a rotating guest dig into the day's top stories
+              and best comments, with chapter markers. Ready every morning at 7 AM PT.
             </Feature>
             <Feature tag="04 / THREADS" title="Smarter comment threads" icon={<MessageSquareText size={20} />}>
               Collapsible, color-coded by depth, with a "best replies" filter. Same content. Less work to read.

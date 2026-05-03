@@ -49,7 +49,7 @@ export function LandingPreview() {
         </div>
         <div>
           <div className="fc-text-1">Today's HN++ Pod</div>
-          <div className="fc-text-2">12 STORIES · 38 MIN</div>
+          <div className="fc-text-2">8 STORIES · ~9 MIN</div>
         </div>
         <div className="fc-bars">
           <div className="fc-bar" />
@@ -60,14 +60,14 @@ export function LandingPreview() {
         </div>
       </div>
 
-      {/* Floating chip 2 — highlights */}
+      {/* Floating chip 2 — listen TL;DR */}
       <div className="float-chip fc-highlights">
         <div className="fc-icon violet">
           <Sparkles size={16} />
         </div>
         <div>
-          <div className="fc-text-1">AI Highlights</div>
-          <div className="fc-text-2">DAILY · 2 MIN READ</div>
+          <div className="fc-text-1">Listen · TL;DR audio</div>
+          <div className="fc-text-2">UNDER 2 MIN PER STORY</div>
         </div>
       </div>
     </div>

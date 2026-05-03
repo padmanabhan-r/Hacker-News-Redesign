@@ -11,6 +11,8 @@ import {
 } from '@/lib/hn';
 import { generateThumbnail } from '@/lib/thumbnail';
 import { LoginModal, UserChip, getStoredUser, clearStoredUser, type HNUser } from '@/components/login-modal';
+import { TalkBotButton } from './talk-bot-button';
+import { SubmitButton } from './submit-button';
 
 const Ico = {
   Home: () => <svg width="13" height="13" fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9,22 9,12 15,12 15,22"/></svg>,
@@ -34,6 +36,7 @@ const Ico = {
   Sun: () => <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>,
   Moon: () => <svg width="13" height="13" fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg>,
   X: () => <svg width="11" height="11" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>,
+  Spin: () => <svg className="hn-spinner" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round"><path d="M21 12a9 9 0 11-6.219-8.56"/></svg>,
 };
 
 const NAV = [
@@ -85,14 +88,17 @@ GROUP BY s.id ORDER BY s.score DESC LIMIT 30;
 # why? because Hacker News deserves better.
 `.repeat(3);
 
-function StoryCard({ story, onOpen, voted, onVote, onListen, playingId }: {
+function StoryCard({ story, onOpen, voted, onVote, onListen, audioStoryId, audioPlaying, audioLoading, audioMsg }: {
   story: HNItem; onOpen: (s: HNItem) => void; voted: boolean;
-  onVote: (id: number) => void; onListen: (s: HNItem) => void; playingId?: number;
+  onVote: (id: number) => void; onListen: (s: HNItem) => void;
+  audioStoryId?: number; audioPlaying?: boolean; audioLoading?: boolean; audioMsg?: string;
 }) {
   const realThumb = getLinkPreview(story);
   const fav = getFavicon(story.url, 64);
   const dom = parseDomain(story.url);
-  const isPlaying = playingId === story.id;
+  const isCurrent = audioStoryId === story.id;
+  const isLoading = isCurrent && !!audioLoading;
+  const isPlaying = isCurrent && !!audioPlaying;
   const cat = categorize(story.title);
   // Always have a thumbnail: canvas is the base, Microlink upgrades it on success.
   const [thumb, setThumb] = useState<string | null>(null);
@@ -116,7 +122,7 @@ function StoryCard({ story, onOpen, voted, onVote, onListen, playingId }: {
       >
         {fav && <img className="story-thumb-fav" src={fav} alt="" onError={(e) => (e.target as HTMLImageElement).style.display = 'none'} />}
         <div className="story-thumb-play">
-          <div className="play-icon-sm">{isPlaying ? <Ico.Pause /> : <Ico.Play />}</div>
+          <div className="play-icon-sm">{isLoading ? <Ico.Spin /> : isPlaying ? <Ico.Pause /> : <Ico.Play />}</div>
         </div>
       </div>
       <div className="vote-col">
@@ -136,8 +142,9 @@ function StoryCard({ story, onOpen, voted, onVote, onListen, playingId }: {
       </div>
       <div className="story-actions" onClick={(e) => e.stopPropagation()}>
         <button type="button" className="cmts-btn" onClick={() => onOpen(story)}><Ico.Msg /> {story.descendants ?? 0}</button>
-        <button type="button" className={`audio-btn${isPlaying ? ' playing' : ''}`} onClick={() => onListen(story)}>
-          {isPlaying ? <Ico.Pause /> : <Ico.Play />} {isPlaying ? 'Playing' : 'Listen'}
+        <button type="button" className={`audio-btn${isPlaying ? ' playing' : ''}${isLoading ? ' loading' : ''}`} onClick={() => onListen(story)} disabled={isLoading}>
+          {isLoading ? <Ico.Spin /> : isPlaying ? <Ico.Pause /> : <Ico.Play />}
+          {isLoading ? (audioMsg || 'Fetching…') : isPlaying ? 'Playing' : 'Listen'}
         </button>
       </div>
     </article>
@@ -189,13 +196,16 @@ function CommentNode({ node, depth = 0 }: { node: AlgoliaComment; depth?: number
   );
 }
 
-function DetailView({ story, onBack, onListen, playingId }: {
-  story: HNItem; onBack: () => void; onListen: (s: HNItem) => void; playingId?: number;
+function DetailView({ story, onBack, onListen, audioStoryId, audioPlaying, audioLoading, audioMsg }: {
+  story: HNItem; onBack: () => void; onListen: (s: HNItem) => void;
+  audioStoryId?: number; audioPlaying?: boolean; audioLoading?: boolean; audioMsg?: string;
 }) {
   const { thread, isLoading } = useStoryThread(story.id);
   const realThumb = getLinkPreview(story);
   const cat = categorize(story.title);
-  const isPlaying = playingId === story.id;
+  const isCurrent = audioStoryId === story.id;
+  const isAudioLoading = isCurrent && !!audioLoading;
+  const isPlaying = isCurrent && !!audioPlaying;
   // Always have a hero image: canvas first, Microlink upgrades.
   const [hero, setHero] = useState<string | null>(null);
   useEffect(() => {
@@ -228,8 +238,8 @@ function DetailView({ story, onBack, onListen, playingId }: {
       </div>
       <div className="detail-actions">
         {story.url && <a className="visit-btn" href={story.url} target="_blank" rel="noopener">Visit site <Ico.Ext /></a>}
-        <button type="button" className={`listen-btn${isPlaying ? ' active' : ''}`} onClick={() => onListen(story)}>
-          {isPlaying ? <><Ico.Pause /> Playing…</> : <><Ico.Play /> Listen to story</>}
+        <button type="button" className={`listen-btn${isPlaying ? ' active' : ''}${isAudioLoading ? ' loading' : ''}`} onClick={() => onListen(story)} disabled={isAudioLoading}>
+          {isAudioLoading ? <><Ico.Spin /> {audioMsg || 'Fetching…'}</> : isPlaying ? <><Ico.Pause /> Playing…</> : <><Ico.Play /> Listen to story</>}
         </button>
       </div>
       <div className="comments-divider" />
@@ -252,8 +262,8 @@ function DetailView({ story, onBack, onListen, playingId }: {
   );
 }
 
-function AudioBar({ story, playing, onPlayPause, onClose, progress }: {
-  story: HNItem; playing: boolean; onPlayPause: () => void; onClose: () => void; progress: number;
+function AudioBar({ story, playing, loading, msg, onPlayPause, onClose, progress }: {
+  story: HNItem; playing: boolean; loading: boolean; msg?: string; onPlayPause: () => void; onClose: () => void; progress: number;
 }) {
   const thumb = getLinkPreview(story);
   const pct = Math.min(100, Math.max(0, progress * 100));
@@ -262,11 +272,13 @@ function AudioBar({ story, playing, onPlayPause, onClose, progress }: {
       <div className="ap-thumb" style={{ backgroundImage: thumb ? `url(${thumb})` : undefined }} />
       <div className="ap-info">
         <div className="ap-title">{story.title}</div>
-        <div className="ap-sub">Story audio · {story.by}</div>
+        <div className="ap-sub">{loading ? (msg || 'Fetching…') : `Story audio · ${story.by}`}</div>
       </div>
       <div className="ap-controls">
         <button type="button" className="ap-skip"><Ico.ChevL /></button>
-        <button type="button" className="ap-play-btn" onClick={onPlayPause}>{playing ? <Ico.Pause /> : <Ico.Play />}</button>
+        <button type="button" className="ap-play-btn" onClick={onPlayPause} disabled={loading}>
+          {loading ? <Ico.Spin /> : playing ? <Ico.Pause /> : <Ico.Play />}
+        </button>
         <button type="button" className="ap-skip"><Ico.SkipF /></button>
       </div>
       <div className="ap-progress-wrap">
@@ -298,9 +310,34 @@ export function FeedShell() {
 
   const [audioStory, setAudioStory] = useState<HNItem | null>(null);
   const [audioPlaying, setAudioPlaying] = useState(false);
+  const [audioLoading, setAudioLoading] = useState(false);
+  const [audioMsg, setAudioMsg] = useState('Fetching…');
   const [audioProgress, setAudioProgress] = useState(0);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const blobUrlRef = useRef<string | null>(null);
+
+  useEffect(() => {
+    if (!audioLoading) return;
+    const start = Date.now();
+    const STEPS: Array<[number, string]> = [
+      [0,     'Fetching…'],
+      [1500,  'Reading…'],
+      [3500,  'Thinking…'],
+      [6000,  'Casting…'],
+      [9000,  'Baking…'],
+      [13000, 'Almost there…'],
+      [18000, 'Hang tight…'],
+    ];
+    const tick = () => {
+      const ms = Date.now() - start;
+      let cur = STEPS[0][1];
+      for (const [t, s] of STEPS) if (ms >= t) cur = s;
+      setAudioMsg(cur);
+    };
+    tick();
+    const id = setInterval(tick, 400);
+    return () => clearInterval(id);
+  }, [audioLoading]);
 
   const filtered = useMemo(() => {
     if (!searchInput) return items;
@@ -318,34 +355,36 @@ export function FeedShell() {
 
   async function handleListen(story: HNItem) {
     if (audioStory?.id === story.id && audioRef.current) {
-      if (audioPlaying) { audioRef.current.pause(); setAudioPlaying(false); }
-      else { audioRef.current.play(); setAudioPlaying(true); }
+      if (audioPlaying) audioRef.current.pause();
+      else audioRef.current.play();
       return;
     }
+    if (audioLoading) return;
     stopAudio();
     setAudioStory(story);
-    setAudioPlaying(false);
     setAudioProgress(0);
+    setAudioLoading(true);
     try {
-      const dom = parseDomain(story.url);
-      const text = `${story.title}. Posted by ${story.by} on ${dom || 'Hacker News'}. ${story.score ?? 0} points and ${story.descendants ?? 0} comments. ${timeAgo(story.time)}.`;
-      const r = await fetch('/api/tts', {
+      const r = await fetch('/api/listen', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ storyId: story.id, text }),
+        body: JSON.stringify({ storyId: story.id }),
       });
-      if (!r.ok) throw new Error('tts failed');
+      if (!r.ok) throw new Error('listen failed');
       const blob = await r.blob();
       const url = URL.createObjectURL(blob);
       blobUrlRef.current = url;
       const a = new Audio(url);
       audioRef.current = a;
+      a.addEventListener('play', () => setAudioPlaying(true));
+      a.addEventListener('pause', () => setAudioPlaying(false));
       a.addEventListener('timeupdate', () => { if (a.duration) setAudioProgress(a.currentTime / a.duration); });
       a.addEventListener('ended', () => { setAudioPlaying(false); setAudioProgress(1); });
-      a.play();
-      setAudioPlaying(true);
+      await a.play();
     } catch (e) {
       console.error(e);
+    } finally {
+      setAudioLoading(false);
     }
   }
 
@@ -393,10 +432,11 @@ export function FeedShell() {
             <span className="search-kbd">⌘K</span>
           </div>
           <div className="hdr-right">
+            <TalkBotButton />
             <button type="button" className="theme-toggle" title="Toggle theme" onClick={() => setTheme(isDark ? 'light' : 'dark')}>
               {isDark ? <Ico.Sun /> : <Ico.Moon />}
             </button>
-            <button type="button" className="submit-btn"><Ico.Plus /> Submit</button>
+            <SubmitButton />
             {user ? (
               <UserChip user={user} onLogout={() => { clearStoredUser(); setUser(null); }} />
             ) : (
@@ -438,7 +478,10 @@ export function FeedShell() {
               story={openStory}
               onBack={back}
               onListen={handleListen}
-              playingId={audioStory?.id}
+              audioStoryId={audioStory?.id}
+              audioPlaying={audioPlaying}
+              audioLoading={audioLoading}
+              audioMsg={audioMsg}
             />
           ) : (
             <main className="feed-wrap">
@@ -463,7 +506,10 @@ export function FeedShell() {
                       voted={!!voted[s.id]}
                       onVote={(id) => setVoted((v) => ({ ...v, [id]: !v[id] }))}
                       onListen={handleListen}
-                      playingId={audioStory?.id}
+                      audioStoryId={audioStory?.id}
+                      audioPlaying={audioPlaying}
+                      audioLoading={audioLoading}
+                      audioMsg={audioMsg}
                     />
                   ))}
                   {hasMore && (
@@ -481,6 +527,8 @@ export function FeedShell() {
           <AudioBar
             story={audioStory}
             playing={audioPlaying}
+            loading={audioLoading}
+            msg={audioMsg}
             onPlayPause={() => handleListen(audioStory)}
             onClose={() => { stopAudio(); setAudioStory(null); }}
             progress={audioProgress}

@@ -3,36 +3,33 @@
 import Link from 'next/link';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useTheme } from 'next-themes';
-import { useStories } from '@/hooks/use-stories';
-import { categorize, getLinkPreview, type HNItem } from '@/lib/hn';
-import { CAST, type CastMember } from '@/lib/voice-cast';
+import { LoginModal, UserChip, getStoredUser, clearStoredUser, type HNUser } from '@/components/login-modal';
+import { TalkBotButton } from './talk-bot-button';
+import { SubmitButton } from './submit-button';
 
 const Ico = {
   Play: () => <svg width="14" height="14" fill="currentColor" viewBox="0 0 24 24"><polygon points="5,3 19,12 5,21" /></svg>,
   Pause: () => <svg width="14" height="14" fill="currentColor" viewBox="0 0 24 24"><rect x="6" y="4" width="4" height="16" /><rect x="14" y="4" width="4" height="16" /></svg>,
   SkipB: () => <svg width="13" height="13" fill="currentColor" viewBox="0 0 24 24"><polygon points="19,20 9,12 19,4" /><line x1="5" y1="19" x2="5" y2="5" stroke="currentColor" strokeWidth="2" fill="none" /></svg>,
   SkipF: () => <svg width="13" height="13" fill="currentColor" viewBox="0 0 24 24"><polygon points="5,4 15,12 5,20" /><line x1="19" y1="5" x2="19" y2="19" stroke="currentColor" strokeWidth="2" fill="none" /></svg>,
-  ChevL: () => <svg width="13" height="13" fill="none" stroke="currentColor" strokeWidth="2.2" viewBox="0 0 24 24"><polyline points="15,18 9,12 15,6" /></svg>,
   Mic: () => <svg width="13" height="13" fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24"><path d="M12 1a3 3 0 00-3 3v8a3 3 0 006 0V4a3 3 0 00-3-3z" /><path d="M19 10v2a7 7 0 01-14 0v-2" /><line x1="12" y1="19" x2="12" y2="23" /><line x1="8" y1="23" x2="16" y2="23" /></svg>,
   Vol: () => <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24"><polygon points="11,5 6,9 2,9 2,15 6,15 11,19 11,5" /><path d="M19.07 4.93a10 10 0 010 14.14M15.54 8.46a5 5 0 010 7.07" /></svg>,
-  Star: () => <svg width="10" height="10" fill="currentColor" viewBox="0 0 24 24"><polygon points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26 12,2" /></svg>,
   Search: () => <svg width="13" height="13" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" /></svg>,
+  Sun: () => <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24"><circle cx="12" cy="12" r="5" /><line x1="12" y1="1" x2="12" y2="3" /><line x1="12" y1="21" x2="12" y2="23" /><line x1="4.22" y1="4.22" x2="5.64" y2="5.64" /><line x1="18.36" y1="18.36" x2="19.78" y2="19.78" /><line x1="1" y1="12" x2="3" y2="12" /><line x1="21" y1="12" x2="23" y2="12" /><line x1="4.22" y1="19.78" x2="5.64" y2="18.36" /><line x1="18.36" y1="5.64" x2="19.78" y2="4.22" /></svg>,
+  Moon: () => <svg width="13" height="13" fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z" /></svg>,
+  Plus: () => <svg width="11" height="11" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" /></svg>,
 };
 
-type WordTimestamp = { word: string; startMs: number; endMs: number };
-type LineMeta = {
-  speaker: string;
-  persona: string;
-  text: string;
-  startMs: number;
-  endMs: number;
-  words?: WordTimestamp[];
-};
-type Episode = {
-  audioUrl: string;
-  lines: LineMeta[];
-  cast: CastMember[];
-  storyTitle: string;
+type Manifest = {
+  date: string;
+  runtimeMs: number;
+  storyTitles: string[];
+  host: { name: string; persona: string; voiceId: string };
+  guest: { name: string; persona: string; voiceId: string };
+  segments: { title: string; startMs: number; endMs: number }[];
+  generatedAt: string;
+  stale?: boolean;
+  latestAvailable?: string;
 };
 
 function Waveform({ playing, bars = 48 }: { playing: boolean; bars?: number }) {
@@ -63,62 +60,101 @@ function Waveform({ playing, bars = 48 }: { playing: boolean; bars?: number }) {
 }
 
 function fmtTime(s: number) {
-  if (!isFinite(s)) return '0:00';
+  if (!isFinite(s) || s < 0) return '0:00';
   const m = Math.floor(s / 60);
   const sec = Math.floor(s % 60);
   return `${m}:${String(sec).padStart(2, '0')}`;
 }
 
+function fmtDateLong(date: string): string {
+  const [y, m, d] = date.split('-').map((n) => parseInt(n, 10));
+  const dt = new Date(Date.UTC(y, m - 1, d));
+  return new Intl.DateTimeFormat('en-US', { weekday: 'long', month: 'long', day: 'numeric', timeZone: 'UTC' }).format(dt);
+}
+
+function fmtDateShort(date: string): string {
+  const [y, m, d] = date.split('-').map((n) => parseInt(n, 10));
+  const dt = new Date(Date.UTC(y, m - 1, d));
+  return new Intl.DateTimeFormat('en-US', { month: 'short', day: 'numeric', timeZone: 'UTC' }).format(dt);
+}
+
 export function PodcastShell() {
-  const { items: stories, isLoading } = useStories('top', 1, 10);
-  const [storyId, setStoryId] = useState<number | null>(null);
-  const [episode, setEpisode] = useState<Episode | null>(null);
-  const [generating, setGenerating] = useState(false);
+  const [manifest, setManifest] = useState<Manifest | null>(null);
+  const [archive, setArchive] = useState<Manifest[]>([]);
+  const [activeDate, setActiveDate] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [playing, setPlaying] = useState(false);
   const [now, setNow] = useState(0);
   const [vol, setVol] = useState(80);
   const audioRef = useRef<HTMLAudioElement | null>(null);
+  const bedRef = useRef<HTMLAudioElement | null>(null);
+  const [musicOn, setMusicOn] = useState(true);
+  const [bedVol, setBedVol] = useState(0.18);
+  const [searchInput, setSearchInput] = useState('');
+  const filteredArchive = useMemo(() => {
+    if (!searchInput.trim()) return archive;
+    const q = searchInput.toLowerCase();
+    return archive.filter((ep) =>
+      ep.date.includes(q) ||
+      fmtDateLong(ep.date).toLowerCase().includes(q) ||
+      ep.storyTitles.some((t) => t.toLowerCase().includes(q))
+    );
+  }, [archive, searchInput]);
+
   const { theme, setTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
-  useEffect(() => setMounted(true), []);
+  const [user, setUser] = useState<HNUser | null>(null);
+  const [showLogin, setShowLogin] = useState(false);
+  useEffect(() => { setMounted(true); setUser(getStoredUser()); }, []);
   const isDark = mounted && theme === 'dark';
 
   useEffect(() => {
-    if (!storyId && stories.length) setStoryId(stories[0].id);
-  }, [stories, storyId]);
+    let cancelled = false;
+    async function load() {
+      setLoading(true);
+      setError(null);
+      try {
+        const [todayRes, archiveRes] = await Promise.all([
+          fetch('/api/podcast/today'),
+          fetch('/api/podcast/archive'),
+        ]);
+        if (!cancelled) {
+          if (todayRes.ok) {
+            const m = (await todayRes.json()) as Manifest;
+            setManifest(m);
+            setActiveDate(m.date);
+          } else {
+            setError('No episode available yet. The cron will bake one shortly.');
+          }
+          if (archiveRes.ok) {
+            const { episodes } = (await archiveRes.json()) as { episodes: Manifest[] };
+            setArchive(episodes);
+          }
+        }
+      } catch (e) {
+        if (!cancelled) setError((e as Error).message);
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    }
+    load();
+    return () => { cancelled = true; };
+  }, []);
 
-  const selected = stories.find((s) => s.id === storyId) || stories[0];
-  const today = new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
-
-  async function generate() {
-    if (!selected) return;
-    setGenerating(true);
-    setEpisode(null);
+  function selectEpisode(m: Manifest) {
+    setManifest(m);
+    setActiveDate(m.date);
     setNow(0);
     setPlaying(false);
-    try {
-      const r = await fetch('/api/podcast', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ storyId: selected.id }),
-      });
-      if (!r.ok) throw new Error('podcast api failed');
-      const data: Episode = await r.json();
-      setEpisode(data);
-      setTimeout(() => audioRef.current?.play().catch(() => {}), 50);
-    } catch (e) {
-      console.error(e);
-    } finally {
-      setGenerating(false);
-    }
+    if (bedRef.current) { bedRef.current.currentTime = 0; bedRef.current.pause(); }
+    setTimeout(() => audioRef.current?.play().catch(() => {}), 50);
   }
 
   function togglePlay() {
     const a = audioRef.current;
-    if (!episode) { generate(); return; }
     if (!a) return;
-    if (a.paused) a.play();
-    else a.pause();
+    if (a.paused) a.play(); else a.pause();
   }
 
   function seek(e: React.MouseEvent<HTMLDivElement>) {
@@ -129,14 +165,27 @@ export function PodcastShell() {
     a.currentTime = Math.max(0, Math.min(a.duration, ratio * a.duration));
   }
 
-  const dur = audioRef.current?.duration ?? 0;
-  const progress = episode && dur ? now / dur : 0;
+  function jumpTo(ms: number) {
+    const a = audioRef.current;
+    if (!a) return;
+    a.currentTime = ms / 1000;
+    a.play().catch(() => {});
+  }
+
+  // Keep music bed volume + on/off in sync with state
+  useEffect(() => {
+    const b = bedRef.current;
+    if (!b) return;
+    b.volume = musicOn ? bedVol : 0;
+  }, [musicOn, bedVol]);
+
+  const dur = audioRef.current?.duration ?? (manifest ? manifest.runtimeMs / 1000 : 0);
+  const progress = manifest && dur ? now / dur : 0;
   const timeStr = `${fmtTime(now)} / ${fmtTime(dur)}`;
 
-  // Active line based on currentTime
-  const activeLineIdx = episode
-    ? episode.lines.findIndex((l) => now * 1000 >= l.startMs && now * 1000 < l.endMs)
-    : -1;
+  const hostLabel = manifest ? `Hosted by ${manifest.host.name.replace(/^Anchor /, '')}, with today's guest ${manifest.guest.name} (our ${manifest.guest.persona})` : '';
+
+  const audioSrc = activeDate ? `/api/podcast/audio/${activeDate}.mp3` : undefined;
 
   return (
     <div className="podcast-page">
@@ -160,69 +209,65 @@ export function PodcastShell() {
         </nav>
         <div className="search-wrap">
           <span className="search-ico"><Ico.Search /></span>
-          <input className="search-input" placeholder="Search episodes…" />
+          <input className="search-input" placeholder="Search episodes…" value={searchInput} onChange={(e) => setSearchInput(e.target.value)} />
           <span className="search-kbd">⌘K</span>
         </div>
-        <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 10 }}>
-          <button
-            type="button"
-            onClick={() => setTheme(isDark ? 'light' : 'dark')}
-            style={{ height: 30, width: 30, borderRadius: 8, background: 'var(--bg-card)', border: '1px solid var(--border)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: 'var(--text-2)' }}
-            aria-label="Toggle theme"
-          >
-            {isDark ? '☀' : '☾'}
+        <div className="hdr-right">
+          <TalkBotButton />
+          <button type="button" className="theme-toggle" title="Toggle theme" onClick={() => setTheme(isDark ? 'light' : 'dark')}>
+            {isDark ? <Ico.Sun /> : <Ico.Moon />}
           </button>
+          <SubmitButton />
+          {user ? (
+            <UserChip user={user} onLogout={() => { clearStoredUser(); setUser(null); }} />
+          ) : (
+            <button type="button" className="login-btn" onClick={() => setShowLogin(true)}>Log in</button>
+          )}
         </div>
       </header>
 
       <div className="pod-page">
-
-        {/* Story selector / generate prompt */}
         <div className="key-section">
           <div className="key-section-head">
-            <div className="key-section-title"><Ico.Mic /> Multi-voice dialogue podcast</div>
+            <div className="key-section-title"><Ico.Mic /> HN++ Pod</div>
             <span className="powered-pill">
               <span className="el-mark" aria-hidden>
                 <svg viewBox="0 0 24 24" width="14" height="14"><rect x="5" y="4" width="4" height="16" rx="1" fill="currentColor" /><rect x="15" y="4" width="4" height="16" rx="1" fill="currentColor" /></svg>
               </span>
-              Powered by ElevenLabs · text-to-dialogue v3
+              Powered by ElevenLabs
             </span>
           </div>
           <div className="key-section-sub">
-            Pick any front-page story. We pull the thread, cast 8 voices to authors, generate a multi-voice debate and align word-by-word.
-            {selected && <> · Currently: <strong>{selected.title}</strong></>}
+            A daily 8–10 min show. Standard host plus a rotating guest dig into the day's top Hacker News stories,
+            with the article and the comment crowd in mind. Fresh every morning at 7 AM Pacific.
           </div>
-          <div className="key-row">
-            <button
-              type="button"
-              className="key-save-btn"
-              disabled={generating || !selected}
-              onClick={generate}
-            >
-              {generating ? '… generating' : episode ? 'Regenerate' : 'Generate episode'}
-            </button>
-          </div>
+          {error && (
+            <div style={{ marginTop: 12, fontSize: 12, color: 'var(--text-3)' }}>{error}</div>
+          )}
+          {manifest?.stale && (
+            <div style={{ marginTop: 12, fontSize: 12, color: 'var(--text-3)' }}>
+              Today's episode is still baking. You're hearing the most recent one ({fmtDateShort(manifest.date)}).
+            </div>
+          )}
         </div>
 
-        {/* Header grid */}
         <div className="pod-header">
           <div className="pod-main">
             <div className="pod-badge">
               <div style={{ width: 5, height: 5, borderRadius: '50%', background: 'var(--accent)', animation: 'hn-pulse 1.5s ease-in-out infinite' }} />
-              Daily Episode
+              {manifest?.stale ? 'Latest episode' : 'Today\'s episode'}
             </div>
-            <div className="pod-ep-date">HN Daily · {today}</div>
-            <div className="pod-ep-sub">
-              {selected ? selected.title : 'Loading the front page…'}
-              {episode ? ` · ${episode.lines.length} exchanges` : ' · select & generate'}
+            <div className="pod-ep-date">
+              {manifest ? `HN++ Pod · ${fmtDateLong(manifest.date)}` : (loading ? 'Loading episode…' : 'No episode available')}
             </div>
+            <div className="pod-ep-sub">{hostLabel}</div>
 
             <Waveform playing={playing} bars={48} />
 
             <div className="player-controls">
               <button type="button" className="skip-btn" onClick={() => audioRef.current && (audioRef.current.currentTime = Math.max(0, audioRef.current.currentTime - 10))}><Ico.SkipB /></button>
-              <button type="button" className="play-btn" onClick={togglePlay} disabled={generating || isLoading}>
-                {generating ? '…' : playing ? <Ico.Pause /> : <Ico.Play />}
+              <button type="button" className="play-btn" onClick={togglePlay} disabled={!manifest}>
+                {playing ? <Ico.Pause /> : <Ico.Play />}
               </button>
               <button type="button" className="skip-btn" onClick={() => audioRef.current && (audioRef.current.currentTime = Math.min(audioRef.current.duration || 0, audioRef.current.currentTime + 10))}><Ico.SkipF /></button>
               <div className="progress-track" onClick={seek}>
@@ -231,7 +276,7 @@ export function PodcastShell() {
               <span className="time-label">{timeStr}</span>
             </div>
 
-            <div className="vol-row" style={{ marginBottom: 16 }}>
+            <div className="vol-row" style={{ marginBottom: 8 }}>
               <span className="vol-icon"><Ico.Vol /></span>
               <input
                 type="range" className="vol-slider" min={0} max={100} value={vol}
@@ -243,109 +288,120 @@ export function PodcastShell() {
               />
             </div>
 
-            <div className="pod-ep-tags" style={{ marginTop: 14 }}>
-              {['AI', 'Engineering', 'Startups', 'Security', 'Web'].map((t) => (
-                <span key={t} className="pod-tag">{t}</span>
-              ))}
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 16, fontSize: 11.5, color: 'var(--text-3)', fontFamily: "'JetBrains Mono',monospace" }}>
+              <button
+                type="button"
+                onClick={() => setMusicOn((v) => !v)}
+                style={{
+                  height: 24, padding: '0 9px', borderRadius: 6,
+                  background: musicOn ? 'var(--accent-bg)' : 'var(--bg-card)',
+                  border: `1px solid ${musicOn ? 'var(--accent-border)' : 'var(--border)'}`,
+                  color: musicOn ? 'var(--accent-text)' : 'var(--text-3)',
+                  fontFamily: "'JetBrains Mono',monospace", fontSize: 10.5, cursor: 'pointer',
+                  textTransform: 'uppercase', letterSpacing: '0.06em',
+                }}
+                aria-pressed={musicOn}
+              >
+                {musicOn ? '♫ music on' : '♫ music off'}
+              </button>
+              {musicOn && (
+                <input
+                  type="range" className="vol-slider" min={0} max={40} value={Math.round(bedVol * 100)}
+                  onChange={(e) => setBedVol(+e.target.value / 100)}
+                  style={{ maxWidth: 110 }}
+                  aria-label="Music bed volume"
+                />
+              )}
             </div>
           </div>
 
-          {/* Hosts */}
           <div className="hosts-panel">
-            <div className="hosts-title">Voice Cast</div>
-            {(episode?.cast ?? CAST.slice(0, 4)).map((c) => {
-              const speaking = !!episode && activeLineIdx >= 0 && episode.lines[activeLineIdx]?.persona === c.role;
-              return (
-                <div key={c.persona} className="host-card" style={speaking ? { borderColor: 'var(--accent-border)', background: 'var(--accent-bg)' } : {}}>
-                  <div className="host-avatar" style={{ background: 'rgba(255,140,40,0.18)' }}>
-                    {c.name[0]}
-                  </div>
-                  <div>
-                    <div className="host-name">{c.name}</div>
-                    <div className="host-role">{c.role}</div>
-                    <div className="host-voice-pill">
-                      {speaking && playing && <div className="speaking-dot" />}
-                      ElevenLabs v3
-                    </div>
-                  </div>
-                </div>
-              );
-            })}
-
-            <div style={{ marginTop: 14, padding: '10px 12px', borderRadius: 10, background: 'rgba(255,255,255,0.03)', border: '1px solid var(--border)' }}>
-              <div style={{ fontSize: 11, color: 'var(--text-3)', marginBottom: 6, fontFamily: "'JetBrains Mono',monospace", textTransform: 'uppercase', letterSpacing: '0.08em' }}>Episode info</div>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
-                {[
-                  ['Format', 'Multi-voice dialogue'],
-                  ['Engine', 'Text-to-Dialogue v3'],
-                  ['Sync', 'Forced alignment'],
-                  ['Source', 'Top HN'],
-                ].map(([l, v]) => (
-                  <div key={l} style={{ display: 'flex', justifyContent: 'space-between' }}>
-                    <span style={{ fontSize: 11.5, color: 'var(--text-3)' }}>{l}</span>
-                    <span style={{ fontSize: 11.5, color: 'var(--text-2)', fontFamily: "'JetBrains Mono',monospace" }}>{v}</span>
-                  </div>
-                ))}
-              </div>
+            <div className="hosts-title">Chapters</div>
+            {!manifest && (
+              <div style={{ fontSize: 12, color: 'var(--text-3)' }}>{loading ? 'Loading…' : 'No chapters yet.'}</div>
+            )}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+              {manifest?.segments.map((seg, i) => {
+                const isActive = now * 1000 >= seg.startMs && now * 1000 < seg.endMs;
+                return (
+                  <button
+                    key={i}
+                    type="button"
+                    onClick={() => jumpTo(seg.startMs)}
+                    title={seg.title}
+                    style={{
+                      display: 'grid',
+                      gridTemplateColumns: '46px 1fr',
+                      gap: 10,
+                      alignItems: 'flex-start',
+                      width: '100%',
+                      minHeight: 28,
+                      padding: '6px 10px',
+                      borderRadius: 7,
+                      background: isActive ? 'var(--accent-bg)' : 'transparent',
+                      border: `1px solid ${isActive ? 'var(--accent-border)' : 'transparent'}`,
+                      color: isActive ? 'var(--accent-text)' : 'var(--text-2)',
+                      cursor: 'pointer',
+                      textAlign: 'left',
+                      fontSize: 12,
+                      lineHeight: 1.35,
+                      fontFamily: "'Inter', sans-serif",
+                      transition: 'background 0.12s, color 0.12s',
+                    }}
+                  >
+                    <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 10.5, color: isActive ? 'var(--accent)' : 'var(--text-3)', paddingTop: 1 }}>
+                      {fmtTime(seg.startMs / 1000)}
+                    </span>
+                    <span style={{ wordBreak: 'break-word' }}>
+                      {seg.title}
+                    </span>
+                  </button>
+                );
+              })}
             </div>
+
+            {manifest && (
+              <div style={{ marginTop: 12, paddingTop: 10, borderTop: '1px solid var(--border)', display: 'flex', flexWrap: 'wrap', gap: 12, fontFamily: "'JetBrains Mono', monospace", fontSize: 10.5, color: 'var(--text-3)' }}>
+                <span>{manifest.host.name} × {manifest.guest.name}</span>
+                <span>·</span>
+                <span>~{Math.round(manifest.runtimeMs / 60000)} min</span>
+                <span>·</span>
+                <span>{manifest.storyTitles.length} stories</span>
+              </div>
+            )}
           </div>
         </div>
 
-        {/* Transcript */}
-        {episode && episode.lines.length > 0 && (
+        {archive.length > 0 && (
           <div className="script-section">
-            <div className="script-section-title">
-              Transcript
-              <span className="script-badge">{playing ? 'Live' : 'Preview'}</span>
-            </div>
-            {episode.lines.map((l, i) => (
-              <div
-                key={i}
-                className={`exchange-block host-${i % 2 === 0 ? 'a' : 'b'}${i === activeLineIdx ? ' active' : ''}`}
-              >
-                <div className="ex-avatar" style={{ background: i % 2 === 0 ? 'rgba(255,170,80,0.18)' : 'rgba(255,102,0,0.18)' }}>
-                  {l.speaker[0]}
-                </div>
-                <div>
-                  <div className={`ex-name ${i % 2 === 0 ? 'a' : 'b'}`}>{l.speaker}</div>
-                  <div className={`ex-text${i === activeLineIdx ? ' active-word' : ''}`}>
-                    {l.words?.length ? (
-                      <KaraokeText words={l.words} now={now * 1000} />
-                    ) : l.text}
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
-
-        {/* Stories grid */}
-        {!isLoading && stories.length > 0 && (
-          <div className="script-section">
-            <div className="script-section-title">Pick another story</div>
+            <div className="script-section-title">Past 7 days</div>
             <div className="stories-grid">
-              {stories.slice(0, 10).map((s) => {
-                const cat = categorize(s.title);
-                const thumb = getLinkPreview(s);
+              {filteredArchive.map((ep) => {
+                const isActive = ep.date === activeDate;
                 return (
                   <button
-                    key={s.id}
+                    key={ep.date}
                     type="button"
-                    onClick={() => { setStoryId(s.id); setEpisode(null); setNow(0); setPlaying(false); }}
+                    onClick={() => selectEpisode(ep)}
                     className="story-tile"
-                    style={storyId === s.id ? { borderColor: 'var(--accent-border)', background: 'var(--accent-bg)' } : {}}
+                    style={isActive ? { borderColor: 'var(--accent)', background: 'linear-gradient(rgba(255,102,0,0.18),rgba(255,102,0,0.18)),var(--bg-card)', boxShadow: '0 0 0 1px var(--accent), 0 8px 22px rgba(255,102,0,0.25)' } : {}}
                   >
                     <div
                       className="story-tile-thumb"
                       style={{
-                        backgroundImage: thumb ? `url(${thumb})` : `linear-gradient(135deg, ${cat.color}66, ${cat.color}22)`,
+                        background: 'linear-gradient(135deg, rgba(255,140,40,0.55), rgba(255,102,0,0.32))',
+                        display: 'flex', alignItems: 'center', justifyContent: 'center',
+                        fontFamily: "'JetBrains Mono',monospace", fontSize: 12, fontWeight: 700, color: '#fff',
+                        textShadow: '0 1px 2px rgba(0,0,0,0.35)',
                       }}
-                    />
+                    >
+                      {fmtDateShort(ep.date)}
+                    </div>
                     <div>
-                      <div className="story-tile-title">{s.title}</div>
+                      <div className="story-tile-title">{ep.host.name.split(' ').pop()} × {ep.guest.name.split(' ').pop()}</div>
                       <div className="story-tile-meta">
-                        <span><Ico.Star /> {s.score}</span>
-                        <span>by {s.by}</span>
+                        <span>~{Math.round(ep.runtimeMs / 60000)} min</span>
+                        <span>{ep.storyTitles.length} stories</span>
                       </div>
                     </div>
                   </button>
@@ -355,38 +411,37 @@ export function PodcastShell() {
           </div>
         )}
 
-        {isLoading && (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-            {Array.from({ length: 4 }).map((_, i) => <div key={i} className="sk" style={{ height: 44, borderRadius: 12 }} />)}
-          </div>
-        )}
+        <div style={{ marginTop: 28, marginBottom: 40, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
+          <span style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '8px 14px', borderRadius: 99, background: 'linear-gradient(var(--accent-bg),var(--accent-bg)),var(--bg-card)', border: '1px solid var(--accent-border)', fontFamily: "'JetBrains Mono',monospace", fontSize: 12, fontWeight: 600, color: 'var(--accent-text)', letterSpacing: '0.04em' }}>
+            <span style={{ width: 6, height: 6, borderRadius: '50%', background: 'var(--accent)', animation: 'hn-pulse 1.5s ease-in-out infinite' }} />
+            Coming up: tomorrow's episode at 7 AM Pacific
+          </span>
+        </div>
       </div>
 
-      {episode && (
+      {audioSrc && (
         <audio
           ref={audioRef}
-          src={episode.audioUrl}
+          src={audioSrc}
           onTimeUpdate={(e) => setNow((e.target as HTMLAudioElement).currentTime)}
-          onPlay={() => setPlaying(true)}
-          onPause={() => setPlaying(false)}
-          onEnded={() => setPlaying(false)}
+          onPlay={() => {
+            setPlaying(true);
+            const b = bedRef.current;
+            if (b && musicOn) { b.volume = bedVol; b.play().catch(() => {}); }
+          }}
+          onPause={() => {
+            setPlaying(false);
+            bedRef.current?.pause();
+          }}
+          onEnded={() => {
+            setPlaying(false);
+            const b = bedRef.current;
+            if (b) { b.pause(); b.currentTime = 0; }
+          }}
         />
       )}
+      <audio ref={bedRef} src="/audio/bed.mp3" loop preload="auto" />
+      {showLogin && <LoginModal onLogin={(u) => { setUser(u); setShowLogin(false); }} onClose={() => setShowLogin(false)} />}
     </div>
-  );
-}
-
-function KaraokeText({ words, now }: { words: WordTimestamp[]; now: number }) {
-  return (
-    <>
-      {words.map((w, i) => (
-        <span
-          key={i}
-          className={`word ${now >= w.startMs && now < w.endMs ? 'is-speaking' : ''}`}
-        >
-          {w.word}{' '}
-        </span>
-      ))}
-    </>
   );
 }

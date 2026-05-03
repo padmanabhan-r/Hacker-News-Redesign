@@ -1,0 +1,36 @@
+name: Daily HN++ Pod
+
+on:
+  schedule:
+    # 13:30 UTC = 6:30 AM PDT (5:30 AM PST during winter; episode still ready before 7 AM)
+    - cron: '30 13 * * *'
+  workflow_dispatch:
+    inputs:
+      force:
+        description: 'Force regenerate even if today is cached'
+        type: boolean
+        default: false
+
+jobs:
+  bake-episode:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Trigger /api/podcast/cron
+        env:
+          BASE_URL: ${{ secrets.PROD_BASE_URL }}
+          CRON_SECRET: ${{ secrets.CRON_SECRET }}
+          FORCE: ${{ inputs.force == true && 'true' || 'false' }}
+        run: |
+          if [ -z "$BASE_URL" ] || [ -z "$CRON_SECRET" ]; then
+            echo "::error::PROD_BASE_URL and CRON_SECRET secrets must be set"
+            exit 1
+          fi
+          URL="$BASE_URL/api/podcast/cron"
+          if [ "$FORCE" = "true" ]; then URL="$URL?force=true"; fi
+          echo "POST $URL"
+          curl -fsS -X POST \
+            -H "Authorization: Bearer $CRON_SECRET" \
+            -H "Accept: application/json" \
+            --max-time 540 \
+            "$URL"
