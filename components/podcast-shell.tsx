@@ -238,7 +238,7 @@ export function PodcastShell() {
           </div>
           <div className="key-section-sub">
             A daily 8–10 min show. Standard host plus a rotating guest dig into the day's top Hacker News stories,
-            with the article and the comment crowd in mind. Fresh every morning at 7 AM Pacific.
+            with the article and the comment crowd in mind. Fresh every morning at 7:00 AM IST · 1:30 AM GMT · 6:30 PM PT (prev day).
           </div>
           {error && (
             <div style={{ marginTop: 12, fontSize: 12, color: 'var(--text-3)' }}>{error}</div>
@@ -412,7 +412,7 @@ export function PodcastShell() {
 
         <div style={{ marginTop: 28, marginBottom: 40, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
           <span style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: 11, color: 'var(--text-1)', letterSpacing: '0.04em' }}>
-            Next episode drops at 7 AM Pacific
+            Next episode drops at 7:00 AM IST · 1:30 AM GMT · 6:30 PM PT (prev day)
           </span>
         </div>
       </div>
