@@ -1,0 +1,77 @@
+# Dependencies
+node_modules/
+.pnp
+.pnp.js
+
+# Build output
+.next/
+out/
+dist/
+build/
+*.tsbuildinfo
+
+# Environment variables
+.env
+.env.*
+!.env.example
+
+# Vercel / deployment
+.vercel/
+.turbo/
+
+# v0 sandbox internals
+__v0_runtime_loader.js
+__v0_devtools.tsx
+__v0_jsx-dev-runtime.ts
+.snowflake/
+.v0-trash/
+next.user-config.*
+
+# Debug logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+*.log
+
+# Test artefacts
+playwright-report/
+test-results/
+coverage/
+.coverage
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# AI assistants / local dev tools
+.claude/
+.continue/
+.cursor/
+.aider*
+.copilot/
+.remember/
+*.claude*
+
+# Root-level markdown (keep only README)
+/*.md
+!README.md
+
+# OS
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# Secrets
+*.pem
+*.key
+credentials.json
+service-account*.json
+
+# Misc
+.tmp/
+misc/
+docs/
