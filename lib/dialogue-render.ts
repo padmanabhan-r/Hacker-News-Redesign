@@ -82,7 +82,10 @@ async function renderDialogueChunk(chunk: FlatLine[]): Promise<DialogueResult> {
     const audio = Buffer.from(audioB64, "base64");
     const segs = (r.voiceSegments ?? r.voice_segments ?? r.segments ?? []) as Array<Record<string, unknown>>;
     const endTimesMs = chunk.map((_, i) => {
-      const s = segs[i];
+      // prefer dialogue_input_index match; fall back to positional
+      const s = segs.find(
+        (seg) => ((seg.dialogueInputIndex ?? seg.dialogue_input_index) as number) === i
+      ) ?? segs[i];
       const end = (s?.endTimeSeconds ?? s?.end_time_seconds ?? 0) as number;
       return end * 1000;
     });
@@ -115,10 +118,10 @@ async function renderChunkFallback(chunk: FlatLine[]): Promise<DialogueResult> {
   return { audio: Buffer.concat(parts), endTimesMs };
 }
 
-async function probeChunkDurationMs(buf: Buffer, lastFallbackMs: number): Promise<number> {
-  // Accept whatever the dialogue API reports for the last segment as our chunk duration.
-  // If unavailable (fallback path passed cumulative ms), use lastFallbackMs.
-  return lastFallbackMs;
+function chunkDurationMs(endTimesMs: number[]): number {
+  // Use last segment end as chunk duration. Add small tail buffer (200ms)
+  // to account for natural trailing silence ElevenLabs appends after last word.
+  return (endTimesMs[endTimesMs.length - 1] ?? 0) + 200;
 }
 
 export async function renderDialogue(
@@ -143,8 +146,7 @@ export async function renderDialogue(
       lineEndAbsMs.set(flatIdx, offsetMs + endTimesMs[i]);
       flatIdx++;
     }
-    const chunkDuration = endTimesMs[endTimesMs.length - 1] || 0;
-    offsetMs += await probeChunkDurationMs(audio, chunkDuration);
+    offsetMs += chunkDurationMs(endTimesMs);
   }
 
   const mp3 = Buffer.concat(audioBuffers);

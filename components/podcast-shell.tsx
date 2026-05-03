@@ -316,7 +316,7 @@ export function PodcastShell() {
           </div>
 
           <div className="hosts-panel">
-            <div className="hosts-title">Chapters</div>
+            <div className="hosts-title">Chapters <span style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: 9, fontWeight: 600, letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--accent-text)', background: 'var(--accent-bg)', border: '1px solid var(--accent-border)', borderRadius: 4, padding: '1px 5px', verticalAlign: 'middle' }}>beta</span></div>
             {!manifest && (
               <div style={{ fontSize: 12, color: 'var(--text-3)' }}>{loading ? 'Loading…' : 'No chapters yet.'}</div>
             )}
