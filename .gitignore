@@ -75,3 +75,4 @@ service-account*.json
 .tmp/
 misc/
 docs/
+.mcp.json
