@@ -491,31 +491,42 @@ export function PodcastShell() {
             <div className="script-section-title">Past 7 days</div>
             <div className="stories-grid">
               {filteredArchive.map((ep) => {
-                const isActive = ep.date === activeDate;
+                const isCurrent = ep.date === activeDate;
+                const minutes = Math.round(ep.runtimeMs / 60000);
                 return (
                   <button
                     key={ep.date}
                     type="button"
                     onClick={() => selectEpisode(ep)}
-                    className="story-tile"
-                    style={isActive ? { borderColor: 'var(--accent)', background: 'linear-gradient(rgba(255,102,0,0.18),rgba(255,102,0,0.18)),var(--bg-card)', boxShadow: '0 0 0 1px var(--accent), 0 8px 22px rgba(255,102,0,0.25)' } : {}}
+                    className={`story-tile${isCurrent ? ' is-current' : ''}`}
                   >
-                    <div
-                      className="story-tile-thumb"
-                      style={{
-                        background: 'linear-gradient(135deg, rgba(255,140,40,0.55), rgba(255,102,0,0.32))',
-                        display: 'flex', alignItems: 'center', justifyContent: 'center',
-                        fontFamily: "'JetBrains Mono',monospace", fontSize: 12, fontWeight: 700, color: '#fff',
-                        textShadow: '0 1px 2px rgba(0,0,0,0.35)',
-                      }}
-                    >
-                      {fmtDateShort(ep.date)}
+                    <div className="story-tile-thumb-wrap">
+                      <div
+                        className="story-tile-thumb"
+                        style={{
+                          background: 'linear-gradient(135deg, rgba(255,140,40,0.55), rgba(255,102,0,0.32))',
+                          display: 'flex', alignItems: 'center', justifyContent: 'center',
+                          fontFamily: "'JetBrains Mono',monospace", fontSize: 12, fontWeight: 700, color: '#fff',
+                          textShadow: '0 1px 2px rgba(0,0,0,0.35)',
+                        }}
+                      >
+                        {fmtDateShort(ep.date)}
+                      </div>
+                      <span className="story-tile-pip">
+                        {isCurrent && <span className="story-tile-pip-dot" />}
+                        {minutes}m
+                      </span>
                     </div>
                     <div>
                       <div className="story-tile-title">{ep.host.name.split(' ').pop()} × {ep.guest.name.split(' ').pop()}</div>
                       <div className="story-tile-meta">
-                        <span>~{Math.round(ep.runtimeMs / 60000)} min</span>
                         <span>{ep.storyTitles.length} stories</span>
+                        {isCurrent && (
+                          <>
+                            <span className="meta-dot" />
+                            <span className="meta-now">now playing</span>
+                          </>
+                        )}
                       </div>
                     </div>
                   </button>
