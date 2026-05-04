@@ -101,6 +101,7 @@ function StoryCard({ story, onOpen, voted, onVote, onListen, audioStoryId, audio
   const isCurrent = audioStoryId === story.id;
   const isLoading = isCurrent && !!audioLoading;
   const isPlaying = isCurrent && !!audioPlaying;
+  const isJob = story.type === 'job';
   const cat = categorize(story.title);
   // Always have a thumbnail: canvas is the base, Microlink upgrades it on success.
   const [thumb, setThumb] = useState<string | null>(null);
@@ -154,7 +155,7 @@ function StoryCard({ story, onOpen, voted, onVote, onListen, audioStoryId, audio
           ) : (
             <span className="audio-btn-glyph"><Ico.Play /></span>
           )}
-          <span>{isLoading ? (audioMsg || 'Fetching…') : isPlaying ? 'Playing' : 'Listen'}</span>
+          <span>{isLoading ? (audioMsg || 'Fetching…') : isPlaying ? 'Playing' : isJob ? 'Brief' : 'Listen'}</span>
         </button>
       </div>
     </article>
@@ -278,7 +279,7 @@ function DetailView({ story, onBack, onListen, audioStoryId, audioPlaying, audio
       <div className="detail-actions">
         {story.url && <a className="visit-btn" href={story.url} target="_blank" rel="noopener">Visit site <Ico.Ext /></a>}
         <button type="button" className={`listen-btn${isPlaying ? ' active' : ''}${isAudioLoading ? ' loading' : ''}`} onClick={() => onListen(story)} disabled={isAudioLoading}>
-          {isAudioLoading ? <><Ico.Spin /> {audioMsg || 'Fetching…'}</> : isPlaying ? <><Ico.Pause /> Playing…</> : <><Ico.Play /> Listen to story</>}
+          {isAudioLoading ? <><Ico.Spin /> {audioMsg || 'Fetching…'}</> : isPlaying ? <><Ico.Pause /> Playing…</> : <><Ico.Play /> {story.type === 'job' ? 'Brief' : 'Listen to story'}</>}
         </button>
       </div>
       <div className="comments-divider" />
@@ -537,7 +538,7 @@ export function FeedShell() {
       const r = await fetch('/api/listen', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ storyId: story.id }),
+        body: JSON.stringify({ storyId: story.id, kind: story.type === 'job' ? 'job' : 'story' }),
       });
       if (!r.ok) throw new Error('listen failed');
       const blob = await r.blob();

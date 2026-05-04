@@ -1,7 +1,7 @@
 {
   "type": "webhook",
   "name": "hn_feed",
-  "description": "Fetch a shortlist from a Hacker News feed (front page / ask / show / jobs). Call after set_searching_state when the user asks what's trending, what's new, who's hiring, etc. Uses the public HN Algolia API — no auth.",
+  "description": "Fetch a shortlist from a Hacker News feed (front page / ask / show / jobs). Call after set_searching_state when the user asks what's been on the front page lately, who's hiring, etc. Uses the public HN Algolia API — no auth. Note: returns recent items in date order, NOT the current live top-ranked list. Frame answers as 'recently on the front page', not 'the current top'.",
   "disable_interruptions": false,
   "force_pre_tool_speech": "auto",
   "tool_call_sound": null,

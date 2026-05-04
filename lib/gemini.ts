@@ -18,6 +18,7 @@ export type ListenInput = {
   story: { title: string; by?: string; url?: string; score?: number; descendants?: number };
   article: ScrapedArticle | null;
   comments: string[];
+  kind?: "story" | "job";
 };
 
 export type RadioStoryInput = {
@@ -56,6 +57,31 @@ Task: produce 180-220 spoken words that:
 Hard rules: no headings, no bullet points, no markdown, no stage directions, no "in this article", no "Welcome listeners". Just narration. Output only the spoken text.`;
 }
 
+function buildJobListenPrompt({ story, article }: ListenInput): string {
+  const body = article
+    ? clampMarkdown(article.markdown, 6000)
+    : "(no body available — work from the title alone)";
+  return `You are a warm narrator giving a short elevator pitch of a Hacker News job posting. Speak in flowing prose meant to be heard.
+
+Title: ${story.title}
+
+Posting body:
+${body}
+
+Task: produce 90-130 spoken words that cover, in this order, only what is actually present in the title or body:
+- Who the company is and a one-line sense of what they do.
+- What roles they are hiring for.
+- Where the work is based (city, remote, hybrid) — only if mentioned.
+- A glimpse of the stack or domain — only if mentioned.
+- A brief closing line about why a listener might be interested.
+
+Hard rules:
+- Never mention Hacker News comments, reactions, sentiment, upvotes, or the crowd.
+- If a field is missing, skip it silently. Do not say "not specified", "no information available", or "the posting does not mention".
+- No headings, no bullet points, no markdown, no stage directions, no "Welcome listeners", no "in this posting".
+- Output only the spoken text.`;
+}
+
 function buildRadioPrompt(stories: RadioStoryInput[]): string {
   const blocks = stories.map((s, idx) => {
     const articleText = s.article ? clampMarkdown(s.article.markdown, 4500) : "(scrape unavailable)";
@@ -86,10 +112,11 @@ Hard rules: no headings, no bullet points, no markdown, no stage directions, no 
 }
 
 export async function* summarizeForListenStream(input: ListenInput): AsyncIterable<string> {
+  const promptText = input.kind === "job" ? buildJobListenPrompt(input) : buildListenPrompt(input);
   const stream = await client().models.generateContentStream({
     model: MODEL,
     config: { thinkingConfig: { thinkingLevel: ThinkingLevel.LOW } },
-    contents: [{ role: "user", parts: [{ text: buildListenPrompt(input) }] }],
+    contents: [{ role: "user", parts: [{ text: promptText }] }],
   });
   for await (const chunk of stream) {
     if (chunk.text) yield chunk.text;

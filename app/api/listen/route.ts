@@ -9,7 +9,11 @@ import { hashKey, readCache, writeCache, readJsonCache, writeJsonCache } from "@
 export const runtime = "nodejs";
 export const maxDuration = 60;
 
-const Body = z.object({ storyId: z.number().int().positive(), voiceId: z.string().optional() });
+const Body = z.object({
+  storyId: z.number().int().positive(),
+  voiceId: z.string().optional(),
+  kind: z.enum(["story", "job"]).optional().default("story"),
+});
 
 function stripHtml(s: string): string {
   return s.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
@@ -27,16 +31,26 @@ export async function POST(req: NextRequest) {
   if (!parsed.success) {
     return NextResponse.json({ error: "invalid body", issues: parsed.error.issues }, { status: 400 });
   }
-  const { storyId, voiceId } = parsed.data;
+  const { storyId, voiceId, kind } = parsed.data;
 
   try {
     const story = await getStoryThread(storyId);
     if (!story?.title) return NextResponse.json({ error: "story not found" }, { status: 404 });
-    const article = story.url ? await scrapeArticle(story.url, 4000).catch(() => null) : null;
-    const comments = topComments(story as { children: { text: string; children: { text: string }[] }[] });
+    let article = story.url ? await scrapeArticle(story.url, 4000).catch(() => null) : null;
+    if (kind === "job" && !article && story.text) {
+      const body = stripHtml(story.text);
+      if (body) {
+        article = {
+          url: story.url || `https://news.ycombinator.com/item?id=${storyId}`,
+          title: story.title,
+          markdown: body,
+        };
+      }
+    }
+    const comments = kind === "job" ? [] : topComments(story as { children: { text: string; children: { text: string }[] }[] });
 
     const articleSig = article?.markdown ? article.markdown.slice(0, 240) : "noscrape";
-    const cacheKey = hashKey(["listen", storyId, FLASH_MODEL, voiceId || "anchor", articleSig]);
+    const cacheKey = hashKey(["listen", kind, storyId, FLASH_MODEL, voiceId || "anchor", articleSig]);
 
     const cachedAudio = await readCache(cacheKey);
     if (cachedAudio) {
@@ -59,6 +73,7 @@ export async function POST(req: NextRequest) {
       },
       article,
       comments,
+      kind,
     });
 
     if (!summary) {
