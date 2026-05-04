@@ -79,6 +79,8 @@ function fmtDateShort(date: string): string {
   return new Intl.DateTimeFormat('en-US', { month: 'short', day: 'numeric', timeZone: 'UTC' }).format(dt);
 }
 
+const SpinIco = () => <svg className="hn-spinner" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round"><path d="M21 12a9 9 0 11-6.219-8.56"/></svg>;
+
 const fetcher = (url: string) => fetch(url).then((r) => r.json());
 
 export function PodcastShell() {
@@ -99,6 +101,34 @@ export function PodcastShell() {
   const [musicOn, setMusicOn] = useState(true);
   const [bedVol, setBedVol] = useState(0.18);
   const [searchInput, setSearchInput] = useState('');
+  const [voiceState, setVoiceState] = useState<'idle' | 'recording' | 'transcribing'>('idle');
+  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+
+  async function handleVoiceSearch() {
+    if (voiceState === 'recording') { mediaRecorderRef.current?.stop(); return; }
+    if (voiceState === 'transcribing') return;
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      const recorder = new MediaRecorder(stream);
+      mediaRecorderRef.current = recorder;
+      const chunks: BlobPart[] = [];
+      recorder.ondataavailable = (e) => { if (e.data.size > 0) chunks.push(e.data); };
+      recorder.onstop = async () => {
+        stream.getTracks().forEach((t) => t.stop());
+        setVoiceState('transcribing');
+        try {
+          const fd = new FormData();
+          fd.append('audio', new Blob(chunks, { type: 'audio/webm' }), 'voice.webm');
+          const res = await fetch('/api/stt', { method: 'POST', body: fd });
+          const { text } = await res.json() as { text: string };
+          if (text) setSearchInput(text);
+        } finally { setVoiceState('idle'); }
+      };
+      recorder.start();
+      setVoiceState('recording');
+    } catch { setVoiceState('idle'); }
+  }
+
   const filteredArchive = useMemo(() => {
     if (!searchInput.trim()) return archive;
     const q = searchInput.toLowerCase();
@@ -189,7 +219,23 @@ export function PodcastShell() {
         <div className="search-wrap">
           <span className="search-ico"><Ico.Search /></span>
           <input className="search-input" placeholder="Search episodes…" value={searchInput} onChange={(e) => setSearchInput(e.target.value)} />
-          <span className="search-kbd">⌘K</span>
+          <button
+            type="button"
+            className="search-kbd"
+            onClick={handleVoiceSearch}
+            title={voiceState === 'recording' ? 'Stop recording' : 'Search by voice'}
+            style={{
+              cursor: 'pointer',
+              color: voiceState === 'recording' ? 'var(--accent)' : voiceState === 'transcribing' ? 'var(--text-3)' : undefined,
+              background: 'none',
+              border: 'none',
+              padding: 0,
+              display: 'flex',
+              alignItems: 'center',
+            }}
+          >
+            {voiceState === 'transcribing' ? <SpinIco /> : <Ico.Mic />}
+          </button>
         </div>
         <div className="hdr-right">
           <TalkBotButton />

@@ -114,7 +114,7 @@
 .podcast-page .search-input::placeholder { color: var(--text-4); }
 .podcast-page .search-input:focus { border-color: var(--accent-border); box-shadow: 0 0 0 3px rgba(255,102,0,0.10); }
 .podcast-page .search-ico { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); color: var(--text-3); display: flex; align-items: center; }
-.podcast-page .search-kbd { position: absolute; right: 9px; top: 50%; transform: translateY(-50%); font-family: 'JetBrains Mono', monospace; font-size: 9.5px; color: var(--text-4); background: var(--bg-alt); border: 1px solid var(--border); border-radius: 4px; padding: 1px 5px; pointer-events: none; }
+.podcast-page .search-kbd { position: absolute; right: 9px; top: 50%; transform: translateY(-50%); background: none; border: none; padding: 2px; color: var(--text-4); display: flex; align-items: center; cursor: pointer; pointer-events: all; }
 
 .podcast-page .hnav { display: flex; gap: 4px; padding: 3px; background: var(--bg-card); border: 1px solid var(--border); border-radius: 10px; }
 .podcast-page .hnav-btn {
