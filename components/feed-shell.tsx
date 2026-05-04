@@ -607,7 +607,23 @@ export function FeedShell() {
           ) : (
             <main className="feed-wrap">
               <div className="feed-header">
-                <h1 className="feed-title">{feedTitle}</h1>
+                <h1 className="section-hdr-title">
+                  {feedTitle}
+                  {(activeNav === 'top' || activeNav === 'new') && (
+                    <span className="section-hdr-live">
+                      <span className="section-hdr-live-dot" />
+                      <span className="section-hdr-live-label">Live</span>
+                    </span>
+                  )}
+                </h1>
+                {filtered.length > 0 && (
+                  <div className="section-hdr-counts">
+                    <span className="section-hdr-count">
+                      <span className="count-dot" />
+                      {filtered.length} stories
+                    </span>
+                  </div>
+                )}
               </div>
               {activeNav === 'past' && resolvedDay && <PastNav day={resolvedDay} router={router} />}
 
