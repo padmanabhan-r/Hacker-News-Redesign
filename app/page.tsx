@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { ArrowRight, Headphones, Sparkles, Clock, MessageSquareText, Globe2, Sun } from 'lucide-react';
+import { ArrowRight, Headphones, Sparkles, Clock, Bot, Globe2, Sun } from 'lucide-react';
 import { SiteBackgrounds } from '@/components/site-backgrounds';
 import { Brand } from '@/components/brand';
 import { ThemeToggle } from '@/components/theme-toggle';
@@ -117,30 +117,23 @@ export default function Landing() {
               Firecrawl reads the linked page, Gemini writes the script, ElevenLabs voices it. You get the
               substance — not the SEO filler, not the comment scrollback.
             </Feature>
-            <Feature tag="03 / PODCAST" title="The HN Pod" icon={<Clock size={20} />}>
-              A daily 8–10 min HN++ Pod — a host and a rotating guest dig into the day's top stories
-              and best comments, with chapter markers. Ready every morning at 7 AM PT.
+            <Feature tag="03 / PODCAST" title="HN++ Pod" icon={<Clock size={20} />}>
+              A daily 10–15 min multi-voice show — top stories, community takes, chapter markers.
+              Auto-baked every day, served from Cloudflare R2. Drops at 6:30 PM PT (1:30 AM GMT).
             </Feature>
-            <Feature tag="04 / THREADS" title="Smarter comment threads" icon={<MessageSquareText size={20} />}>
-              Collapsible, color-coded by depth, with a "best replies" filter. Same content. Less work to read.
+            <Feature tag="04 / BOT" title="HN++ Bot" icon={<Bot size={20} />}>
+              Ask HN++ Bot anything — what's trending today, who's hiring, what the community is debating.
+              Powered by live HN data. Live now.
             </Feature>
             <Feature tag="05 / API" title="Real HN data" icon={<Globe2 size={20} />}>
-              Streams live from the official Firebase API — same stories, same scores, same comments.
-              We just present them differently.
+              If it's on HN, it's here. Live from the official HN API — same stories, same scores,
+              same comments, same ranking. Just a better surface to read them on.
             </Feature>
             <Feature tag="06 / FEEL" title="Glass & warm light" icon={<Sun size={20} />}>
               A warm, late-afternoon SF palette with frosted glass surfaces. Dense enough for power users,
               calm enough for leisurely reading.
             </Feature>
           </div>
-        </section>
-
-        {/* Stats */}
-        <section className="stats-strip">
-          <Stat n="6" lbl="HN feed categories" />
-          <Stat n="3" lbl="AI-powered features" />
-          <Stat n="0" lbl="Ads or trackers" />
-          <Stat n="Live" lbl="HN data · Firebase API" />
         </section>
 
         {/* CTA */}
@@ -256,16 +249,6 @@ function Feature({
       <div className="feature-tag">{tag}</div>
       <div className="feature-title">{title}</div>
       <div className="feature-desc">{children}</div>
-    </div>
-  );
-}
-
-
-function Stat({ n, lbl }: { n: string; lbl: string }) {
-  return (
-    <div className="stat">
-      <div className="stat-num">{n}</div>
-      <div className="stat-lbl">{lbl}</div>
     </div>
   );
 }
