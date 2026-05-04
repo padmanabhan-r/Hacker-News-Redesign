@@ -135,10 +135,12 @@ function StoryCard({ story, onOpen, voted, onVote, onListen, audioStoryId, audio
       </div>
       <div className="story-body">
         <div className="story-title">{story.title}</div>
-        {dom && <div className="story-domain">{dom}</div>}
         <div className="story-meta-row">
+          {dom && <><span className="meta-domain">{dom}</span><span className="meta-dot" /></>}
           <span className="meta-item"><Ico.Star /> {story.score ?? 0}</span>
+          <span className="meta-dot" />
           <span className="meta-item">by {story.by}</span>
+          <span className="meta-dot" />
           <span className="meta-item">{timeAgo(story.time)}</span>
         </div>
       </div>

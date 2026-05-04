@@ -425,8 +425,22 @@
   font-family: 'JetBrains Mono', monospace; font-size: 10px;
   color: var(--accent-text); opacity: 0.75; margin-bottom: 5px;
 }
-.feed-page .story-meta-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
-.feed-page .meta-item { display: flex; align-items: center; gap: 3px; font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--text-3); }
+.feed-page .story-meta-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+}
+.feed-page .story-meta-row .meta-domain { color: var(--accent-text); font-weight: 500; }
+.feed-page .story-meta-row .meta-item { display: inline-flex; align-items: center; gap: 3px; color: var(--text-3); }
+.feed-page .story-meta-row .meta-dot {
+  width: 3px; height: 3px;
+  border-radius: 50%;
+  background: var(--text-4);
+  flex-shrink: 0;
+}
 
 .feed-page .story-actions { display: flex; flex-direction: column; align-items: flex-end; gap: 5px; flex-shrink: 0; }
 .feed-page .cmts-btn {
