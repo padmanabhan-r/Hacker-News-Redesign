@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useTheme } from 'next-themes';
+import useSWR from 'swr';
 import { LoginModal, UserChip, getStoredUser, clearStoredUser, type HNUser } from '@/components/login-modal';
 import { TalkBotButton } from './talk-bot-button';
 import { SubmitButton } from './submit-button';
@@ -78,12 +79,18 @@ function fmtDateShort(date: string): string {
   return new Intl.DateTimeFormat('en-US', { month: 'short', day: 'numeric', timeZone: 'UTC' }).format(dt);
 }
 
+const fetcher = (url: string) => fetch(url).then((r) => r.json());
+
 export function PodcastShell() {
+  const { data: todayData, error: todayError } = useSWR<Manifest>('/api/podcast/today', fetcher, { revalidateOnFocus: false });
+  const { data: archiveData } = useSWR<{ episodes: Manifest[] }>('/api/podcast/archive', fetcher, { revalidateOnFocus: false });
+
+  const loading = !todayData && !todayError;
+  const error = todayError ? 'No episode available yet. The cron will bake one shortly.' : null;
+  const archive = archiveData?.episodes ?? [];
+
   const [manifest, setManifest] = useState<Manifest | null>(null);
-  const [archive, setArchive] = useState<Manifest[]>([]);
   const [activeDate, setActiveDate] = useState<string | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
   const [playing, setPlaying] = useState(false);
   const [now, setNow] = useState(0);
   const [vol, setVol] = useState(80);
@@ -110,37 +117,11 @@ export function PodcastShell() {
   const isDark = mounted && theme === 'dark';
 
   useEffect(() => {
-    let cancelled = false;
-    async function load() {
-      setLoading(true);
-      setError(null);
-      try {
-        const [todayRes, archiveRes] = await Promise.all([
-          fetch('/api/podcast/today'),
-          fetch('/api/podcast/archive'),
-        ]);
-        if (!cancelled) {
-          if (todayRes.ok) {
-            const m = (await todayRes.json()) as Manifest;
-            setManifest(m);
-            setActiveDate(m.date);
-          } else {
-            setError('No episode available yet. The cron will bake one shortly.');
-          }
-          if (archiveRes.ok) {
-            const { episodes } = (await archiveRes.json()) as { episodes: Manifest[] };
-            setArchive(episodes);
-          }
-        }
-      } catch (e) {
-        if (!cancelled) setError((e as Error).message);
-      } finally {
-        if (!cancelled) setLoading(false);
-      }
+    if (todayData && !manifest) {
+      setManifest(todayData);
+      setActiveDate(todayData.date);
     }
-    load();
-    return () => { cancelled = true; };
-  }, []);
+  }, [todayData]);
 
   function selectEpisode(m: Manifest) {
     setManifest(m);
@@ -189,7 +170,6 @@ export function PodcastShell() {
 
   return (
     <div className="podcast-page">
-      <div className="pt-cover" aria-hidden><div className="pt-mark"><div className="pt-ring" /><div className="pt-logo">Y</div></div></div>
       <header className="hdr">
         <Link className="logo" href="/highlights">
           <div className="logo-box" aria-label="HN++" style={{ position: 'relative' }}>

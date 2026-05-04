@@ -353,7 +353,6 @@ export function HighlightsShell() {
 
   return (
     <div className="highlights-page">
-      <div className="pt-cover" aria-hidden><div className="pt-mark"><div className="pt-ring" /><div className="pt-logo">Y</div></div></div>
       <header className="hdr">
         <Link className="logo" href="/highlights">
           <div className="logo-box" aria-label="HN++" style={{ position: 'relative' }}>

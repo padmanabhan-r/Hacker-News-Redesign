@@ -478,7 +478,6 @@ export function FeedShell() {
 
   return (
     <div className="feed-page">
-      <div className="pt-cover" aria-hidden><div className="pt-mark"><div className="pt-ring" /><div className="pt-logo">Y</div></div></div>
       {/* Background layers */}
       <div className="bg-layers" aria-hidden>
         <div className="bg-code-feed">{CODE_RAIN}</div>
