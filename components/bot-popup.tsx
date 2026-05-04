@@ -111,7 +111,7 @@ function BotBody({ ctl, onClose }: { ctl: ReturnType<typeof useBotConversation>;
       <header className="bot-head">
         <div className="bot-brand">
           <span className="bot-brand-dot" />
-          <span className="bot-brand-name">HN++ Bot</span>
+          <span className="bot-brand-name">HN++ Bot <span className="bot-beta">BETA</span></span>
           <span className="bot-brand-sub">live · powered by ElevenLabs</span>
         </div>
         <button type="button" onClick={onClose} className="bot-close" aria-label="Close">
@@ -198,6 +198,16 @@ function BotBody({ ctl, onClose }: { ctl: ReturnType<typeof useBotConversation>;
           font-family: 'Syne', sans-serif;
           font-weight: 800; font-size: 15px; letter-spacing: -0.3px;
           color: var(--text-1);
+          display: inline-flex; align-items: center; gap: 7px;
+        }
+        .bot-beta {
+          font-family: 'JetBrains Mono', monospace;
+          font-size: 8.5px; font-weight: 700; letter-spacing: 0.12em;
+          padding: 2px 6px; border-radius: 4px;
+          background: rgba(255,102,0,0.18);
+          color: var(--accent);
+          border: 1px solid rgba(255,102,0,0.40);
+          line-height: 1;
         }
         .bot-brand-sub {
           font-family: 'JetBrains Mono', monospace;
