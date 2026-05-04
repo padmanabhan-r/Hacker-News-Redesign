@@ -84,7 +84,7 @@ HN++ is a complete visual redesign of Hacker News — same data, entirely differ
 
 **2. Listen (per article)** — Tap the Listen button on any story. Firecrawl scrapes the linked article, Gemini Flash writes a 180–220-word narration blending article content with comment sentiment, ElevenLabs Flash v2.5 streams it back. First audio byte in under 3 seconds.
 
-**3. Search by voice** — Tap the mic in the feed search bar. ElevenLabs Scribe (`scribe_v1`) transcribes your query and filters the feed instantly.
+**3. Search by voice** — Tap the mic in the search bar on Feed or Highlights. ElevenLabs Scribe (`scribe_v1`) transcribes your query and filters stories instantly.
 
 **4. Listen to the Pod** — Today's HN++ Pod is pre-baked every day at 1:30 AM GMT. Open the Podcast tab, hit play. Chapter markers let you skip to any story segment. Last 7 days are always available.
 
@@ -97,9 +97,9 @@ HN++ is a complete visual redesign of Hacker News — same data, entirely differ
 | Feature | Description |
 |---------|-------------|
 | **Listen** | Tap any story for a 60–90s AI narration — article summary + comment sentiment, streamed via ElevenLabs Flash |
-| **Voice Search** | Speak your search query — ElevenLabs Scribe transcribes it live |
 | **HN++ Pod** | Automated daily 10–15 min multi-voice podcast — host Anchor Aiden + rotating guest |
 | **Chapter Markers** | Skip directly to any of the 8 story segments in the podcast player |
+| **Voice Search** | Tap the mic in the search bar — ElevenLabs Scribe transcribes your query live |
 | **HN++ Bot** | Conversational AI agent with live HN context — ask anything |
 | **Highlights View** | Curated top stories across 6 categories with a clean card grid |
 | **Live HN Data** | Direct Firebase API — no cache lag, same ranking as hacker news |
@@ -156,7 +156,7 @@ Four ElevenLabs products are active in production:
 |---------|-------------|------------|
 | **Flash TTS** (`eleven_flash_v2_5`) | `textToSpeech.convert` with `optimizeStreamingLatency=4` | Listen — per-article narration streamed on demand |
 | **Text-to-Dialogue** (`eleven_v3`) | `textToDialogue.convertWithTimestamps` | HN++ Pod — multi-voice host/guest podcast, chapter timings |
-| **Scribe STT** (`scribe_v1`) | `speechToText.convert` | Voice search in the Feed — mic input → query text |
+| **Scribe STT** (`scribe_v1`) | `speechToText.convert` | Voice search in Feed + Highlights — mic input → query text |
 | **Conversational AI** | `@elevenlabs/client` `Conversation.startSession` | HN++ Bot — real-time agent with live HN context |
 | **Music API** | `music.compose` | Ambient music bed playing under the podcast player — generated once, baked as a static asset |
 

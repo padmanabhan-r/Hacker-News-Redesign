@@ -172,8 +172,9 @@
 .feed-page .search-ico { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); color: var(--text-3); }
 .feed-page .search-kbd {
   position: absolute; right: 9px; top: 50%; transform: translateY(-50%);
-  font-family: 'JetBrains Mono', monospace; font-size: 9.5px; color: var(--text-4);
-  background: var(--bg-alt); border: 1px solid var(--border); border-radius: 4px; padding: 1px 5px;
+  background: none; border: none; padding: 2px;
+  color: var(--text-4); display: flex; align-items: center;
+  cursor: pointer; pointer-events: all;
 }
 
 .feed-page .hnav { display: flex; gap: 4px; padding: 3px; background: var(--bg-card); border: 1px solid var(--border); border-radius: 10px; }
