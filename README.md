@@ -2,7 +2,7 @@
 
 **Hacker News, now with a voice.**
 
-> Built for ElevenHacks 2026 — live prototype, not a demo.
+> Built for ElevenHacks 2026 - not affiliated with Y Combinator.
 
 [![App](https://img.shields.io/badge/Live-hnpp.app-brightgreen?style=flat-square&logo=googlechrome&logoColor=white)](https://hnpp.app)
 [![ElevenLabs](https://img.shields.io/badge/ElevenLabs-TTS%20%2B%20Dialogue%20%2B%20STT%20%2B%20Agents-FF6B35?style=flat-square&logoColor=white)](https://elevenlabs.io)
@@ -30,6 +30,7 @@ HN++ is a calm, glassmorphic redesign of Hacker News with three AI audio product
 ## Table of Contents
 
 - [What is HN++?](#what-is-hn)
+- [UI Redesign](#ui-redesign)
 - [How It Works](#how-it-works)
 - [Key Features](#key-features)
 - [Audio Pipelines](#audio-pipelines)
@@ -49,6 +50,26 @@ HN++ has three distinct products built on top of the official Hacker News Fireba
 - **Feed** — the full live HN firehose with voice search (ElevenLabs Scribe), Listen on every post, and collapsible comment threads.
 - **HN++ Pod** — a fully automated daily podcast. Every morning a GitHub Actions cron scrapes the top 8 stories, Gemini Flash writes a multi-voice dialogue script, and ElevenLabs `eleven_v3` text-to-dialogue renders it as a 10–15 min MP3 with chapter markers. Served from Cloudflare R2.
 - **HN++ Bot** — a conversational AI agent (ElevenLabs Conversational AI) that knows what's on HN right now. Ask it anything: trending stories, who's hiring, what the community is debating.
+
+---
+
+## UI Redesign
+
+HN++ is a complete visual redesign of Hacker News — same data, entirely different surface.
+
+**Design language — glassmorphism on a warm SF palette.** Frosted-glass cards with backdrop blur, soft amber and orange tones, a warm late-afternoon light feel. Dense enough for power users who live in HN, calm enough for casual reading.
+
+**Three views, each with a purpose:**
+- **Highlights** — editorial-style card grid. Hero story large, 4 secondary stories, a headlines panel for the rest. Filtered by 6 categories (AI, Science, Business, Engineering, Ask HN, Show HN).
+- **Feed** — the full firehose. Infinite scroll, per-story thumbnails, collapsible comment threads color-coded by depth, voice search.
+- **Podcast** — a dedicated player UI with waveform visualiser, chapter scrubber, archive browser, and ambient music bed.
+
+**Details:**
+- Dark / light mode with smooth system-aware switching
+- Frosted-glass page transition overlay on every route change
+- Syne display font for headings, Inter for body, JetBrains Mono for code
+- Responsive — works on mobile and desktop
+- Scaffolded in [v0](https://v0.dev), then heavily customised
 
 ---
 
@@ -77,7 +98,7 @@ HN++ has three distinct products built on top of the official Hacker News Fireba
 | **HN++ Bot** | Conversational AI agent with live HN context — ask anything |
 | **Highlights View** | Curated top stories across 6 categories with a clean card grid |
 | **Live HN Data** | Direct Firebase API — no cache lag, same ranking as hacker news |
-| **Glassmorphic UI** | Warm SF palette, frosted-glass surfaces, dark/light mode |
+| **Glassmorphic UI** | Full HN redesign — frosted-glass cards, warm SF palette, Syne/Inter typography, dark/light mode, animated page transitions |
 
 ---
 
