@@ -386,13 +386,33 @@
 
 .feed-page .vote-col { display: flex; flex-direction: column; align-items: center; gap: 2px; }
 .feed-page .vote-up {
-  width: 22px; height: 22px; border-radius: 6px;
-  background: transparent; border: 1px solid var(--border);
+  width: 24px; height: 24px; border-radius: 7px;
+  background: rgba(255,102,0,0.04);
+  border: 1px solid rgba(255,102,0,0.18);
+  color: var(--accent);
   display: flex; align-items: center; justify-content: center;
-  cursor: pointer; color: var(--text-3); transition: all 0.13s;
+  font-size: 11px;
+  cursor: pointer;
+  transition: all 0.14s;
+  opacity: 0.85;
 }
-.feed-page .vote-up:hover { background: var(--accent-bg); border-color: var(--accent-border); color: var(--accent); }
-.feed-page .vote-up.active { background: var(--accent-bg); border-color: var(--accent-border); color: var(--accent); }
+.feed-page .vote-up:hover {
+  background: var(--accent-bg);
+  border-color: var(--accent-border);
+  transform: translateY(-1px);
+  box-shadow: 0 2px 6px rgba(255,102,0,0.18);
+  opacity: 1;
+}
+.feed-page .vote-up.active {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+  box-shadow:
+    0 2px 8px rgba(255,102,0,0.45),
+    0 0 0 3px rgba(255,102,0,0.12);
+  opacity: 1;
+}
+.feed-page .vote-up.active + .vote-score { color: var(--accent-text); }
 .feed-page .vote-score { font-family: 'Syne', sans-serif; font-size: 11px; font-weight: 700; color: var(--text-1); line-height: 1; }
 
 .feed-page .story-body { min-width: 0; }
