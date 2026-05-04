@@ -56,9 +56,10 @@ coverage/
 .remember/
 *.claude*
 
-# Root-level markdown (keep only README)
+# Root-level markdown (keep only README and CHANGELOG)
 /*.md
 !README.md
+!CHANGELOG.md
 
 # OS
 .DS_Store
