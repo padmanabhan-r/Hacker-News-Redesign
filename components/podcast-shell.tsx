@@ -78,22 +78,16 @@ function fmtTime(s: number) {
   return `${m}:${String(sec).padStart(2, '0')}`;
 }
 
-function fmtDateLong(date: string): string {
-  const [y, m, d] = date.split('-').map((n) => parseInt(n, 10));
-  const dt = new Date(Date.UTC(y, m - 1, d));
-  return new Intl.DateTimeFormat('en-US', { weekday: 'long', month: 'long', day: 'numeric', timeZone: 'UTC' }).format(dt);
-}
-
 function fmtDateShort(date: string): string {
   const [y, m, d] = date.split('-').map((n) => parseInt(n, 10));
   const dt = new Date(Date.UTC(y, m - 1, d));
   return new Intl.DateTimeFormat('en-US', { month: 'short', day: 'numeric', timeZone: 'UTC' }).format(dt);
 }
 
-function fmtDateKicker(date: string): string {
+function fmtDateLong(date: string): string {
   const [y, m, d] = date.split('-').map((n) => parseInt(n, 10));
   const dt = new Date(Date.UTC(y, m - 1, d));
-  return new Intl.DateTimeFormat('en-US', { weekday: 'short', month: 'short', day: 'numeric', timeZone: 'UTC' }).format(dt).replace(',', ' ·');
+  return new Intl.DateTimeFormat('en-US', { weekday: 'long', month: 'long', day: 'numeric', timeZone: 'UTC' }).format(dt);
 }
 
 function episodeNumber(date: string): string {
@@ -101,16 +95,6 @@ function episodeNumber(date: string): string {
   const [y, m, d] = date.split('-').map((n) => parseInt(n, 10));
   const days = Math.max(1, Math.round((Date.UTC(y, m - 1, d) - epoch) / 86400000) + 1);
   return String(days).padStart(3, '0');
-}
-
-function deriveTopic(titles: string[] | undefined): { head: string; accent: string } {
-  if (!titles?.length) return { head: "Today's", accent: 'top stories' };
-  const t = titles[0].replace(/\s+/g, ' ').trim();
-  const words = t.split(' ');
-  if (words.length <= 3) return { head: t, accent: '' };
-  const accent = words.slice(-2).join(' ');
-  const head = words.slice(0, -2).join(' ');
-  return { head, accent };
 }
 
 const SpinIco = () => <svg className="hn-spinner" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round"><path d="M21 12a9 9 0 11-6.219-8.56"/></svg>;
@@ -290,14 +274,14 @@ export function PodcastShell() {
             <div className="key-section-title"><Ico.Mic /> HN++ Pod</div>
             <span className="powered-pill">
               <span className="el-mark" aria-hidden>11</span>
-              <span className="el-label">ElevenLabs · v3</span>
+              <span className="el-label">Powered by ElevenLabs</span>
             </span>
           </div>
           <div className="key-section-sub">
             A daily ~5 min show. Standard host plus a rotating guest dig into the day's top Hacker News stories,
             with the article and the comment crowd in mind. Fresh every morning at 7:00 AM IST · 1:30 AM GMT · 6:30 PM PT (prev day).
           </div>
-          <div style={{ marginTop: 8, fontSize: 11, color: 'var(--text-4)', fontFamily: "'JetBrains Mono', monospace", letterSpacing: '0.02em' }}>
+          <div style={{ marginTop: 8, fontSize: 11, color: 'var(--text-3)', fontFamily: "'JetBrains Mono', monospace", letterSpacing: '0.02em' }}>
             Episodes trimmed to ~5 min to conserve ElevenLabs credits.
           </div>
           {error && (
@@ -324,15 +308,9 @@ export function PodcastShell() {
             </div>
             {manifest ? (
               <>
-                <div className="pod-ep-kicker">{fmtDateKicker(manifest.date)}</div>
-                {(() => {
-                  const t = deriveTopic(manifest.storyTitles);
-                  return (
-                    <div className="pod-ep-topic">
-                      {t.head} {t.accent && <em>{t.accent}</em>}
-                    </div>
-                  );
-                })()}
+                <div className="pod-ep-topic">
+                  HN++ Pod · {fmtDateLong(manifest.date)}
+                </div>
                 <div className="pod-ep-sub-new">{hostLabel}</div>
               </>
             ) : (
@@ -346,29 +324,6 @@ export function PodcastShell() {
               bars={48}
             />
 
-            {manifest && dur > 0 && (
-              <div className="chapter-strip">
-                {manifest.segments.map((seg, i) => {
-                  const startSec = seg.startMs / 1000;
-                  const endSec = seg.endMs / 1000;
-                  const isActive = now >= startSec && now < endSec;
-                  const weight = Math.max(1, endSec - startSec);
-                  return (
-                    <div
-                      key={i}
-                      className={`chapter-cell${isActive ? ' is-active' : ''}`}
-                      style={{ flex: weight, minWidth: 0 }}
-                      title={seg.title}
-                    >
-                      <div className="chapter-cell-head">
-                        <span className="chapter-cell-num">{String(i + 1).padStart(2, '0')}</span>
-                        <span className="chapter-cell-title">{seg.title}</span>
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            )}
             <div className="player-controls">
               <button type="button" className="skip-btn" onClick={() => audioRef.current && (audioRef.current.currentTime = Math.max(0, audioRef.current.currentTime - 10))}><Ico.SkipB /></button>
               <button type="button" className="play-btn" onClick={togglePlay} disabled={!manifest}>
@@ -388,7 +343,7 @@ export function PodcastShell() {
               </div>
             </div>
 
-            <div className="vol-row" style={{ marginBottom: 8 }}>
+            <div className="vol-row" style={{ marginBottom: 16, gap: 12, flexWrap: 'wrap' }}>
               <span className="vol-icon"><Ico.Vol /></span>
               <input
                 type="range" className="vol-slider" min={0} max={100} value={vol}
@@ -397,10 +352,8 @@ export function PodcastShell() {
                   setVol(v);
                   if (audioRef.current) audioRef.current.volume = v / 100;
                 }}
+                aria-label="Master volume"
               />
-            </div>
-
-            <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 16, fontSize: 11.5, color: 'var(--text-3)', fontFamily: "'JetBrains Mono',monospace" }}>
               <button
                 type="button"
                 onClick={() => setMusicOn((v) => !v)}

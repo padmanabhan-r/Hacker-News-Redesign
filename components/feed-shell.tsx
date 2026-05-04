@@ -549,7 +549,7 @@ export function FeedShell() {
               onChange={(e) => setSearchInput(e.target.value)}
             />
             <button type="button" className="search-kbd" onClick={handleVoiceSearch} title={voiceState === 'recording' ? 'Stop recording' : 'Search by voice'} style={{ cursor: 'pointer', color: voiceState === 'recording' ? 'var(--accent)' : voiceState === 'transcribing' ? 'var(--text-3)' : undefined, background: 'none', border: 'none', padding: 0, display: 'flex', alignItems: 'center' }}>
-              {voiceState === 'transcribing' ? <SpinIco /> : <Ico.Mic />}
+              {voiceState === 'transcribing' ? <Ico.Spin /> : <Ico.Mic />}
             </button>
           </div>
           <div className="hdr-right">

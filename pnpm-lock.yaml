@@ -17,6 +17,9 @@ importers:
       '@elevenlabs/elevenlabs-js':
         specifier: ^2.45.0
         version: 2.45.0
+      '@elevenlabs/react':
+        specifier: ^1.3.0
+        version: 1.3.0(@types/dom-mediacapture-record@1.0.22)(react@19.2.4)
       '@google/genai':
         specifier: ^1.51.0
         version: 1.51.0
@@ -389,6 +392,11 @@ packages:
   '@elevenlabs/elevenlabs-js@2.45.0':
     resolution: {integrity: sha512-TqD1tBFs7cLJ4qG8xF0BSYagchEx/ME29mba5x6hOv58NqEFpRHkHquTO78vAS2lD+0yxdCKV7qAyTrZQPnnaQ==}
     engines: {node: '>=18.0.0'}
+
+  '@elevenlabs/react@1.3.0':
+    resolution: {integrity: sha512-aE0qrrFQMtEPTtYqr4yyBFBgprk5VmVLIscHQh5F6FqqdsNREv3vmPWOKQmQGmYq8TmFtUuInbE9CYHMrgAcyQ==}
+    peerDependencies:
+      react: '>=16.8.0'
 
   '@elevenlabs/types@0.10.0':
     resolution: {integrity: sha512-oSbugtVksz1L2mUSCYDtNf9SBWu/HUdX44z0oGKOWHnwTFVwbDP63L+E+4DGYQ5tz329saHfJZsRinzGPrktWQ==}
@@ -3204,6 +3212,13 @@ snapshots:
       - bufferutil
       - encoding
       - utf-8-validate
+
+  '@elevenlabs/react@1.3.0(@types/dom-mediacapture-record@1.0.22)(react@19.2.4)':
+    dependencies:
+      '@elevenlabs/client': 1.4.0(@types/dom-mediacapture-record@1.0.22)
+      react: 19.2.4
+    transitivePeerDependencies:
+      - '@types/dom-mediacapture-record'
 
   '@elevenlabs/types@0.10.0': {}
 

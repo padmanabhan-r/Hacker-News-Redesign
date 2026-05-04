@@ -6,7 +6,7 @@ import { Search, Bell, Mic, ArrowRight, Headphones, Sparkles } from 'lucide-reac
 import { useEffect, useRef, useState } from 'react';
 import { Brand } from './brand';
 import { ThemeToggle } from './theme-toggle';
-import { ConvAgent } from './conv-agent';
+import { TalkBotButton } from './talk-bot-button';
 
 const NAV: { id: string; label: string; href: string }[] = [
   { id: 'top',  label: 'Top',   href: '/feed?feed=top' },
@@ -120,7 +120,7 @@ export function Header() {
         >
           <Headphones size={12} /> Pod
         </Link>
-        <ConvAgent />
+        <TalkBotButton />
         <ThemeToggle />
         <button className="icon-btn" aria-label="Notifications">
           <Bell size={14} />
