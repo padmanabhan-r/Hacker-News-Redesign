@@ -355,7 +355,15 @@
   background-color: var(--bg-alt);
   flex-shrink: 0; overflow: hidden; position: relative;
   border: 1px solid var(--border);
-  box-shadow: inset 0 0 0 1px var(--glass-inner);
+  box-shadow:
+    inset 0 0 0 1px rgba(255,255,255,0.10),
+    inset 0 -20px 30px rgba(0,0,0,0.25);
+}
+.feed-page .story-thumb::after {
+  content: '';
+  position: absolute; inset: 0;
+  background: linear-gradient(135deg, rgba(255,140,60,0.18), transparent 50%);
+  pointer-events: none;
 }
 .feed-page .story-thumb-play {
   position: absolute; inset: 0; background: transparent;
@@ -385,12 +393,13 @@
 }
 .feed-page .vote-up:hover { background: var(--accent-bg); border-color: var(--accent-border); color: var(--accent); }
 .feed-page .vote-up.active { background: var(--accent-bg); border-color: var(--accent-border); color: var(--accent); }
-.feed-page .vote-score { font-family: 'JetBrains Mono', monospace; font-size: 9.5px; color: var(--text-3); line-height: 1; }
+.feed-page .vote-score { font-family: 'Syne', sans-serif; font-size: 11px; font-weight: 700; color: var(--text-1); line-height: 1; }
 
 .feed-page .story-body { min-width: 0; }
 .feed-page .story-title {
-  font-family: 'Inter', sans-serif; font-size: 13.5px; font-weight: 500;
-  line-height: 1.5; color: var(--text-1); margin-bottom: 4px; text-wrap: pretty;
+  font-family: 'Syne', sans-serif; font-size: 14px; font-weight: 600;
+  line-height: 1.4; letter-spacing: -0.25px;
+  color: var(--text-1); text-wrap: pretty; margin-bottom: 5px;
 }
 .feed-page .story-domain {
   font-family: 'JetBrains Mono', monospace; font-size: 10px;
