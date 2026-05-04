@@ -18,7 +18,11 @@
 >
 > **HN++ changes that.**
 
-HN++ is a calm, glassmorphic redesign of Hacker News with three AI audio products layered on top: per-article narration you can play in two taps, a fully automated daily podcast with a host and rotating guest, and a conversational bot that knows what's on HN right now. Same community. Same firehose. Now you can actually listen.
+**This is not a mockup. There is no demo data.**
+
+Every story, score, comment, and ranking comes live from the official HN Firebase API. If it's on Hacker News right now, it's on HN++ right now — same content, same community, same firehose. The design is completely reinvented. Everything else stays exactly as it is.
+
+On top of that: per-article AI narration, a fully automated daily podcast with a host and rotating guest, and a conversational bot that knows what's on HN right now. Same community. Same firehose. Now you can actually listen.
 
 <!-- Screenshot: HN++ hero — replace with actual screenshot -->
 <p align="center">
