@@ -135,18 +135,26 @@ function StoryCard({ story, onOpen, voted, onVote, onListen, audioStoryId, audio
       </div>
       <div className="story-body">
         <div className="story-title">{story.title}</div>
-        {dom && <div className="story-domain">{dom}</div>}
         <div className="story-meta-row">
+          {dom && <><span className="meta-domain">{dom}</span><span className="meta-dot" /></>}
           <span className="meta-item"><Ico.Star /> {story.score ?? 0}</span>
+          <span className="meta-dot" />
           <span className="meta-item">by {story.by}</span>
+          <span className="meta-dot" />
           <span className="meta-item">{timeAgo(story.time)}</span>
         </div>
       </div>
       <div className="story-actions" onClick={(e) => e.stopPropagation()}>
         <button type="button" className="cmts-btn" onClick={() => onOpen(story)}><Ico.Msg /> {story.descendants ?? 0}</button>
-        <button type="button" className={`audio-btn${isPlaying ? ' playing' : ''}${isLoading ? ' loading' : ''}`} onClick={() => onListen(story)} disabled={isLoading}>
-          {isLoading ? <Ico.Spin /> : isPlaying ? <Ico.Pause /> : <Ico.Play />}
-          {isLoading ? (audioMsg || 'Fetching…') : isPlaying ? 'Playing' : 'Listen'}
+        <button type="button" className={`audio-btn${isPlaying ? ' is-playing' : ''}${isLoading ? ' loading' : ''}`} onClick={() => onListen(story)} disabled={isLoading}>
+          {isLoading ? (
+            <span className="audio-btn-glyph"><Ico.Spin /></span>
+          ) : isPlaying ? (
+            <span className="audio-eq"><span /><span /><span /><span /><span /></span>
+          ) : (
+            <span className="audio-btn-glyph"><Ico.Play /></span>
+          )}
+          <span>{isLoading ? (audioMsg || 'Fetching…') : isPlaying ? 'Playing' : 'Listen'}</span>
         </button>
       </div>
     </article>
@@ -195,16 +203,20 @@ function SkeletonCard() {
   );
 }
 
-function CommentNode({ node, depth = 0 }: { node: AlgoliaComment; depth?: number }) {
+function CommentNode({ node, depth = 0, storyAuthor }: { node: AlgoliaComment; depth?: number; storyAuthor?: string }) {
   const [open, setOpen] = useState(true);
   if (!node) return null;
   const cls = depth === 0 ? 'comment-block' : depth === 1 ? 'comment-block d1' : 'comment-block d2';
   const kids = (node.children || []).slice(0, depth < 2 ? 4 : 0);
+  const author = node.author || 'anon';
+  const isOp = !!storyAuthor && author === storyAuthor;
   return (
     <div>
-      <div className={cls}>
+      <div className={cls} data-depth={Math.min(depth, 4)}>
         <div className="comment-hdr">
-          <span className="comment-author">{node.author || 'anon'}</span>
+          <span className="comment-avatar">{author[0]?.toUpperCase() || '?'}</span>
+          <span className="comment-author">{author}</span>
+          {isOp && <span className="comment-op">OP</span>}
           <span className="comment-time">{timeAgo(node.created_at_i)}</span>
           <button type="button" className="collapse-tog" onClick={() => setOpen((o) => !o)}>{open ? '[–]' : '[+]'}</button>
         </div>
@@ -218,7 +230,7 @@ function CommentNode({ node, depth = 0 }: { node: AlgoliaComment; depth?: number
           </>
         )}
       </div>
-      {open && kids.map((c) => <CommentNode key={c.id} node={c} depth={Math.min(depth + 1, 2)} />)}
+      {open && kids.map((c) => <CommentNode key={c.id} node={c} depth={Math.min(depth + 1, 2)} storyAuthor={storyAuthor} />)}
     </div>
   );
 }
@@ -283,7 +295,7 @@ function DetailView({ story, onBack, onListen, audioStoryId, audioPlaying, audio
             </div>
           ))
         : thread?.children?.length
-          ? thread.children.slice(0, 20).map((c) => <CommentNode key={c.id} node={c} depth={0} />)
+          ? thread.children.slice(0, 20).map((c) => <CommentNode key={c.id} node={c} depth={0} storyAuthor={story.by} />)
           : <p style={{ color: 'var(--text-3)', fontSize: 13, padding: '10px 0' }}>No comments yet.</p>}
     </div>
   );
@@ -595,7 +607,23 @@ export function FeedShell() {
           ) : (
             <main className="feed-wrap">
               <div className="feed-header">
-                <h1 className="feed-title">{feedTitle}</h1>
+                <h1 className="section-hdr-title">
+                  {feedTitle}
+                  {(activeNav === 'top' || activeNav === 'new') && (
+                    <span className="section-hdr-live">
+                      <span className="section-hdr-live-dot" />
+                      <span className="section-hdr-live-label">Live</span>
+                    </span>
+                  )}
+                </h1>
+                {filtered.length > 0 && (
+                  <div className="section-hdr-counts">
+                    <span className="section-hdr-count">
+                      <span className="count-dot" />
+                      {filtered.length} stories
+                    </span>
+                  </div>
+                )}
               </div>
               {activeNav === 'past' && resolvedDay && <PastNav day={resolvedDay} router={router} />}
 

@@ -33,29 +33,40 @@ type Manifest = {
   latestAvailable?: string;
 };
 
-function Waveform({ playing, bars = 48 }: { playing: boolean; bars?: number }) {
+function Waveform({ playing, progress = 0, chapters = [], bars = 48 }: {
+  playing: boolean;
+  progress?: number;
+  chapters?: { percent: number }[];
+  bars?: number;
+}) {
   const heights = useMemo(
     () => Array.from({ length: bars }, (_, i) => 8 + (Math.sin(i * 0.4) * 0.5 + 0.5) * 32),
     [bars]
   );
+  const headIndex = Math.max(0, Math.min(bars - 1, Math.floor(progress * bars)));
   return (
     <div className="waveform">
-      {heights.map((h, i) => (
-        <div
-          key={i}
-          className="wave-bar"
-          style={{
-            width: 3,
-            height: playing ? `${h}px` : '4px',
-            opacity: playing ? 0.7 + Math.sin(i * 0.3) * 0.3 : 0.3,
-            animationName: playing ? 'wave' : 'none',
-            animationDuration: `${0.8 + (i % 5) * 0.1}s`,
-            animationDelay: `${i * 0.04}s`,
-            animationIterationCount: 'infinite',
-            transition: 'height 0.3s ease',
-          }}
-        />
+      {heights.map((h, i) => {
+        const cls = `wave-bar${i < headIndex ? ' is-past' : ''}${i === headIndex && progress > 0 ? ' is-head' : ''}`;
+        return (
+          <div
+            key={i}
+            className={cls}
+            style={{
+              height: playing ? `${h}px` : '4px',
+              animationName: playing ? 'wave' : 'none',
+              animationDuration: `${0.8 + (i % 5) * 0.1}s`,
+              animationDelay: `${i * 0.04}s`,
+              animationIterationCount: 'infinite',
+              transition: 'height 0.3s ease',
+            }}
+          />
+        );
+      })}
+      {chapters.map((c, i) => (
+        <span key={i} className="wave-chapter" style={{ left: `${c.percent}%` }} />
       ))}
+      {progress > 0 && <span className="wave-playhead" style={{ left: `${progress * 100}%` }} />}
     </div>
   );
 }
@@ -77,6 +88,29 @@ function fmtDateShort(date: string): string {
   const [y, m, d] = date.split('-').map((n) => parseInt(n, 10));
   const dt = new Date(Date.UTC(y, m - 1, d));
   return new Intl.DateTimeFormat('en-US', { month: 'short', day: 'numeric', timeZone: 'UTC' }).format(dt);
+}
+
+function fmtDateKicker(date: string): string {
+  const [y, m, d] = date.split('-').map((n) => parseInt(n, 10));
+  const dt = new Date(Date.UTC(y, m - 1, d));
+  return new Intl.DateTimeFormat('en-US', { weekday: 'short', month: 'short', day: 'numeric', timeZone: 'UTC' }).format(dt).replace(',', ' ·');
+}
+
+function episodeNumber(date: string): string {
+  const epoch = Date.UTC(2026, 0, 1);
+  const [y, m, d] = date.split('-').map((n) => parseInt(n, 10));
+  const days = Math.max(1, Math.round((Date.UTC(y, m - 1, d) - epoch) / 86400000) + 1);
+  return String(days).padStart(3, '0');
+}
+
+function deriveTopic(titles: string[] | undefined): { head: string; accent: string } {
+  if (!titles?.length) return { head: "Today's", accent: 'top stories' };
+  const t = titles[0].replace(/\s+/g, ' ').trim();
+  const words = t.split(' ');
+  if (words.length <= 3) return { head: t, accent: '' };
+  const accent = words.slice(-2).join(' ');
+  const head = words.slice(0, -2).join(' ');
+  return { head, accent };
 }
 
 const SpinIco = () => <svg className="hn-spinner" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round"><path d="M21 12a9 9 0 11-6.219-8.56"/></svg>;
@@ -192,7 +226,6 @@ export function PodcastShell() {
 
   const dur = audioRef.current?.duration ?? (manifest ? manifest.runtimeMs / 1000 : 0);
   const progress = manifest && dur ? now / dur : 0;
-  const timeStr = `${fmtTime(now)} / ${fmtTime(dur)}`;
 
   const hostLabel = manifest ? `Hosted by ${manifest.host.name.replace(/^Anchor /, '')}, with today's guest ${manifest.guest.name} (our ${manifest.guest.persona})` : '';
 
@@ -256,10 +289,8 @@ export function PodcastShell() {
           <div className="key-section-head">
             <div className="key-section-title"><Ico.Mic /> HN++ Pod</div>
             <span className="powered-pill">
-              <span className="el-mark" aria-hidden>
-                <svg viewBox="0 0 24 24" width="14" height="14"><rect x="5" y="4" width="4" height="16" rx="1" fill="currentColor" /><rect x="15" y="4" width="4" height="16" rx="1" fill="currentColor" /></svg>
-              </span>
-              Powered by ElevenLabs
+              <span className="el-mark" aria-hidden>11</span>
+              <span className="el-label">ElevenLabs · v3</span>
             </span>
           </div>
           <div className="key-section-sub">
@@ -281,17 +312,63 @@ export function PodcastShell() {
 
         <div className="pod-header">
           <div className="pod-main">
+            {manifest && (
+              <div className="pod-ep-stamp">
+                <div className="pod-ep-stamp-num">{episodeNumber(manifest.date)}</div>
+                <div className="pod-ep-stamp-label">episode</div>
+              </div>
+            )}
             <div className="pod-badge">
               <div style={{ width: 5, height: 5, borderRadius: '50%', background: 'var(--accent)', animation: 'hn-pulse 1.5s ease-in-out infinite' }} />
               {manifest?.stale ? 'Latest episode' : 'Today\'s episode'}
             </div>
-            <div className="pod-ep-date">
-              {manifest ? `HN++ Pod · ${fmtDateLong(manifest.date)}` : (loading ? 'Loading episode…' : 'No episode available')}
-            </div>
-            <div className="pod-ep-sub">{hostLabel}</div>
+            {manifest ? (
+              <>
+                <div className="pod-ep-kicker">{fmtDateKicker(manifest.date)}</div>
+                {(() => {
+                  const t = deriveTopic(manifest.storyTitles);
+                  return (
+                    <div className="pod-ep-topic">
+                      {t.head} {t.accent && <em>{t.accent}</em>}
+                    </div>
+                  );
+                })()}
+                <div className="pod-ep-sub-new">{hostLabel}</div>
+              </>
+            ) : (
+              <div className="pod-ep-topic">{loading ? 'Loading episode…' : 'No episode available'}</div>
+            )}
 
-            <Waveform playing={playing} bars={48} />
+            <Waveform
+              playing={playing}
+              progress={progress}
+              chapters={manifest && dur ? manifest.segments.slice(1).map((s) => ({ percent: (s.startMs / 1000 / dur) * 100 })) : []}
+              bars={48}
+            />
 
+            {manifest && dur > 0 && (
+              <div className="chapter-strip">
+                {manifest.segments.map((seg, i) => {
+                  const startSec = seg.startMs / 1000;
+                  const endSec = seg.endMs / 1000;
+                  const isActive = now >= startSec && now < endSec;
+                  const weight = Math.max(1, endSec - startSec);
+                  return (
+                    <div
+                      key={i}
+                      className={`chapter-cell${isActive ? ' is-active' : ''}`}
+                      style={{ flex: weight, minWidth: 0 }}
+                      title={seg.title}
+                    >
+                      <div className="chapter-cell-head">
+                        <span className="chapter-cell-num">{String(i + 1).padStart(2, '0')}</span>
+                        <span className="chapter-cell-title">{seg.title}</span>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
             <div className="player-controls">
               <button type="button" className="skip-btn" onClick={() => audioRef.current && (audioRef.current.currentTime = Math.max(0, audioRef.current.currentTime - 10))}><Ico.SkipB /></button>
               <button type="button" className="play-btn" onClick={togglePlay} disabled={!manifest}>
@@ -300,8 +377,15 @@ export function PodcastShell() {
               <button type="button" className="skip-btn" onClick={() => audioRef.current && (audioRef.current.currentTime = Math.min(audioRef.current.duration || 0, audioRef.current.currentTime + 10))}><Ico.SkipF /></button>
               <div className="progress-track" onClick={seek}>
                 <div className="progress-fill" style={{ width: `${progress * 100}%` }} />
+                {manifest && dur > 0 && manifest.segments.slice(1).map((seg, i) => (
+                  <span key={i} className="progress-tick" style={{ left: `${(seg.startMs / 1000 / dur) * 100}%` }} />
+                ))}
+                {progress > 0 && <span className="progress-head" style={{ left: `${progress * 100}%` }} />}
               </div>
-              <span className="time-label">{timeStr}</span>
+              <div className="time-label-stack">
+                <span className="time-cur">{fmtTime(now)}</span>
+                <span className="time-tot">/ {fmtTime(dur)}</span>
+              </div>
             </div>
 
             <div className="vol-row" style={{ marginBottom: 8 }}>
@@ -405,31 +489,42 @@ export function PodcastShell() {
             <div className="script-section-title">Past 7 days</div>
             <div className="stories-grid">
               {filteredArchive.map((ep) => {
-                const isActive = ep.date === activeDate;
+                const isCurrent = ep.date === activeDate;
+                const minutes = Math.round(ep.runtimeMs / 60000);
                 return (
                   <button
                     key={ep.date}
                     type="button"
                     onClick={() => selectEpisode(ep)}
-                    className="story-tile"
-                    style={isActive ? { borderColor: 'var(--accent)', background: 'linear-gradient(rgba(255,102,0,0.18),rgba(255,102,0,0.18)),var(--bg-card)', boxShadow: '0 0 0 1px var(--accent), 0 8px 22px rgba(255,102,0,0.25)' } : {}}
+                    className={`story-tile${isCurrent ? ' is-current' : ''}`}
                   >
-                    <div
-                      className="story-tile-thumb"
-                      style={{
-                        background: 'linear-gradient(135deg, rgba(255,140,40,0.55), rgba(255,102,0,0.32))',
-                        display: 'flex', alignItems: 'center', justifyContent: 'center',
-                        fontFamily: "'JetBrains Mono',monospace", fontSize: 12, fontWeight: 700, color: '#fff',
-                        textShadow: '0 1px 2px rgba(0,0,0,0.35)',
-                      }}
-                    >
-                      {fmtDateShort(ep.date)}
+                    <div className="story-tile-thumb-wrap">
+                      <div
+                        className="story-tile-thumb"
+                        style={{
+                          background: 'linear-gradient(135deg, rgba(255,140,40,0.55), rgba(255,102,0,0.32))',
+                          display: 'flex', alignItems: 'center', justifyContent: 'center',
+                          fontFamily: "'JetBrains Mono',monospace", fontSize: 12, fontWeight: 700, color: '#fff',
+                          textShadow: '0 1px 2px rgba(0,0,0,0.35)',
+                        }}
+                      >
+                        {fmtDateShort(ep.date)}
+                      </div>
+                      <span className="story-tile-pip">
+                        {isCurrent && <span className="story-tile-pip-dot" />}
+                        {minutes}m
+                      </span>
                     </div>
                     <div>
                       <div className="story-tile-title">{ep.host.name.split(' ').pop()} × {ep.guest.name.split(' ').pop()}</div>
                       <div className="story-tile-meta">
-                        <span>~{Math.round(ep.runtimeMs / 60000)} min</span>
                         <span>{ep.storyTitles.length} stories</span>
+                        {isCurrent && (
+                          <>
+                            <span className="meta-dot" />
+                            <span className="meta-now">now playing</span>
+                          </>
+                        )}
                       </div>
                     </div>
                   </button>

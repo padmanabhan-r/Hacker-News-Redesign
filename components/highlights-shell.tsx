@@ -453,6 +453,7 @@ export function HighlightsShell() {
                 key={c}
                 type="button"
                 className={`cat-chip${activeCat === c ? ' active' : ''}`}
+                data-cat={c.toLowerCase()}
                 onClick={() => setActiveCat(c)}
               >
                 {c}

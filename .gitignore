@@ -74,6 +74,7 @@ service-account*.json
 # Misc
 .tmp/
 misc/
+handoff/
 docs/
 .mcp.json
 
