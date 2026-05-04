@@ -144,9 +144,15 @@ function StoryCard({ story, onOpen, voted, onVote, onListen, audioStoryId, audio
       </div>
       <div className="story-actions" onClick={(e) => e.stopPropagation()}>
         <button type="button" className="cmts-btn" onClick={() => onOpen(story)}><Ico.Msg /> {story.descendants ?? 0}</button>
-        <button type="button" className={`audio-btn${isPlaying ? ' playing' : ''}${isLoading ? ' loading' : ''}`} onClick={() => onListen(story)} disabled={isLoading}>
-          {isLoading ? <Ico.Spin /> : isPlaying ? <Ico.Pause /> : <Ico.Play />}
-          {isLoading ? (audioMsg || 'Fetching…') : isPlaying ? 'Playing' : 'Listen'}
+        <button type="button" className={`audio-btn${isPlaying ? ' is-playing' : ''}${isLoading ? ' loading' : ''}`} onClick={() => onListen(story)} disabled={isLoading}>
+          {isLoading ? (
+            <span className="audio-btn-glyph"><Ico.Spin /></span>
+          ) : isPlaying ? (
+            <span className="audio-eq"><span /><span /><span /><span /><span /></span>
+          ) : (
+            <span className="audio-btn-glyph"><Ico.Play /></span>
+          )}
+          <span>{isLoading ? (audioMsg || 'Fetching…') : isPlaying ? 'Playing' : 'Listen'}</span>
         </button>
       </div>
     </article>
