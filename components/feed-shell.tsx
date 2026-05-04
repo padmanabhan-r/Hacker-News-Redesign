@@ -589,8 +589,23 @@ export function FeedShell() {
             ))}
             <div className="sb-divider" />
             <div className="sb-section">Info</div>
-            {['About', 'Guidelines', 'FAQ', 'API', 'Security', 'Legal'].map((l) => (
-              <button key={l} type="button" className="sb-btn" style={{ height: 28, fontSize: 11.5, color: 'var(--text-2)' }}>{l}</button>
+            {([
+              { label: 'About',      href: '/',                                                  external: false },
+              { label: 'Guidelines', href: 'https://news.ycombinator.com/newsguidelines.html',   external: true  },
+              { label: 'FAQ',        href: 'https://news.ycombinator.com/newsfaq.html',          external: true  },
+              { label: 'API',        href: 'https://github.com/HackerNews/API',                  external: true  },
+              { label: 'Security',   href: 'https://news.ycombinator.com/security.html',         external: true  },
+              { label: 'Legal',      href: 'https://www.ycombinator.com/legal/',                 external: true  },
+            ] as const).map((l) => (
+              <a
+                key={l.label}
+                href={l.href}
+                {...(l.external ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
+                className="sb-btn"
+                style={{ height: 28, fontSize: 11.5, color: 'var(--text-2)', textDecoration: 'none', display: 'flex', alignItems: 'center' }}
+              >
+                {l.label}
+              </a>
             ))}
           </nav>
 
