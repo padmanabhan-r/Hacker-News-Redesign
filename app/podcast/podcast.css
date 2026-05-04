@@ -278,13 +278,59 @@
 @keyframes wave { 0%, 100% { transform: scaleY(0.3); } 50% { transform: scaleY(1); } }
 
 /* ── Player controls ── */
+.podcast-page .chapter-strip {
+  display: flex;
+  gap: 4px;
+  margin-bottom: 8px;
+}
+.podcast-page .chapter-strip .chapter-cell {
+  display: flex; flex-direction: column; gap: 3px;
+  opacity: 0.45;
+  transition: opacity 0.2s;
+  min-width: 0;
+}
+.podcast-page .chapter-strip .chapter-cell.is-active { opacity: 1; }
+.podcast-page .chapter-strip .chapter-cell-head {
+  display: flex; align-items: center; gap: 4px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 8.5px;
+  letter-spacing: 0.06em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.podcast-page .chapter-strip .chapter-cell-num   { color: var(--text-3); font-weight: 600; }
+.podcast-page .chapter-strip .chapter-cell.is-active .chapter-cell-num { color: var(--accent-text); }
+.podcast-page .chapter-strip .chapter-cell-title {
+  color: var(--text-3);
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
 .podcast-page .player-controls { display: flex; align-items: center; gap: 14px; margin-bottom: 18px; }
 .podcast-page .play-btn {
+  position: relative;
   width: 50px; height: 50px; border-radius: 50%;
   background: linear-gradient(135deg, #ff9500, #ff6600);
   border: none; display: flex; align-items: center; justify-content: center; color: white;
   cursor: pointer; transition: all 0.14s;
   box-shadow: 0 0 0 1px rgba(255,102,0,0.3), 0 4px 20px rgba(255,102,0,0.35);
+  z-index: 1;
+}
+.podcast-page .play-btn::before {
+  content: '';
+  position: absolute;
+  inset: -8px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255,102,0,0.35), transparent 70%);
+  z-index: -1;
+  pointer-events: none;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .podcast-page .play-btn::before { animation: hnpp-halo 2.6s ease-in-out infinite; }
+}
+@keyframes hnpp-halo {
+  0%,100% { opacity: 0.6; transform: scale(0.96); }
+  50%     { opacity: 1;   transform: scale(1.06); }
 }
 .podcast-page .play-btn:hover { transform: scale(1.07); box-shadow: 0 0 0 1px rgba(255,102,0,0.4), 0 6px 28px rgba(255,102,0,0.45); }
 .podcast-page .play-btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
@@ -297,10 +343,41 @@
 .podcast-page .skip-btn:hover { background: rgba(255,255,255,0.10); color: var(--text-1); }
 .podcast-page .progress-track {
   flex: 1; height: 5px; border-radius: 99px; background: var(--border-med); cursor: pointer;
-  position: relative; overflow: hidden;
+  position: relative; overflow: visible;
 }
-.podcast-page .progress-fill { height: 100%; border-radius: 99px; background: linear-gradient(90deg, #ff9500, #ff6600); transition: width 0.4s linear; }
+.podcast-page .progress-fill { height: 100%; border-radius: 99px; background: linear-gradient(90deg, #ff9500, #ff6600); transition: width 0.4s linear; box-shadow: 0 0 12px rgba(255,102,0,0.4); }
+.podcast-page .progress-track .progress-tick {
+  position: absolute;
+  top: -3px;
+  width: 2px; height: 12px;
+  background: var(--text-2);
+  opacity: 0.4;
+  border-radius: 2px;
+  pointer-events: none;
+}
+.podcast-page .progress-track .progress-head {
+  position: absolute;
+  top: -4px;
+  width: 14px; height: 14px;
+  border-radius: 50%;
+  background: #fff;
+  border: 2px solid var(--accent);
+  transform: translateX(-50%);
+  box-shadow: 0 2px 8px rgba(255,102,0,0.45);
+  pointer-events: none;
+}
 .podcast-page .time-label { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--text-3); white-space: nowrap; }
+.podcast-page .time-label-stack {
+  display: flex; flex-direction: column; align-items: flex-end; gap: 1px;
+}
+.podcast-page .time-label-stack .time-cur {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px; color: var(--text-1); font-weight: 600;
+}
+.podcast-page .time-label-stack .time-tot {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px; color: var(--text-4);
+}
 
 .podcast-page .vol-row { display: flex; align-items: center; gap: 8px; }
 .podcast-page .vol-icon { font-size: 14px; color: var(--text-3); }

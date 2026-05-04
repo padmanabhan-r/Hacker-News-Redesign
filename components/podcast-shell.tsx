@@ -226,7 +226,6 @@ export function PodcastShell() {
 
   const dur = audioRef.current?.duration ?? (manifest ? manifest.runtimeMs / 1000 : 0);
   const progress = manifest && dur ? now / dur : 0;
-  const timeStr = `${fmtTime(now)} / ${fmtTime(dur)}`;
 
   const hostLabel = manifest ? `Hosted by ${manifest.host.name.replace(/^Anchor /, '')}, with today's guest ${manifest.guest.name} (our ${manifest.guest.persona})` : '';
 
@@ -349,6 +348,29 @@ export function PodcastShell() {
               bars={48}
             />
 
+            {manifest && dur > 0 && (
+              <div className="chapter-strip">
+                {manifest.segments.map((seg, i) => {
+                  const startSec = seg.startMs / 1000;
+                  const endSec = seg.endMs / 1000;
+                  const isActive = now >= startSec && now < endSec;
+                  const weight = Math.max(1, endSec - startSec);
+                  return (
+                    <div
+                      key={i}
+                      className={`chapter-cell${isActive ? ' is-active' : ''}`}
+                      style={{ flex: weight, minWidth: 0 }}
+                      title={seg.title}
+                    >
+                      <div className="chapter-cell-head">
+                        <span className="chapter-cell-num">{String(i + 1).padStart(2, '0')}</span>
+                        <span className="chapter-cell-title">{seg.title}</span>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
             <div className="player-controls">
               <button type="button" className="skip-btn" onClick={() => audioRef.current && (audioRef.current.currentTime = Math.max(0, audioRef.current.currentTime - 10))}><Ico.SkipB /></button>
               <button type="button" className="play-btn" onClick={togglePlay} disabled={!manifest}>
@@ -357,8 +379,15 @@ export function PodcastShell() {
               <button type="button" className="skip-btn" onClick={() => audioRef.current && (audioRef.current.currentTime = Math.min(audioRef.current.duration || 0, audioRef.current.currentTime + 10))}><Ico.SkipF /></button>
               <div className="progress-track" onClick={seek}>
                 <div className="progress-fill" style={{ width: `${progress * 100}%` }} />
+                {manifest && dur > 0 && manifest.segments.slice(1).map((seg, i) => (
+                  <span key={i} className="progress-tick" style={{ left: `${(seg.startMs / 1000 / dur) * 100}%` }} />
+                ))}
+                {progress > 0 && <span className="progress-head" style={{ left: `${progress * 100}%` }} />}
               </div>
-              <span className="time-label">{timeStr}</span>
+              <div className="time-label-stack">
+                <span className="time-cur">{fmtTime(now)}</span>
+                <span className="time-tot">/ {fmtTime(dur)}</span>
+              </div>
             </div>
 
             <div className="vol-row" style={{ marginBottom: 8 }}>
