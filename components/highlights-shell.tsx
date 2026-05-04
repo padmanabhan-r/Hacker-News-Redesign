@@ -53,17 +53,76 @@ function ListenOverlay({ playing, loading, onClick, style }: ListenButtonState &
   );
 }
 
+function SeekBar({ progress, onSeek }: { progress: number; onSeek: (frac: number) => void }) {
+  const trackRef = useRef<HTMLDivElement | null>(null);
+  const [dragging, setDragging] = useState(false);
+  const [dragPct, setDragPct] = useState(0);
+  const livePct = dragging ? dragPct : Math.min(100, Math.max(0, progress * 100));
+
+  const fracFromClientX = (clientX: number) => {
+    const el = trackRef.current;
+    if (!el) return 0;
+    const rect = el.getBoundingClientRect();
+    return Math.min(1, Math.max(0, (clientX - rect.left) / rect.width));
+  };
+
+  useEffect(() => {
+    if (!dragging) return;
+    const onMove = (e: PointerEvent) => setDragPct(fracFromClientX(e.clientX) * 100);
+    const onUp = (e: PointerEvent) => {
+      const frac = fracFromClientX(e.clientX);
+      setDragging(false);
+      onSeek(frac);
+    };
+    window.addEventListener('pointermove', onMove);
+    window.addEventListener('pointerup', onUp);
+    window.addEventListener('pointercancel', onUp);
+    return () => {
+      window.removeEventListener('pointermove', onMove);
+      window.removeEventListener('pointerup', onUp);
+      window.removeEventListener('pointercancel', onUp);
+    };
+  }, [dragging, onSeek]);
+
+  return (
+    <div
+      ref={trackRef}
+      className={`ap-progress-track${dragging ? ' is-dragging' : ''}`}
+      role="slider"
+      aria-valuemin={0}
+      aria-valuemax={100}
+      aria-valuenow={Math.round(livePct)}
+      aria-label="Seek"
+      onPointerDown={(e) => {
+        e.preventDefault();
+        const frac = fracFromClientX(e.clientX);
+        setDragPct(frac * 100);
+        setDragging(true);
+      }}
+    >
+      <div className="ap-progress-fill" style={{ width: `${livePct}%` }} />
+      <div className="ap-progress-thumb" style={{ left: `${livePct}%` }} />
+    </div>
+  );
+}
+
 function ListenPill({ playing, loading, msg, onClick }: ListenButtonState & { msg?: string; onClick: (e: React.MouseEvent) => void }) {
   return (
     <button
       type="button"
-      className={`listen-pill${playing ? ' playing' : ''}${loading ? ' loading' : ''}`}
+      className={`audio-btn${playing ? ' is-playing' : ''}${loading ? ' loading' : ''}`}
       onClick={onClick}
       disabled={loading}
       aria-label={listenLabel({ playing, loading }, msg)}
     >
-      {listenIcon({ playing, loading })}
-      {listenLabel({ playing, loading }, msg)}
+      {loading ? (
+        <span className="audio-btn-glyph"><SpinIco /></span>
+      ) : playing ? (
+        <span className="audio-eq"><span /><span /><span /><span /><span /></span>
+      ) : (
+        <span className="audio-btn-glyph"><PlayIco /></span>
+      )}
+      <span>{loading ? (msg || 'Fetching…') : playing ? 'Playing' : 'Listen'}</span>
     </button>
   );
 }
@@ -513,7 +572,19 @@ export function HighlightsShell() {
             <div className="ap-sub">{audioLoading ? audioMsg : `Story audio · ${audioStory.by}`}</div>
           </div>
           <div className="ap-controls">
-            <button type="button" className="ap-skip" aria-label="Back"><ChevLIco /></button>
+            <button
+              type="button"
+              className="ap-skip"
+              aria-label="Back 10s"
+              onClick={() => {
+                const a = audioRef.current;
+                if (a && a.duration && Number.isFinite(a.duration)) {
+                  const next = Math.max(0, a.currentTime - 10);
+                  a.currentTime = next;
+                  setAudioProgress(next / a.duration);
+                }
+              }}
+            ><ChevLIco /></button>
             <button
               type="button"
               className="ap-play-btn"
@@ -523,12 +594,30 @@ export function HighlightsShell() {
             >
               {audioLoading ? <SpinIco /> : audioPlaying ? <PauseIco /> : <PlayIco />}
             </button>
-            <button type="button" className="ap-skip" aria-label="Forward"><SkipFIco /></button>
+            <button
+              type="button"
+              className="ap-skip"
+              aria-label="Forward 10s"
+              onClick={() => {
+                const a = audioRef.current;
+                if (a && a.duration && Number.isFinite(a.duration)) {
+                  const next = Math.min(a.duration, a.currentTime + 10);
+                  a.currentTime = next;
+                  setAudioProgress(next / a.duration);
+                }
+              }}
+            ><SkipFIco /></button>
           </div>
           <div className="ap-progress-wrap">
-            <div className="ap-progress-track">
-              <div className="ap-progress-fill" style={{ width: `${Math.min(100, Math.max(0, audioProgress * 100))}%` }} />
-            </div>
+            <SeekBar
+              progress={audioProgress}
+              onSeek={(frac) => {
+                const a = audioRef.current;
+                if (!a || !a.duration || !Number.isFinite(a.duration)) return;
+                a.currentTime = frac * a.duration;
+                setAudioProgress(frac);
+              }}
+            />
           </div>
           <span className="ap-time">{Math.round(audioProgress * 100)}%</span>
           <button

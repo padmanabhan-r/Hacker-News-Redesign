@@ -301,11 +301,47 @@ function DetailView({ story, onBack, onListen, audioStoryId, audioPlaying, audio
   );
 }
 
-function AudioBar({ story, playing, loading, msg, onPlayPause, onClose, progress }: {
-  story: HNItem; playing: boolean; loading: boolean; msg?: string; onPlayPause: () => void; onClose: () => void; progress: number;
+function AudioBar({ story, playing, loading, msg, onPlayPause, onClose, onSeek, onSkip, progress }: {
+  story: HNItem; playing: boolean; loading: boolean; msg?: string; onPlayPause: () => void; onClose: () => void; onSeek: (frac: number) => void; onSkip: (deltaSec: number) => void; progress: number;
 }) {
   const thumb = getLinkPreview(story);
-  const pct = Math.min(100, Math.max(0, progress * 100));
+  const trackRef = useRef<HTMLDivElement | null>(null);
+  const [dragging, setDragging] = useState(false);
+  const [dragPct, setDragPct] = useState(0);
+  const livePct = dragging ? dragPct : Math.min(100, Math.max(0, progress * 100));
+
+  const fracFromClientX = (clientX: number) => {
+    const el = trackRef.current;
+    if (!el) return 0;
+    const rect = el.getBoundingClientRect();
+    return Math.min(1, Math.max(0, (clientX - rect.left) / rect.width));
+  };
+
+  useEffect(() => {
+    if (!dragging) return;
+    const onMove = (e: PointerEvent) => setDragPct(fracFromClientX(e.clientX) * 100);
+    const onUp = (e: PointerEvent) => {
+      const frac = fracFromClientX(e.clientX);
+      setDragging(false);
+      onSeek(frac);
+    };
+    window.addEventListener('pointermove', onMove);
+    window.addEventListener('pointerup', onUp);
+    window.addEventListener('pointercancel', onUp);
+    return () => {
+      window.removeEventListener('pointermove', onMove);
+      window.removeEventListener('pointerup', onUp);
+      window.removeEventListener('pointercancel', onUp);
+    };
+  }, [dragging, onSeek]);
+
+  const onTrackPointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    const frac = fracFromClientX(e.clientX);
+    setDragPct(frac * 100);
+    setDragging(true);
+  };
+
   return (
     <div className="audio-player-bar">
       <div className="ap-thumb" style={{ backgroundImage: thumb ? `url(${thumb})` : undefined }} />
@@ -314,16 +350,28 @@ function AudioBar({ story, playing, loading, msg, onPlayPause, onClose, progress
         <div className="ap-sub">{loading ? (msg || 'Fetching…') : `Story audio · ${story.by}`}</div>
       </div>
       <div className="ap-controls">
-        <button type="button" className="ap-skip"><Ico.ChevL /></button>
+        <button type="button" className="ap-skip" onClick={() => onSkip(-10)} aria-label="Back 10s"><Ico.ChevL /></button>
         <button type="button" className="ap-play-btn" onClick={onPlayPause} disabled={loading}>
           {loading ? <Ico.Spin /> : playing ? <Ico.Pause /> : <Ico.Play />}
         </button>
-        <button type="button" className="ap-skip"><Ico.SkipF /></button>
+        <button type="button" className="ap-skip" onClick={() => onSkip(10)} aria-label="Forward 10s"><Ico.SkipF /></button>
       </div>
       <div className="ap-progress-wrap">
-        <div className="ap-progress-track"><div className="ap-progress-fill" style={{ width: `${pct}%` }} /></div>
+        <div
+          ref={trackRef}
+          className={`ap-progress-track${dragging ? ' is-dragging' : ''}`}
+          onPointerDown={onTrackPointerDown}
+          role="slider"
+          aria-valuemin={0}
+          aria-valuemax={100}
+          aria-valuenow={Math.round(livePct)}
+          aria-label="Seek"
+        >
+          <div className="ap-progress-fill" style={{ width: `${livePct}%` }} />
+          <div className="ap-progress-thumb" style={{ left: `${livePct}%` }} />
+        </div>
       </div>
-      <span className="ap-time">{Math.round(pct)}%</span>
+      <span className="ap-time">{Math.round(livePct)}%</span>
       <button type="button" className="ap-close" onClick={onClose}><Ico.X /></button>
     </div>
   );
@@ -686,6 +734,21 @@ export function FeedShell() {
             msg={audioMsg}
             onPlayPause={() => handleListen(audioStory)}
             onClose={() => { stopAudio(); setAudioStory(null); }}
+            onSeek={(frac) => {
+              const a = audioRef.current;
+              if (a && a.duration && Number.isFinite(a.duration)) {
+                a.currentTime = frac * a.duration;
+                setAudioProgress(frac);
+              }
+            }}
+            onSkip={(deltaSec) => {
+              const a = audioRef.current;
+              if (a && a.duration && Number.isFinite(a.duration)) {
+                const next = Math.min(a.duration, Math.max(0, a.currentTime + deltaSec));
+                a.currentTime = next;
+                setAudioProgress(next / a.duration);
+              }
+            }}
             progress={audioProgress}
           />
         )}
