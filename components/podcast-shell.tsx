@@ -90,6 +90,29 @@ function fmtDateShort(date: string): string {
   return new Intl.DateTimeFormat('en-US', { month: 'short', day: 'numeric', timeZone: 'UTC' }).format(dt);
 }
 
+function fmtDateKicker(date: string): string {
+  const [y, m, d] = date.split('-').map((n) => parseInt(n, 10));
+  const dt = new Date(Date.UTC(y, m - 1, d));
+  return new Intl.DateTimeFormat('en-US', { weekday: 'short', month: 'short', day: 'numeric', timeZone: 'UTC' }).format(dt).replace(',', ' ·');
+}
+
+function episodeNumber(date: string): string {
+  const epoch = Date.UTC(2026, 0, 1);
+  const [y, m, d] = date.split('-').map((n) => parseInt(n, 10));
+  const days = Math.max(1, Math.round((Date.UTC(y, m - 1, d) - epoch) / 86400000) + 1);
+  return String(days).padStart(3, '0');
+}
+
+function deriveTopic(titles: string[] | undefined): { head: string; accent: string } {
+  if (!titles?.length) return { head: "Today's", accent: 'top stories' };
+  const t = titles[0].replace(/\s+/g, ' ').trim();
+  const words = t.split(' ');
+  if (words.length <= 3) return { head: t, accent: '' };
+  const accent = words.slice(-2).join(' ');
+  const head = words.slice(0, -2).join(' ');
+  return { head, accent };
+}
+
 const SpinIco = () => <svg className="hn-spinner" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round"><path d="M21 12a9 9 0 11-6.219-8.56"/></svg>;
 
 const fetcher = (url: string) => fetch(url).then((r) => r.json());
@@ -292,14 +315,32 @@ export function PodcastShell() {
 
         <div className="pod-header">
           <div className="pod-main">
+            {manifest && (
+              <div className="pod-ep-stamp">
+                <div className="pod-ep-stamp-num">{episodeNumber(manifest.date)}</div>
+                <div className="pod-ep-stamp-label">episode</div>
+              </div>
+            )}
             <div className="pod-badge">
               <div style={{ width: 5, height: 5, borderRadius: '50%', background: 'var(--accent)', animation: 'hn-pulse 1.5s ease-in-out infinite' }} />
               {manifest?.stale ? 'Latest episode' : 'Today\'s episode'}
             </div>
-            <div className="pod-ep-date">
-              {manifest ? `HN++ Pod · ${fmtDateLong(manifest.date)}` : (loading ? 'Loading episode…' : 'No episode available')}
-            </div>
-            <div className="pod-ep-sub">{hostLabel}</div>
+            {manifest ? (
+              <>
+                <div className="pod-ep-kicker">{fmtDateKicker(manifest.date)}</div>
+                {(() => {
+                  const t = deriveTopic(manifest.storyTitles);
+                  return (
+                    <div className="pod-ep-topic">
+                      {t.head} {t.accent && <em>{t.accent}</em>}
+                    </div>
+                  );
+                })()}
+                <div className="pod-ep-sub-new">{hostLabel}</div>
+              </>
+            ) : (
+              <div className="pod-ep-topic">{loading ? 'Loading episode…' : 'No episode available'}</div>
+            )}
 
             <Waveform
               playing={playing}

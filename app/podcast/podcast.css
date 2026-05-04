@@ -153,6 +153,57 @@
   position: relative;
   border-right: 1px solid var(--border);
 }
+
+.podcast-page .pod-main .pod-ep-stamp {
+  position: absolute;
+  top: 18px; right: 18px;
+  display: flex; flex-direction: column; align-items: flex-end; gap: 2px;
+}
+.podcast-page .pod-main .pod-ep-stamp-num {
+  font-family: 'Syne', sans-serif;
+  font-size: 32px;
+  font-weight: 800;
+  letter-spacing: -1px;
+  color: var(--accent);
+  line-height: 0.9;
+  opacity: 0.9;
+}
+.podcast-page .pod-main .pod-ep-stamp-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 8.5px;
+  letter-spacing: 0.16em;
+  color: var(--text-3);
+  text-transform: uppercase;
+}
+
+.podcast-page .pod-main .pod-ep-kicker {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  color: var(--text-3);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+.podcast-page .pod-main .pod-ep-topic {
+  font-family: 'Syne', sans-serif;
+  font-size: 30px;
+  font-weight: 800;
+  letter-spacing: -0.7px;
+  line-height: 1.1;
+  margin-bottom: 6px;
+  padding-right: 80px;
+  color: var(--text-1);
+}
+.podcast-page .pod-main .pod-ep-topic em {
+  color: var(--accent);
+  font-style: normal;
+}
+.podcast-page .pod-main .pod-ep-sub-new {
+  font-size: 13.5px;
+  color: var(--text-2);
+  line-height: 1.55;
+  margin-bottom: 18px;
+}
 .podcast-page .pod-badge {
   display: inline-flex; align-items: center; gap: 6px;
   padding: 3px 11px; border-radius: 99px;
