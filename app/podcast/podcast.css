@@ -684,22 +684,50 @@
 
 /* ── Generate / key section (we use this for a generate-story prompt instead of API key entry) ── */
 .podcast-page .key-section {
+  position: relative;
+  overflow: hidden;
   border-radius: 16px; padding: 18px 20px;
-  background: var(--bg-card); border: 1px solid var(--border);
+  background: linear-gradient(135deg, rgba(84,54,218,0.04), var(--bg-card) 40%);
+  border: 1px solid var(--border);
   margin-bottom: 24px; display: flex; flex-direction: column; gap: 12px;
   box-shadow: var(--shadow-sm);
+}
+.podcast-page .key-section::after {
+  content: '';
+  position: absolute;
+  right: -20px; top: -20px;
+  width: 120px; height: 120px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(84,54,218,0.10), transparent 70%);
+  pointer-events: none;
 }
 .podcast-page .key-section-head { display: flex; align-items: center; gap: 10px; margin-bottom: 2px; }
 .podcast-page .key-section-title { font-family: 'Syne', sans-serif; font-size: 13px; font-weight: 700; color: var(--text-1); line-height: 1.4; display: flex; align-items: center; gap: 8px; }
 .podcast-page .key-section-sub { font-size: 12px; color: var(--text-3); line-height: 1.5; }
 .podcast-page .powered-pill {
   display: inline-flex; align-items: center; gap: 6px;
-  padding: 3px 9px 3px 7px; border-radius: 99px;
-  background: var(--bg-alt); border: 1px solid var(--border);
+  padding: 3px 10px 3px 4px; border-radius: 99px;
+  background: rgba(84,54,218,0.06);
+  border: 1px solid rgba(84,54,218,0.18);
   font-family: 'JetBrains Mono', monospace; font-size: 9.5px;
   color: var(--text-2); letter-spacing: 0.04em;
 }
-.podcast-page .powered-pill .el-mark { width: 14px; height: 14px; display: inline-flex; }
+.podcast-page .powered-pill .el-mark {
+  width: 18px; height: 18px;
+  border-radius: 5px;
+  background: linear-gradient(135deg, #5436DA, #7c3aed);
+  display: inline-flex; align-items: center; justify-content: center;
+  color: #fff;
+  font-family: 'Syne', sans-serif;
+  font-weight: 800;
+  font-size: 9px;
+}
+.podcast-page .powered-pill .el-label {
+  color: #5436DA;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+}
+[data-theme="dark"] .podcast-page .powered-pill .el-label { color: #a78bfa; }
 .podcast-page .key-row { display: flex; gap: 8px; }
 .podcast-page .key-input {
   flex: 1; height: 38px; background: var(--bg-alt); border: 1px solid var(--border);

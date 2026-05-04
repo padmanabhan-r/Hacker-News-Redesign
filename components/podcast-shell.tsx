@@ -289,10 +289,8 @@ export function PodcastShell() {
           <div className="key-section-head">
             <div className="key-section-title"><Ico.Mic /> HN++ Pod</div>
             <span className="powered-pill">
-              <span className="el-mark" aria-hidden>
-                <svg viewBox="0 0 24 24" width="14" height="14"><rect x="5" y="4" width="4" height="16" rx="1" fill="currentColor" /><rect x="15" y="4" width="4" height="16" rx="1" fill="currentColor" /></svg>
-              </span>
-              Powered by ElevenLabs
+              <span className="el-mark" aria-hidden>11</span>
+              <span className="el-label">ElevenLabs · v3</span>
             </span>
           </div>
           <div className="key-section-sub">
