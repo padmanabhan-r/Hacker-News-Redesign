@@ -707,15 +707,15 @@
 .podcast-page .powered-pill {
   display: inline-flex; align-items: center; gap: 6px;
   padding: 3px 10px 3px 4px; border-radius: 99px;
-  background: rgba(84,54,218,0.06);
-  border: 1px solid rgba(84,54,218,0.18);
+  background: var(--accent-bg);
+  border: 1px solid var(--accent-border);
   font-family: 'JetBrains Mono', monospace; font-size: 9.5px;
   color: var(--text-2); letter-spacing: 0.04em;
 }
 .podcast-page .powered-pill .el-mark {
   width: 18px; height: 18px;
   border-radius: 5px;
-  background: linear-gradient(135deg, #5436DA, #7c3aed);
+  background: var(--accent);
   display: inline-flex; align-items: center; justify-content: center;
   color: #fff;
   font-family: 'Syne', sans-serif;
@@ -723,7 +723,7 @@
   font-size: 9px;
 }
 .podcast-page .powered-pill .el-label {
-  color: #5436DA;
+  color: var(--accent-text);
   font-weight: 600;
   letter-spacing: 0.04em;
 }
