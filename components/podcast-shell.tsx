@@ -33,29 +33,40 @@ type Manifest = {
   latestAvailable?: string;
 };
 
-function Waveform({ playing, bars = 48 }: { playing: boolean; bars?: number }) {
+function Waveform({ playing, progress = 0, chapters = [], bars = 48 }: {
+  playing: boolean;
+  progress?: number;
+  chapters?: { percent: number }[];
+  bars?: number;
+}) {
   const heights = useMemo(
     () => Array.from({ length: bars }, (_, i) => 8 + (Math.sin(i * 0.4) * 0.5 + 0.5) * 32),
     [bars]
   );
+  const headIndex = Math.max(0, Math.min(bars - 1, Math.floor(progress * bars)));
   return (
     <div className="waveform">
-      {heights.map((h, i) => (
-        <div
-          key={i}
-          className="wave-bar"
-          style={{
-            width: 3,
-            height: playing ? `${h}px` : '4px',
-            opacity: playing ? 0.7 + Math.sin(i * 0.3) * 0.3 : 0.3,
-            animationName: playing ? 'wave' : 'none',
-            animationDuration: `${0.8 + (i % 5) * 0.1}s`,
-            animationDelay: `${i * 0.04}s`,
-            animationIterationCount: 'infinite',
-            transition: 'height 0.3s ease',
-          }}
-        />
+      {heights.map((h, i) => {
+        const cls = `wave-bar${i < headIndex ? ' is-past' : ''}${i === headIndex && progress > 0 ? ' is-head' : ''}`;
+        return (
+          <div
+            key={i}
+            className={cls}
+            style={{
+              height: playing ? `${h}px` : '4px',
+              animationName: playing ? 'wave' : 'none',
+              animationDuration: `${0.8 + (i % 5) * 0.1}s`,
+              animationDelay: `${i * 0.04}s`,
+              animationIterationCount: 'infinite',
+              transition: 'height 0.3s ease',
+            }}
+          />
+        );
+      })}
+      {chapters.map((c, i) => (
+        <span key={i} className="wave-chapter" style={{ left: `${c.percent}%` }} />
       ))}
+      {progress > 0 && <span className="wave-playhead" style={{ left: `${progress * 100}%` }} />}
     </div>
   );
 }
@@ -290,7 +301,12 @@ export function PodcastShell() {
             </div>
             <div className="pod-ep-sub">{hostLabel}</div>
 
-            <Waveform playing={playing} bars={48} />
+            <Waveform
+              playing={playing}
+              progress={progress}
+              chapters={manifest && dur ? manifest.segments.slice(1).map((s) => ({ percent: (s.startMs / 1000 / dur) * 100 })) : []}
+              bars={48}
+            />
 
             <div className="player-controls">
               <button type="button" className="skip-btn" onClick={() => audioRef.current && (audioRef.current.currentTime = Math.max(0, audioRef.current.currentTime - 10))}><Ico.SkipB /></button>

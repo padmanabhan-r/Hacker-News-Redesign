@@ -169,10 +169,60 @@
 }
 
 /* ── Waveform ── */
-.podcast-page .waveform { display: flex; align-items: center; gap: 2px; height: 44px; margin-bottom: 22px; }
+.podcast-page .waveform {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  height: 44px;
+  margin-bottom: 22px;
+  padding: 0 4px;
+}
 .podcast-page .wave-bar {
-  border-radius: 99px; background: linear-gradient(180deg, #ff9500, #ff6600);
-  transition: height 0.15s ease; min-height: 3px;
+  flex: 1;
+  border-radius: 99px;
+  background: var(--text-4);
+  opacity: 0.35;
+  min-height: 3px;
+  transition: height 0.15s ease;
+}
+.podcast-page .wave-bar.is-past {
+  background: linear-gradient(180deg, #ff9500, #ff6600);
+  opacity: 1;
+}
+.podcast-page .wave-bar.is-head {
+  background: linear-gradient(180deg, #ff9500, #ff6600);
+  transform: scaleY(1.1);
+  box-shadow: 0 0 12px var(--accent);
+  opacity: 1;
+}
+.podcast-page .wave-chapter {
+  position: absolute;
+  top: 0; bottom: 0;
+  width: 1px;
+  background: var(--text-2);
+  opacity: 0.25;
+  pointer-events: none;
+}
+.podcast-page .wave-chapter::before {
+  content: '';
+  position: absolute;
+  top: -2px; left: -2px;
+  width: 5px; height: 5px;
+  border-radius: 50%;
+  background: var(--text-3);
+}
+.podcast-page .wave-playhead {
+  position: absolute;
+  top: 4px; bottom: 4px;
+  width: 2px;
+  border-radius: 2px;
+  background: var(--accent);
+  box-shadow:
+    0 0 12px var(--accent),
+    0 0 24px rgba(255,102,0,0.5);
+  transform: translateX(-1px);
+  pointer-events: none;
 }
 @keyframes wave { 0%, 100% { transform: scaleY(0.3); } 50% { transform: scaleY(1); } }
 
