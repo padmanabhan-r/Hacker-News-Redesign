@@ -631,14 +631,57 @@
 .feed-page .comments-badge { font-family: 'JetBrains Mono', monospace; font-size: 10.5px; color: var(--accent-text); background: var(--accent-bg); border: 1px solid var(--accent-border); padding: 1px 7px; border-radius: 99px; }
 
 .feed-page .comment-block {
-  padding: 12px 14px; border-radius: 11px;
+  position: relative;
+  padding: 10px 12px 10px 14px;
+  border-radius: 10px;
   background: var(--bg-card); border: 1px solid var(--border);
   margin-bottom: 4px; transition: border-color 0.13s;
   box-shadow: var(--shadow-sm);
 }
 .feed-page .comment-block:hover { border-color: var(--border-med); }
-.feed-page .comment-block.d1 { margin-left: 20px; background: var(--bg-alt); }
-.feed-page .comment-block.d2 { margin-left: 40px; background: var(--bg-alt); }
+.feed-page .comment-block.d1 { margin-left: 18px; background: var(--bg-alt); }
+.feed-page .comment-block.d2 { margin-left: 36px; background: var(--bg-alt); }
+.feed-page .comment-block[data-depth="1"]::before,
+.feed-page .comment-block[data-depth="2"]::before,
+.feed-page .comment-block[data-depth="3"]::before,
+.feed-page .comment-block[data-depth="4"]::before {
+  content: '';
+  position: absolute;
+  left: 0; top: 8px; bottom: 8px;
+  width: 2px;
+  border-radius: 2px;
+  opacity: 0.7;
+}
+.feed-page .comment-block[data-depth="1"]::before { background: var(--accent); }
+.feed-page .comment-block[data-depth="2"]::before { background: #7c3aed; }
+.feed-page .comment-block[data-depth="3"]::before { background: #0891b2; }
+.feed-page .comment-block[data-depth="4"]::before { background: #16a34a; }
+.feed-page .comment-block .comment-avatar {
+  width: 16px; height: 16px;
+  border-radius: 4px;
+  background: var(--accent);
+  color: #fff;
+  display: inline-flex; align-items: center; justify-content: center;
+  font-family: 'Syne', sans-serif;
+  font-size: 9px;
+  font-weight: 800;
+  flex-shrink: 0;
+}
+.feed-page .comment-block[data-depth="2"] .comment-avatar { background: #7c3aed; }
+.feed-page .comment-block[data-depth="3"] .comment-avatar { background: #0891b2; }
+.feed-page .comment-block[data-depth="4"] .comment-avatar { background: #16a34a; }
+.feed-page .comment-block .comment-op {
+  display: inline-flex; align-items: center;
+  padding: 1px 6px;
+  border-radius: 99px;
+  background: var(--accent-bg);
+  border: 1px solid var(--accent-border);
+  color: var(--accent-text);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+}
 .feed-page .comment-hdr { display: flex; align-items: center; gap: 7px; margin-bottom: 6px; }
 .feed-page .comment-author { font-size: 12px; font-weight: 600; color: var(--accent-text); font-family: 'Syne', sans-serif; line-height: 1.4; }
 .feed-page .comment-time { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--text-3); }
