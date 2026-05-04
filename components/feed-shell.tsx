@@ -405,7 +405,15 @@ function PastNav({ day, router }: { day: string; router: ReturnType<typeof impor
   const canFwdYear = shiftYear(day, 1) <= todayYmd;
   return (
     <div className="past-nav">
-      <span className="past-nav-label">Stories from {label} (UTC)</span>
+      <span className="past-nav-label">
+        Stories from {label} (UTC)
+        <span
+          className="past-nav-note"
+          title="HN's official API only exposes the live top/new/best lists, not historical front-page rankings. We approximate past days by querying Algolia and re-ranking by HN's gravity formula, so order can drift slightly from news.ycombinator.com/front."
+        >
+          ⓘ approximate ranking
+        </span>
+      </span>
       <div className="past-nav-links">
         <button type="button" onClick={() => nav(shiftDay(day, -1))}>← day</button>
         <button type="button" onClick={() => nav(shiftMonth(day, -1))}>← month</button>

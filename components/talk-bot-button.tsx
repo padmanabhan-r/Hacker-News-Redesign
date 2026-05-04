@@ -34,6 +34,7 @@ export function TalkBotButton() {
           color: 'var(--accent-text)', cursor: 'pointer',
           fontFamily: "'JetBrains Mono', monospace", fontSize: 11, fontWeight: 600,
           letterSpacing: '0.04em', transition: 'all 0.13s',
+          whiteSpace: 'nowrap', flexShrink: 0,
         }}
         onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.background = 'rgba(255,102,0,0.18)'; }}
         onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.background = 'var(--accent-bg)'; }}

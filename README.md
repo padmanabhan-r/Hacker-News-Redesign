@@ -103,6 +103,7 @@ HN++ is a complete visual redesign of Hacker News — same data, entirely differ
 | **HN++ Bot** | Conversational AI agent with live HN context — ask anything |
 | **Highlights View** | Curated top stories across 6 categories with a clean card grid |
 | **Live HN Data** | Direct Firebase API — no cache lag, same ranking as hacker news |
+| **Past** | Browse stories from any prior day. Note: HN's official API only exposes live `topstories`/`newstories`/`beststories`/etc., not historical front-page rankings. The Past feed queries Algolia for stories created in the day's window and re-ranks them locally with HN's gravity formula `(points-1)/(age_h+2)^1.8`, so order can drift slightly from `news.ycombinator.com/front?day=YYYY-MM-DD`. Mod actions, flags, and software penalties are not exposed by either public API. |
 | **Glassmorphic UI** | Full HN redesign — frosted-glass cards, warm SF palette, Syne/Inter typography, dark/light mode, animated page transitions |
 
 ---
@@ -209,7 +210,7 @@ Four ElevenLabs products are active in production:
 | **Conversational AI** | ElevenLabs Conversational AI (`@elevenlabs/react` browser SDK + signed-URL flow) |
 | **AI Scripting** | Google Gemini Flash (`gemini-flash-latest`), tunable `thinkingLevel` |
 | **Article Scraping** | Firecrawl (`@mendable/firecrawl-js`), markdown-only, fast mode |
-| **HN Data** | Official HN Firebase API + Algolia |
+| **HN Data** | Official HN Firebase API (live feeds) + Algolia (search, historical) |
 | **Podcast Storage** | Cloudflare R2 (mp3 + manifest JSON) |
 | **Cron** | GitHub Actions (`30 1 * * *` = 01:30 UTC = 7 AM IST) |
 | **Data Fetching** | SWR |

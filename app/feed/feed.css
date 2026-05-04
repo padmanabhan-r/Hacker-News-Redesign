@@ -387,7 +387,8 @@
   background: var(--accent);
 }
 .feed-page .past-nav { display: flex; flex-direction: column; gap: 6px; margin-bottom: 16px; padding: 10px 14px; background: var(--bg-glass); border: 1px solid var(--border); border-radius: 10px; backdrop-filter: var(--blur); }
-.feed-page .past-nav-label { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--text-2); letter-spacing: 0.04em; }
+.feed-page .past-nav-label { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--text-2); letter-spacing: 0.04em; display: inline-flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.feed-page .past-nav-note { font-size: 10px; color: var(--text-3); letter-spacing: 0.02em; padding: 2px 7px; border-radius: 99px; border: 1px dashed var(--border-med); cursor: help; }
 .feed-page .past-nav-links { display: flex; gap: 8px; flex-wrap: wrap; }
 .feed-page .past-nav-links button { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--accent); background: none; border: 1px solid var(--accent-border); border-radius: 6px; padding: 3px 9px; cursor: pointer; transition: background 0.12s; }
 .feed-page .past-nav-links button:hover { background: var(--accent); color: #fff; }
