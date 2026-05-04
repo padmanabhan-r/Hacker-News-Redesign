@@ -1,0 +1,49 @@
+{
+  "type": "webhook",
+  "name": "hn_feed",
+  "description": "Fetch a shortlist from a Hacker News feed (front page / ask / show / jobs). Call after set_searching_state when the user asks what's trending, what's new, who's hiring, etc. Uses the public HN Algolia API — no auth.",
+  "disable_interruptions": false,
+  "force_pre_tool_speech": "auto",
+  "tool_call_sound": null,
+  "tool_call_sound_behavior": "auto",
+  "tool_error_handling_mode": "auto",
+  "execution_mode": "immediate",
+  "api_schema": {
+    "url": "https://hn.algolia.com/api/v1/search",
+    "method": "GET",
+    "path_params_schema": [],
+    "query_params_schema": [
+      {
+        "id": "tags",
+        "type": "string",
+        "value_type": "llm_prompt",
+        "description": "Which feed to fetch. Use 'front_page' for trending/top, 'ask_hn' for Ask HN, 'show_hn' for Show HN, 'job' for who's hiring / jobs.",
+        "dynamic_variable": "",
+        "constant_value": "",
+        "enum": ["front_page", "ask_hn", "show_hn", "job"],
+        "is_system_provided": false,
+        "required": true
+      },
+      {
+        "id": "hitsPerPage",
+        "type": "integer",
+        "value_type": "llm_prompt",
+        "description": "How many stories to return (1-15). Use 6-8.",
+        "dynamic_variable": "",
+        "constant_value": "",
+        "enum": null,
+        "is_system_provided": false,
+        "required": false
+      }
+    ],
+    "request_body_schema": null,
+    "request_headers": [],
+    "content_type": "application/json",
+    "auth_connection": null
+  },
+  "assignments": [],
+  "response_timeout_secs": 12,
+  "dynamic_variables": {
+    "dynamic_variable_placeholders": {}
+  }
+}

@@ -1,0 +1,60 @@
+{
+  "type": "webhook",
+  "name": "hn_search",
+  "description": "Keyword-search Hacker News stories via the public HN Algolia API — no auth. Call after set_searching_state when the user asks 'about / on / find' a topic. Keep queries short (1-5 words).",
+  "disable_interruptions": false,
+  "force_pre_tool_speech": "auto",
+  "tool_call_sound": null,
+  "tool_call_sound_behavior": "auto",
+  "tool_error_handling_mode": "auto",
+  "execution_mode": "immediate",
+  "api_schema": {
+    "url": "https://hn.algolia.com/api/v1/search",
+    "method": "GET",
+    "path_params_schema": [],
+    "query_params_schema": [
+      {
+        "id": "query",
+        "type": "string",
+        "value_type": "llm_prompt",
+        "description": "Short search query, 1-5 words. Avoid quotes and operators.",
+        "dynamic_variable": "",
+        "constant_value": "",
+        "enum": null,
+        "is_system_provided": false,
+        "required": true
+      },
+      {
+        "id": "tags",
+        "type": "string",
+        "value_type": "constant",
+        "description": "Restrict to story type.",
+        "dynamic_variable": "",
+        "constant_value": "story",
+        "enum": null,
+        "is_system_provided": false,
+        "required": false
+      },
+      {
+        "id": "hitsPerPage",
+        "type": "integer",
+        "value_type": "llm_prompt",
+        "description": "Max results (1-10). Use 5-6.",
+        "dynamic_variable": "",
+        "constant_value": "",
+        "enum": null,
+        "is_system_provided": false,
+        "required": false
+      }
+    ],
+    "request_body_schema": null,
+    "request_headers": [],
+    "content_type": "application/json",
+    "auth_connection": null
+  },
+  "assignments": [],
+  "response_timeout_secs": 12,
+  "dynamic_variables": {
+    "dynamic_variable_placeholders": {}
+  }
+}

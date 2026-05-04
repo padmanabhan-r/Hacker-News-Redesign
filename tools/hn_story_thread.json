@@ -1,0 +1,38 @@
+{
+  "type": "webhook",
+  "name": "hn_story_thread",
+  "description": "Fetch one HN story with its full comments tree from the public HN Algolia API — no auth. Call after set_searching_state when the user wants to summarize a specific story or its discussion. To also get the linked article, call scrape_article in a separate step.",
+  "disable_interruptions": false,
+  "force_pre_tool_speech": "auto",
+  "tool_call_sound": null,
+  "tool_call_sound_behavior": "auto",
+  "tool_error_handling_mode": "auto",
+  "execution_mode": "immediate",
+  "api_schema": {
+    "url": "https://hn.algolia.com/api/v1/items/{storyId}",
+    "method": "GET",
+    "path_params_schema": [
+      {
+        "id": "storyId",
+        "type": "integer",
+        "value_type": "llm_prompt",
+        "description": "HN item id (from a prior hn_feed or hn_search result).",
+        "dynamic_variable": "",
+        "constant_value": "",
+        "enum": null,
+        "is_system_provided": false,
+        "required": true
+      }
+    ],
+    "query_params_schema": [],
+    "request_body_schema": null,
+    "request_headers": [],
+    "content_type": "application/json",
+    "auth_connection": null
+  },
+  "assignments": [],
+  "response_timeout_secs": 12,
+  "dynamic_variables": {
+    "dynamic_variable_placeholders": {}
+  }
+}

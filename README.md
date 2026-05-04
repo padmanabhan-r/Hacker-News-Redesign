@@ -146,6 +146,41 @@ GitHub Actions cron (01:30 UTC daily)
 
 Listeners pull via `GET /api/podcast/today`, `/api/podcast/archive`, `/api/podcast/audio/{date}.mp3`.
 
+### HN++ Bot — live conversational agent, no backend wrappers
+
+```
+User taps Talk to HN++ Bot (TalkBotButton)
+  → BotPopup mounts ConversationProvider (@elevenlabs/react)
+       clientTools = { set_searching_state, show_sources, open_story }
+  → GET /api/agent/signed-url
+       server-side: GET https://api.elevenlabs.io/v1/convai/conversation/get-signed-url
+       → returns short-lived wss URL (API key + agent ID never touch the browser)
+  → conversation.startSession({ signedUrl, connectionType: 'websocket' })
+
+ElevenAgents owns the loop: STT → gemini-2.5-flash → tools → eleven_flash_v2_5 TTS
+
+7 tools (provisioned manually in the ElevenLabs console):
+  Client tools (handled in components/bot-popup.tsx)
+    - set_searching_state(label?)        → orb flips to SEARCHING
+    - show_sources(query, sources)       → cards stream into right rail
+    - open_story(storyId)                → opens HN thread in new tab
+
+  Webhook tools (point at PUBLIC APIs — no self-hosted endpoints)
+    - hn_feed          GET hn.algolia.com/api/v1/search?tags=front_page|ask_hn|show_hn|job
+    - hn_search        GET hn.algolia.com/api/v1/search?query=...&tags=story
+    - hn_story_thread  GET hn.algolia.com/api/v1/items/{storyId}
+    - scrape_article   POST api.firecrawl.dev/v2/scrape (auth via console secret)
+
+UI state machine (lib/bot-types.ts):
+  idle → listening (onStatusChange:connected)
+  listening → searching (set_searching_state)
+  searching → speaking (onModeChange:speaking)
+  speaking → listening (onModeChange:listening)
+  any → idle (disconnect / End button)
+```
+
+Setup runbook: [`docs/AGENT_SETUP.md`](docs/AGENT_SETUP.md). System prompt: [`prompts/HN_BOT_SYSTEM_PROMPT.md`](prompts/HN_BOT_SYSTEM_PROMPT.md). Importable webhook tool configs: [`tools/*.json`](tools/).
+
 ---
 
 ## ElevenLabs Integration
@@ -157,7 +192,7 @@ Four ElevenLabs products are active in production:
 | **Flash TTS** (`eleven_flash_v2_5`) | `textToSpeech.convert` with `optimizeStreamingLatency=4` | Listen — per-article narration streamed on demand |
 | **Text-to-Dialogue** (`eleven_v3`) | `textToDialogue.convertWithTimestamps` | HN++ Pod — multi-voice host/guest podcast, chapter timings |
 | **Scribe STT** (`scribe_v1`) | `speechToText.convert` | Voice search in Feed + Highlights — mic input → query text |
-| **Conversational AI** | `@elevenlabs/client` `Conversation.startSession` | HN++ Bot — real-time agent with live HN context |
+| **Conversational AI** | `@elevenlabs/react` `ConversationProvider` + `useConversation`, signed-URL flow | HN++ Bot — real-time agent with live HN context, 7 tools wired in the ElevenLabs console (3 client + 4 webhook → public Algolia + Firecrawl APIs) |
 | **Music API** | `music.compose` | Ambient music bed playing under the podcast player — generated once, baked as a static asset |
 
 ---
@@ -171,7 +206,7 @@ Four ElevenLabs products are active in production:
 | **TTS / Narration** | ElevenLabs `eleven_flash_v2_5` |
 | **Dialogue / Podcast** | ElevenLabs `eleven_v3` text-to-dialogue |
 | **STT / Voice Search** | ElevenLabs `scribe_v1` |
-| **Conversational AI** | ElevenLabs Conversational AI (`@elevenlabs/client`) |
+| **Conversational AI** | ElevenLabs Conversational AI (`@elevenlabs/react` browser SDK + signed-URL flow) |
 | **AI Scripting** | Google Gemini Flash (`gemini-flash-latest`), tunable `thinkingLevel` |
 | **Article Scraping** | Firecrawl (`@mendable/firecrawl-js`), markdown-only, fast mode |
 | **HN Data** | Official HN Firebase API + Algolia |
@@ -236,7 +271,7 @@ pnpm dev
 ```env
 # ElevenLabs
 ELEVENLABS_API_KEY=...
-NEXT_PUBLIC_ELEVENLABS_AGENT_ID=...   # HN++ Bot (Conversational AI agent ID)
+ELEVENLABS_AGENT_ID=...   # HN++ Bot (Conversational AI agent ID, server-only — used only inside /api/agent/signed-url)
 
 # Google Gemini
 GEMINI_API_KEY=...
@@ -257,6 +292,17 @@ R2_PUBLIC_BASE_URL=...
 # Podcast store path (optional — defaults to ./.podcast-store)
 PODCAST_STORE_DIR=...
 ```
+
+### Setting up HN++ Bot
+
+The bot agent is provisioned manually in the ElevenLabs console (no scripted creation). Full step-by-step runbook: [`docs/AGENT_SETUP.md`](docs/AGENT_SETUP.md).
+
+Quick reference:
+1. Console → **Create Agent** → paste system prompt from [`prompts/HN_BOT_SYSTEM_PROMPT.md`](prompts/HN_BOT_SYSTEM_PROMPT.md)
+2. Add the 3 client tools (`set_searching_state`, `show_sources`, `open_story`) per Steps 1.3–1.5 of the runbook
+3. Add the 4 webhook tools — either fill the form per Steps 1.6–1.10, or import the JSON files in [`tools/`](tools/) via the **Edit as JSON** button
+4. Copy the agent ID into `ELEVENLABS_AGENT_ID`
+5. Done. No tunnel, no self-hosted endpoints. Webhook tools hit public Algolia + Firecrawl directly
 
 ### Baking a podcast episode manually
 

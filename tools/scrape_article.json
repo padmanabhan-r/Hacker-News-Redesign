@@ -1,0 +1,97 @@
+{
+  "type": "webhook",
+  "name": "scrape_article",
+  "description": "Scrape an external article URL via Firecrawl and return a short markdown excerpt. Use when the user gives an external URL or asks to read an article. Auth is a Firecrawl API key stored as a console secret.",
+  "disable_interruptions": false,
+  "force_pre_tool_speech": "auto",
+  "tool_call_sound": null,
+  "tool_call_sound_behavior": "auto",
+  "tool_error_handling_mode": "auto",
+  "execution_mode": "immediate",
+  "api_schema": {
+    "url": "https://api.firecrawl.dev/v2/scrape",
+    "method": "POST",
+    "path_params_schema": [],
+    "query_params_schema": [],
+    "request_body_schema": {
+      "id": "body",
+      "type": "object",
+      "description": "Firecrawl scrape body. URL is filled by the model; the rest are static.",
+      "properties": [
+        {
+          "id": "url",
+          "type": "string",
+          "value_type": "llm_prompt",
+          "description": "Full https URL of the article to scrape.",
+          "dynamic_variable": "",
+          "constant_value": "",
+          "enum": null,
+          "is_system_provided": false,
+          "required": true
+        },
+        {
+          "id": "formats",
+          "type": "array",
+          "description": "Return markdown only.",
+          "items": {
+            "id": "formats_item",
+            "type": "string",
+            "value_type": "constant",
+            "description": "Format to return.",
+            "dynamic_variable": "",
+            "constant_value": "",
+            "enum": ["markdown"],
+            "is_system_provided": false,
+            "required": false
+          },
+          "required": false,
+          "value_type": "constant",
+          "constant_value": "[\"markdown\"]"
+        },
+        {
+          "id": "onlyMainContent",
+          "type": "boolean",
+          "value_type": "constant",
+          "description": "Strip nav/footer/ads.",
+          "dynamic_variable": "",
+          "constant_value": "true",
+          "enum": null,
+          "is_system_provided": false,
+          "required": false
+        },
+        {
+          "id": "fastMode",
+          "type": "boolean",
+          "value_type": "constant",
+          "description": "Skip slow rendering for speed.",
+          "dynamic_variable": "",
+          "constant_value": "true",
+          "enum": null,
+          "is_system_provided": false,
+          "required": false
+        }
+      ],
+      "required": false,
+      "value_type": "llm_prompt"
+    },
+    "request_headers": [
+      {
+        "type": "secret",
+        "name": "Authorization",
+        "secret_id": "REPLACE_WITH_FIRECRAWL_SECRET_ID"
+      },
+      {
+        "type": "value",
+        "name": "Content-Type",
+        "value": "application/json"
+      }
+    ],
+    "content_type": "application/json",
+    "auth_connection": null
+  },
+  "assignments": [],
+  "response_timeout_secs": 20,
+  "dynamic_variables": {
+    "dynamic_variable_placeholders": {}
+  }
+}
