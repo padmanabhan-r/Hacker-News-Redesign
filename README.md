@@ -1,4 +1,4 @@
-# HN++
+# HN++ (A Hacker News Redesign)
 
 **Hacker News, now with a voice.**
 
