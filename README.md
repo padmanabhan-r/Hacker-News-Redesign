@@ -4,12 +4,13 @@
 
 > Built for ElevenHacks 2026 - not affiliated with Y Combinator.
 
-[![App](https://img.shields.io/badge/Live-hnpp.app-brightgreen?style=flat-square&logo=googlechrome&logoColor=white)](https://hnpp.app)
-[![ElevenLabs](https://img.shields.io/badge/ElevenLabs-TTS%20%2B%20Dialogue%20%2B%20STT%20%2B%20Agents-FF6B35?style=flat-square&logoColor=white)](https://elevenlabs.io)
+[![App](https://img.shields.io/badge/Live-hn--plus--plus.vercel.app-brightgreen?style=flat-square&logo=googlechrome&logoColor=white)](https://hn-plus-plus.vercel.app)
+[![ElevenLabs](https://img.shields.io/badge/ElevenLabs-TTS%20%2B%20Dialogue%20%2B%20STT%20%2B%20Agents%20%2B%20Music-FF6B35?style=flat-square&logoColor=white)](https://elevenlabs.io)
 [![Gemini](https://img.shields.io/badge/Google%20Gemini-Flash-4285F4?style=flat-square&logo=google&logoColor=white)](https://deepmind.google/technologies/gemini/)
 [![Firecrawl](https://img.shields.io/badge/Firecrawl-Article%20Scraping-E55F3B?style=flat-square&logoColor=white)](https://firecrawl.dev)
 [![Next.js](https://img.shields.io/badge/Next.js-15%20App%20Router-000000?style=flat-square&logo=nextdotjs&logoColor=white)](https://nextjs.org)
 [![Cloudflare](https://img.shields.io/badge/Cloudflare-R2%20Storage-F38020?style=flat-square&logo=cloudflare&logoColor=white)](https://cloudflare.com)
+[![GitHub Actions](https://img.shields.io/badge/GitHub%20Actions-Podcast%20Cron-2088FF?style=flat-square&logo=githubactions&logoColor=white)](https://github.com/features/actions)
 [![ElevenHacks](https://img.shields.io/badge/Built%20for-ElevenHacks-FF6B35?style=flat-square&logoColor=white)](https://elevenlabs.io)
 
 > Hacker News is one of the best places on the internet. But it's a wall of text.
@@ -20,7 +21,7 @@
 
 **This is not a mockup. There is no demo data.**
 
-Every story, score, comment, and ranking comes live from the official HN Firebase API. If it's on Hacker News right now, it's on HN++ right now — same content, same community, same firehose. The design is completely reinvented. Everything else stays exactly as it is.
+Every story, score, comment, and ranking comes live from the official HN API. If it's on Hacker News right now, it's on HN++ right now — same content, same community, same firehose. The design is completely reinvented. Everything else stays exactly as it is.
 
 On top of that: per-article AI narration, a fully automated daily podcast with a host and rotating guest, and a conversational bot that knows what's on HN right now. Same community. Same firehose. Now you can actually listen.
 
@@ -48,7 +49,7 @@ On top of that: per-article AI narration, a fully automated daily podcast with a
 
 ## What is HN++?
 
-HN++ has three distinct products built on top of the official Hacker News Firebase API:
+HN++ has three distinct products built on top of the official Hacker News API:
 
 - **Highlights** — curated daily view of the top stories across 6 categories, with per-story Listen buttons.
 - **Feed** — the full live HN firehose with voice search (ElevenLabs Scribe), Listen on every post, and collapsible comment threads.
@@ -79,7 +80,7 @@ HN++ is a complete visual redesign of Hacker News — same data, entirely differ
 
 ## How It Works
 
-**1. Browse** — Open Highlights or Feed. Live data from the official HN Firebase API — same stories, same scores, same comments.
+**1. Browse** — Open Highlights or Feed. Live data from the official HN API — same stories, same scores, same comments.
 
 **2. Listen (per article)** — Tap the Listen button on any story. Firecrawl scrapes the linked article, Gemini Flash writes a 180–220-word narration blending article content with comment sentiment, ElevenLabs Flash v2.5 streams it back. First audio byte in under 3 seconds.
 
@@ -157,6 +158,7 @@ Four ElevenLabs products are active in production:
 | **Text-to-Dialogue** (`eleven_v3`) | `textToDialogue.convertWithTimestamps` | HN++ Pod — multi-voice host/guest podcast, chapter timings |
 | **Scribe STT** (`scribe_v1`) | `speechToText.convert` | Voice search in the Feed — mic input → query text |
 | **Conversational AI** | `@elevenlabs/client` `Conversation.startSession` | HN++ Bot — real-time agent with live HN context |
+| **Music API** | `music.compose` | Ambient music bed playing under the podcast player — generated once, baked as a static asset |
 
 ---
 
