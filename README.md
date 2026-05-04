@@ -53,7 +53,7 @@ HN++ has three distinct products built on top of the official Hacker News API:
 
 - **Highlights** — curated daily view of the top stories across 6 categories, with per-story Listen buttons.
 - **Feed** — the full live HN firehose with voice search (ElevenLabs Scribe), Listen on every post, and collapsible comment threads.
-- **HN++ Pod** — a fully automated daily podcast. Every morning a GitHub Actions cron scrapes the top 8 stories, Gemini Flash writes a multi-voice dialogue script, and ElevenLabs `eleven_v3` text-to-dialogue renders it as a 10–15 min MP3 with chapter markers. Served from Cloudflare R2.
+- **HN++ Pod** — a fully automated daily podcast. Every morning a GitHub Actions cron scrapes the top 8 stories, Gemini Flash writes a multi-voice dialogue script, and ElevenLabs `eleven_v3` text-to-dialogue renders it as a ~5 min MP3 with chapter markers. Served from Cloudflare R2.
 - **HN++ Bot** — a conversational AI agent (ElevenLabs Conversational AI) that knows what's on HN right now. Ask it anything: trending stories, who's hiring, what the community is debating.
 
 ---
@@ -97,7 +97,7 @@ HN++ is a complete visual redesign of Hacker News — same data, entirely differ
 | Feature | Description |
 |---------|-------------|
 | **Listen** | Tap any story for a 60–90s AI narration — article summary + comment sentiment, streamed via ElevenLabs Flash |
-| **HN++ Pod** | Automated daily 10–15 min multi-voice podcast — host Anchor Aiden + rotating guest |
+| **HN++ Pod** | Automated daily ~5 min multi-voice podcast — host Anchor Aiden + rotating guest |
 | **Chapter Markers** | Skip directly to any of the 8 story segments in the podcast player |
 | **Voice Search** | Tap the mic in the search bar — ElevenLabs Scribe transcribes your query live |
 | **HN++ Bot** | Conversational AI agent with live HN context — ask anything |

@@ -118,7 +118,7 @@ export default function Landing() {
               substance — not the SEO filler, not the comment scrollback.
             </Feature>
             <Feature tag="03 / PODCAST" title="HN++ Pod" icon={<Clock size={20} />}>
-              A daily 10–15 min multi-voice show — top stories, community takes, chapter markers.
+              A daily ~5 min multi-voice show — top stories, community takes, chapter markers.
               Auto-baked every day, served from Cloudflare R2. Drops at 6:30 PM PT (1:30 AM GMT).
             </Feature>
             <Feature tag="04 / BOT" title="HN++ Bot" icon={<Bot size={20} />}>

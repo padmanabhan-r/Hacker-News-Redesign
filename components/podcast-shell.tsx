@@ -263,8 +263,11 @@ export function PodcastShell() {
             </span>
           </div>
           <div className="key-section-sub">
-            A daily 8–10 min show. Standard host plus a rotating guest dig into the day's top Hacker News stories,
+            A daily ~5 min show. Standard host plus a rotating guest dig into the day's top Hacker News stories,
             with the article and the comment crowd in mind. Fresh every morning at 7:00 AM IST · 1:30 AM GMT · 6:30 PM PT (prev day).
+          </div>
+          <div style={{ marginTop: 8, fontSize: 11, color: 'var(--text-4)', fontFamily: "'JetBrains Mono', monospace", letterSpacing: '0.02em' }}>
+            Episodes trimmed to ~5 min to conserve ElevenLabs credits.
           </div>
           {error && (
             <div style={{ marginTop: 12, fontSize: 12, color: 'var(--text-3)' }}>{error}</div>

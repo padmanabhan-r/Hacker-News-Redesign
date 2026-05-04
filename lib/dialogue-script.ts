@@ -123,14 +123,14 @@ ${storyBlocks}
 
 Write the script as JSON matching the provided schema. Hard rules — these are tight on purpose, do NOT exceed them:
 
-1. **TOTAL SPOKEN LENGTH: 1500–1700 words.** Aim for the upper end. Count words across intro + every segment + outro. This targets ~9 minutes at our voice rate. Going too short feels rushed; going too long makes the episode bloat.
-2. **Word budget per section** (use as a scaffold; hit at least the lower bound):
-   - Intro: 110–150 words.
-   - Each story segment: 140–180 words. Eight stories × ~165 ≈ 1320.
-   - Outro: 60–100 words.
-3. **Cold open** ("intro"): exactly **4–5 lines**. Speaker A starts with literally "Welcome to HN++ Pod" and the date, then introduces Speaker B by name + role. One or two tease lines naming concrete themes from today's stories. End with Speaker B reacting warmly. ≤2 emotion tags total in the intro.
-4. **Per-story segments**: one entry per story, in order. "title" = the story title (verbatim). "lines" = exactly **6–8 turns** (alternating A/B mostly). Each line is one or two real sentences. Pack signal: the host opens with a substantive lead, the guest reacts in their persona, then a back-and-forth that surfaces what the article actually claims AND what the comment crowd is feeling. No filler ("yeah totally", "right", "interesting"). No meta transitions ("let's move on") — go straight to the next segment.
-5. **Outro**: exactly **3–4 lines**. Quick sign off. Mention "HN++ Pod, back tomorrow at 7 AM Pacific". 60–100 words.
+1. **TOTAL SPOKEN LENGTH: 700–900 words.** Count words across intro + every segment + outro. This targets ~5 minutes at our voice rate. Stay tight — every word must earn its place.
+2. **Word budget per section** (use as a scaffold; do not exceed the upper bound):
+   - Intro: 50–70 words.
+   - Each story segment: 70–90 words. Eight stories × ~80 ≈ 640.
+   - Outro: 30–50 words.
+3. **Cold open** ("intro"): exactly **3–4 lines**. Speaker A starts with literally "Welcome to HN++ Pod" and the date, then introduces Speaker B by name + role. One tease line naming the biggest theme from today's stories. ≤1 emotion tag in the intro.
+4. **Per-story segments**: one entry per story, in order. "title" = the story title (verbatim). "lines" = exactly **4–5 turns** (alternating A/B mostly). Each line is one sentence — two maximum. Host opens with the sharpest signal from the story; guest reacts in their persona; one exchange on what the community is saying. No filler ("yeah totally", "right", "interesting"). No meta transitions ("let's move on") — go straight to the next segment.
+5. **Outro**: exactly **2–3 lines**. Quick sign off. Mention "HN++ Pod, back tomorrow at 7 AM Pacific". 30–50 words.
 6. Use emotion tags via the "emotion" field (string like "curious", "laughs", "thoughtful", "excited", "skeptical", "warm", "chuckles", "sigh"). Use them sparingly — at most ~1 in 5 lines. Do NOT put them inside the "text" field.
 7. NEVER include stage directions, music cues, sponsor reads, or markdown in "text". Just spoken sentences.
 8. NEVER speak the words "Speaker A" / "Speaker B". Refer to each other by name.
