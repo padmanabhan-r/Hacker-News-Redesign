@@ -362,24 +362,50 @@
 /* ── Category chips ── */
 .highlights-page .category-chips { display: flex; gap: 8px; margin-bottom: 22px; flex-wrap: wrap; }
 .highlights-page .cat-chip {
-  height: 32px; padding: 0 14px; border-radius: 8px;
-  font-size: 12.5px; font-weight: 600;
-  cursor: pointer; transition: all 0.14s;
-  border: 1px solid var(--border);
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  height: 28px;
+  padding: 0 12px 0 10px;
+  border-radius: 99px;
   background: var(--bg-card);
+  border: 1px solid var(--border);
   color: var(--text-2);
-  backdrop-filter: blur(20px) saturate(160%);
-  -webkit-backdrop-filter: blur(20px) saturate(160%);
-  box-shadow: var(--shadow-sm), inset 0 1px 0 rgba(255,255,255,0.5);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10.5px;
+  font-weight: 500;
+  box-shadow: var(--shadow-sm);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  cursor: pointer;
+  transition: all 0.14s;
 }
 [data-theme="dark"] .highlights-page .cat-chip { box-shadow: var(--shadow-sm), inset 0 1px 0 rgba(255,220,160,0.12); }
+.highlights-page .cat-chip::before {
+  content: '';
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: var(--cat-color, transparent);
+  box-shadow: 0 0 6px var(--cat-color, transparent);
+}
+.highlights-page .cat-chip[data-cat="all"]::before        { display: none; }
+.highlights-page .cat-chip[data-cat="ai"]                 { --cat-color: #ff6600; }
+.highlights-page .cat-chip[data-cat="security"]           { --cat-color: #db2777; }
+.highlights-page .cat-chip[data-cat="hardware"]           { --cat-color: #ca8a04; }
+.highlights-page .cat-chip[data-cat="startups"]           { --cat-color: #16a34a; }
+.highlights-page .cat-chip[data-cat="engineering"]        { --cat-color: #7c3aed; }
+.highlights-page .cat-chip[data-cat="web"]                { --cat-color: #0891b2; }
+.highlights-page .cat-chip[data-cat="science"]            { --cat-color: #0891b2; }
+.highlights-page .cat-chip[data-cat="business"]           { --cat-color: #16a34a; }
 .highlights-page .cat-chip:hover { background: var(--bg-card-hover); border-color: var(--border-med); color: var(--text-1); transform: translateY(-1px); }
 .highlights-page .cat-chip.active {
-  background: var(--accent); border-color: var(--accent);
-  color: #fff;
-  box-shadow: 0 4px 12px rgba(255,102,0,0.35), inset 0 1px 0 rgba(255,255,255,0.25);
+  background: var(--accent-bg);
+  border-color: var(--accent-border);
+  color: var(--accent);
+  font-weight: 600;
+  box-shadow: 0 2px 8px rgba(255,102,0,0.15);
 }
-.highlights-page .cat-chip.active:hover { background: var(--accent); color: #fff; transform: translateY(-1px); }
+.highlights-page .cat-chip.active:hover { background: var(--accent-bg); color: var(--accent); transform: translateY(-1px); }
 
 /* ── Latest grid ── */
 .highlights-page .latest-grid {
