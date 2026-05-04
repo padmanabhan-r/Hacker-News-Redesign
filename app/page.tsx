@@ -159,7 +159,7 @@ export default function Landing() {
             <div className="badge-cluster">
               <div className="badge b-eleven">
                 <div className="badge-icon eleven">
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M9 6v12M12 6v12M15 6v12" strokeLinecap="round" /></svg>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M9.5 6v12M14.5 6v12" strokeLinecap="round" /></svg>
                 </div>
                 <div className="badge-text">
                   <div className="badge-l1">VOICE BY</div>
