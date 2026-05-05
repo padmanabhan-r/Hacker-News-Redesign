@@ -3,7 +3,7 @@
 const HN = "https://hacker-news.firebaseio.com/v0";
 const ALGOLIA = "https://hn.algolia.com/api/v1";
 
-export type FeedKind = "top" | "new" | "best" | "ask" | "show" | "jobs" | "past" | "comments";
+export type FeedKind = "top" | "new" | "best" | "ask" | "show" | "shownew" | "jobs" | "past" | "comments";
 
 const FEED_ENDPOINT: Partial<Record<FeedKind, string>> = {
   top: "topstories",
@@ -174,6 +174,27 @@ export async function getStoryThread(id: number): Promise<AlgoliaStory> {
   return fetch(`${ALGOLIA}/items/${id}`, { next: { revalidate: 300 } }).then(
     (r) => r.json()
   );
+}
+
+export async function getNewestShowStories(
+  pageSize = 30
+): Promise<{ items: HNItem[]; totalIds: number; hasMore: boolean }> {
+  const url = `${ALGOLIA}/search_by_date?tags=show_hn&hitsPerPage=${pageSize}`;
+  const r = await fetch(url, { next: { revalidate: 120 } }).then((res) => res.json());
+  type Hit = { objectID: string; title?: string; url?: string | null; author?: string; points?: number; num_comments?: number; created_at_i?: number; story_text?: string | null };
+  const hits = ((r?.hits ?? []) as Hit[]).filter((h) => h.title);
+  const items: HNItem[] = hits.map((h) => ({
+    id: parseInt(h.objectID, 10),
+    title: h.title,
+    url: h.url ?? undefined,
+    by: h.author,
+    score: h.points ?? 0,
+    descendants: h.num_comments ?? 0,
+    time: h.created_at_i,
+    text: h.story_text ?? undefined,
+    type: "story" as const,
+  }));
+  return { items, totalIds: r?.nbHits ?? items.length, hasMore: false };
 }
 
 export async function searchHN(query: string): Promise<{ hits: AlgoliaStory[] }> {

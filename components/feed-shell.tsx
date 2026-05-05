@@ -52,7 +52,7 @@ const NAV = [
 const FEED_TITLES: Record<string, string> = {
   top: 'Top Stories', new: 'New', best: 'Best',
   past: 'Past', comments: 'Comments',
-  ask: 'Ask HN', show: 'Show HN', jobs: 'Jobs',
+  ask: 'Ask HN', show: 'Show HN', shownew: 'Newest Show HN', jobs: 'Jobs',
 };
 
 const CODE_RAIN = `function fetchTopStories(){
@@ -698,6 +698,11 @@ export function FeedShell() {
                 )}
               </div>
               {activeNav === 'past' && resolvedDay && <PastNav day={resolvedDay} router={router} />}
+              {activeNav === 'show' && (
+                <div className="show-hn-notice">
+                  Browse the <a href="?feed=shownew">newest Show HNs</a> here.
+                </div>
+              )}
 
               {isLoading && !items.length ? (
                 Array.from({ length: 9 }).map((_, i) => <SkeletonCard key={i} />)

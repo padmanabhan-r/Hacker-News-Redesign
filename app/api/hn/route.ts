@@ -1,9 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getStoriesByFeed, getStoriesSince, getRecentComments, getTopStoriesByDate, getStoryThread, searchHN, type FeedKind } from "@/lib/hn";
+import { getStoriesByFeed, getStoriesSince, getRecentComments, getNewestShowStories, getTopStoriesByDate, getStoryThread, searchHN, type FeedKind } from "@/lib/hn";
 
 export const revalidate = 60;
 
-const FEEDS: FeedKind[] = ["top", "new", "best", "ask", "show", "jobs", "past", "comments"];
+const FEEDS: FeedKind[] = ["top", "new", "best", "ask", "show", "shownew", "jobs", "past", "comments"];
 
 const CACHE_HEADER = "public, s-maxage=60, stale-while-revalidate=300";
 
@@ -45,6 +45,10 @@ export async function GET(req: NextRequest) {
     }
     if (feed === "comments") {
       const data = await getRecentComments(pageSize);
+      return jsonWithCache(data);
+    }
+    if (feed === "shownew") {
+      const data = await getNewestShowStories(pageSize);
       return jsonWithCache(data);
     }
     if (!FEEDS.includes(feed)) {
