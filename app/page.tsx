@@ -77,10 +77,7 @@ export default function Landing() {
                   Firecrawl
                 </div>
                 <div className="logo-pill">
-                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none">
-                    <defs><linearGradient id="gp" x1="2" y1="2" x2="22" y2="22" gradientUnits="userSpaceOnUse"><stop stopColor="#4285F4"/><stop offset="1" stopColor="#8B5CF6"/></linearGradient></defs>
-                    <path d="M12 2L13.8 10.2L22 12L13.8 13.8L12 22L10.2 13.8L2 12L10.2 10.2L12 2Z" fill="url(#gp)"/>
-                  </svg>
+                  <img src="/google-gemini.svg" width="13" height="13" alt="Gemini" style={{ objectFit: 'contain' }} />
                   Gemini
                 </div>
                 <div className="logo-pill">
@@ -191,10 +188,7 @@ export default function Landing() {
               </div>
               <div className="badge b-gemini">
                 <div className="badge-icon gemini">
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-                    <defs><linearGradient id="gb" x1="0" y1="0" x2="16" y2="16" gradientUnits="userSpaceOnUse"><stop stopColor="white"/><stop offset="1" stopColor="rgba(255,255,255,0.7)"/></linearGradient></defs>
-                    <path d="M12 2L13.8 10.2L22 12L13.8 13.8L12 22L10.2 13.8L2 12L10.2 10.2L12 2Z" fill="url(#gb)"/>
-                  </svg>
+                  <img src="/google-gemini.svg" width="20" height="20" alt="Gemini" style={{ objectFit: 'contain' }} />
                 </div>
                 <div className="badge-text">
                   <div className="badge-l1">SUMMARIZED BY</div>

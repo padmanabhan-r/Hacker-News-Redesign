@@ -559,7 +559,7 @@ body {
 .badge-icon.eleven { background: #000; color: white; }
 .badge-icon.v0 { background: #000; color: white; font-family: 'Inter', sans-serif; font-size: 14px; font-weight: 700; letter-spacing: -0.5px; }
 .badge-icon.firecrawl { background: #fff3ee; }
-.badge-icon.gemini { background: linear-gradient(135deg, #4285F4, #8B5CF6); color: white; }
+.badge-icon.gemini { background: #fff; }
 .badge-text { display: flex; flex-direction: column; gap: 1px; }
 .badge-l1 { font-family: 'JetBrains Mono', monospace; font-size: 9px; color: var(--text-3); letter-spacing: 0.1em; text-transform: uppercase; }
 .badge-l2 { font-family: 'Syne', sans-serif; font-size: 13px; font-weight: 700; color: var(--text-1); letter-spacing: -0.2px; }
