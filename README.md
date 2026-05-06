@@ -1,6 +1,6 @@
 # HN++ (A Hacker News Redesign)
 
-**Hacker News, now with a voice.**
+**A complete Hacker News overhaul — redesigned, rethought, and now with a voice.**
 
 > Built for ElevenHacks 2026 - not affiliated with Y Combinator.
 
