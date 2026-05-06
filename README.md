@@ -340,3 +340,15 @@ pnpm lint    # eslint
 Licensed under the [MIT License](https://opensource.org/licenses/MIT).
 
 Built by [Limb](https://x.com/__padmanabhan) for ElevenHacks 2026. Not affiliated with Y Combinator.
+
+---
+
+## Support
+
+HN++ will be discontinued after the hackathon — but I really enjoyed building it, and see myself using it. If you do too and want to help cover the ElevenLabs credits to keep it alive, buy me a coffee:
+
+<p>
+  <a href="https://ko-fi.com/padmanabhan">
+    <img src="https://img.shields.io/badge/Consider%20buying%20me%20a%20coffee-FF6600?style=for-the-badge&logo=ko-fi&logoColor=white" alt="Consider buying me a coffee on Ko-fi" />
+  </a>
+</p>
