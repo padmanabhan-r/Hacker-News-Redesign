@@ -8,7 +8,7 @@
 [![ElevenLabs](https://img.shields.io/badge/ElevenLabs-TTS%20%2B%20Dialogue%20%2B%20STT%20%2B%20Agents%20%2B%20Music-FF6B35?style=flat-square&logoColor=white)](https://elevenlabs.io)
 [![Gemini](https://img.shields.io/badge/Google%20Gemini-Flash-4285F4?style=flat-square&logo=google&logoColor=white)](https://deepmind.google/technologies/gemini/)
 [![Firecrawl](https://img.shields.io/badge/Firecrawl-Article%20Scraping-E55F3B?style=flat-square&logoColor=white)](https://firecrawl.dev)
-[![Next.js](https://img.shields.io/badge/Next.js-15%20App%20Router-000000?style=flat-square&logo=nextdotjs&logoColor=white)](https://nextjs.org)
+[![Next.js](https://img.shields.io/badge/Next.js-16%20App%20Router-000000?style=flat-square&logo=nextdotjs&logoColor=white)](https://nextjs.org)
 [![Cloudflare](https://img.shields.io/badge/Cloudflare-R2%20Storage-F38020?style=flat-square&logo=cloudflare&logoColor=white)](https://cloudflare.com)
 [![GitHub Actions](https://img.shields.io/badge/GitHub%20Actions-Podcast%20Cron-2088FF?style=flat-square&logo=githubactions&logoColor=white)](https://github.com/features/actions)
 [![ElevenHacks](https://img.shields.io/badge/Built%20for-ElevenHacks-FF6B35?style=flat-square&logoColor=white)](https://elevenlabs.io)
@@ -18,8 +18,6 @@
 > You can't listen to it on a commute. You can't ask it a question. There's no daily briefing. The content is great — the surface hasn't changed in 15 years.
 >
 > **HN++ changes that.**
-
-**This is not a mockup. There is no demo data.**
 
 Every story, score, comment, and ranking comes live from the official HN API. If it's on Hacker News right now, it's on HN++ right now — same content, same community, same firehose. The design is completely reinvented. Everything else stays exactly as it is.
 
@@ -202,7 +200,7 @@ Four ElevenLabs products are active in production:
 
 | Category | Technology |
 |----------|-----------|
-| **Framework** | Next.js 15 (App Router), React 19, TypeScript strict |
+| **Framework** | Next.js 16 (App Router), React 19, TypeScript strict |
 | **Styling** | Tailwind CSS 4, shadcn/ui (new-york, neutral) |
 | **TTS / Narration** | ElevenLabs `eleven_flash_v2_5` |
 | **Dialogue / Podcast** | ElevenLabs `eleven_v3` text-to-dialogue |
