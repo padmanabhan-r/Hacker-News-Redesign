@@ -24,6 +24,7 @@ export function TalkBotButton() {
     <>
       <button
         type="button"
+        data-tour="talk-bot"
         onClick={() => setOpen(true)}
         title="Talk to HN++ Bot"
         aria-label="Talk to HN++ Bot"

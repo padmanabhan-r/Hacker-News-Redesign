@@ -10,6 +10,7 @@ import { generateThumbnail } from '@/lib/thumbnail';
 import { TalkBotButton } from './talk-bot-button';
 import { SubmitButton } from './submit-button';
 import { LoginModal, UserChip, getStoredUser, clearStoredUser, type HNUser } from '@/components/login-modal';
+import { Tour } from './tour';
 
 const ALL_CATS = ['All', 'AI', 'Security', 'Hardware', 'Startups', 'Engineering', 'Web', 'Science', 'Business'];
 
@@ -631,6 +632,7 @@ export function HighlightsShell() {
         </div>
       )}
       {showLogin && <LoginModal onLogin={(u) => { setUser(u); setShowLogin(false); }} onClose={() => setShowLogin(false)} />}
+      <Tour route="highlights" />
     </div>
   );
 }

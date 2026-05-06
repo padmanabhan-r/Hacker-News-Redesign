@@ -1,5 +1,30 @@
 # Changelog
 
+## v0.3.0 — "Spotlight" — 2026-05-06
+
+First-time visitors get a guided tour. Two stops: one on the landing page nudging them toward "Try HN++ now", four+finale on `/highlights` walking through the nav tabs, the HN++ Bot, voice search, and per-story Listen.
+
+**How it works**
+- New `components/tour.tsx` — single client component that owns state, `getBoundingClientRect` measurement, a 4-rect spotlight mask + accent ring, and a glassmorphic bubble with step counter, Skip, and Next/Done buttons. Bubble auto-flips placement when a side runs out of viewport room.
+- New `lib/tour-steps.ts` — typed step definitions (`LANDING_STEPS`, `HIGHLIGHTS_STEPS`).
+- Persistence via `localStorage.hnpp_tour` (`{ status, step }`). State survives the landing → highlights route change. Status transitions: `pending → active → completed | dismissed`. Once `completed` or `dismissed`, the tour never re-shows.
+- Resilience: each step uses `waitForElement(selector, 2000ms)` so SWR-loaded content (story cards) does not race the tour. Missed targets skip silently.
+- Esc dismisses; Skip dismisses; Done completes.
+- Z-index 499 (mask + ring) / 501 (bubble) — sits below `.modal-overlay` (500) so a real LoginModal can interrupt cleanly.
+
+**Wiring**
+- `app/page.tsx` — `data-tour="landing-hero-cta"` on the hero CTA, `<Tour route="landing" />` mounted near `</footer>`.
+- `components/highlights-shell.tsx` — `<Tour route="highlights" />` mounted at the shell root. Step selectors target existing classes (`nav.hnav`, `button.search-kbd`, `.hero-card .listen-overlay`) so no markup churn there.
+- `components/talk-bot-button.tsx` — `data-tour="talk-bot"` added to the rendered button.
+- `app/globals.css` — `.tour-mask`, `.tour-ring` (pulsing accent halo), `.tour-bubble`, `.tour-step-counter`, `.tour-bubble-title`, `.tour-bubble-body`, `.tour-skip`, `.tour-next`.
+
+**Reset for testing**
+```js
+localStorage.removeItem('hnpp_tour');
+```
+
+---
+
 ## v0.2.1 — 2026-05-06
 
 - Read-only demo notice on upvote/reply. Story-card upvote, comment upvote, and comment reply buttons now surface a top-center accent toast: "HN++ is read-only — actions don't sync to Hacker News." Mounted via new `components/demo-toast.tsx`, dispatched through a custom event, 3.8s auto-dismiss.

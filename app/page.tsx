@@ -6,6 +6,7 @@ import { ThemeToggle } from '@/components/theme-toggle';
 import { LandingPreview } from '@/components/landing-preview';
 import { LandingAmbient } from '@/components/landing-ambient';
 import { KofiButton } from '@/components/kofi-button';
+import { Tour } from '@/components/tour';
 
 export default function Landing() {
   return (
@@ -48,7 +49,7 @@ export default function Landing() {
               Now you can <strong>listen</strong> on your commute.
             </p>
             <div className="hero-cta-row">
-              <Link href="/highlights" className="btn-primary">
+              <Link href="/highlights" className="btn-primary" data-tour="landing-hero-cta">
                 Try HN++ now
                 <ArrowRight size={14} strokeWidth={2.5} />
               </Link>
@@ -235,6 +236,7 @@ export default function Landing() {
           </div>
         </footer>
       </div>
+      <Tour route="landing" />
     </>
   );
 }
