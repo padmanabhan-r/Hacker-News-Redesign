@@ -1,7 +1,6 @@
 'use client';
 
 import { useState } from 'react';
-import Image from 'next/image';
 
 type Variant = 'sidebar' | 'footer';
 
@@ -17,7 +16,7 @@ export function KofiButton({ variant = 'sidebar' }: { variant?: Variant }) {
           onClick={() => setOpen(true)}
           title="Support HN++"
         >
-          <Image src="/logomarkLogo.webp" alt="" width={13} height={13} unoptimized />
+          <img src="/logomarkLogo.webp" alt="" width={16} height={13} />
           <span>Buy me a coffee</span>
         </button>
       ) : (
@@ -27,7 +26,7 @@ export function KofiButton({ variant = 'sidebar' }: { variant?: Variant }) {
           onClick={() => setOpen(true)}
           title="Support HN++"
         >
-          <Image src="/logomarkLogo.webp" alt="" width={12} height={12} unoptimized />
+          <img src="/logomarkLogo.webp" alt="" width={15} height={12} />
           <span>buy me a coffee</span>
         </button>
       )}
@@ -37,7 +36,7 @@ export function KofiButton({ variant = 'sidebar' }: { variant?: Variant }) {
           <div className="modal-box kofi-modal">
             <button type="button" className="modal-close" onClick={() => setOpen(false)}>×</button>
             <div className="kofi-modal-icon">
-              <Image src="/logomarkLogo.webp" alt="Ko-fi" width={56} height={56} unoptimized />
+              <img src="/logomarkLogo.webp" alt="Ko-fi" width={70} height={56} />
             </div>
             <h2 className="modal-title">Enjoying HN++?</h2>
             <p className="modal-sub" style={{ lineHeight: 1.55 }}>

@@ -163,6 +163,16 @@ export function Tour({ route }: { route: Route }) {
         advance();
         return;
       }
+      // Center target in its scroll ancestor (which may not be window — e.g. .page-body).
+      const r0 = el.getBoundingClientRect();
+      const vhNow = window.innerHeight;
+      if (r0.top < 90 || r0.top > vhNow * 0.55 || r0.bottom > vhNow - 200) {
+        try {
+          el.scrollIntoView({ block: 'center', inline: 'nearest', behavior: 'auto' });
+        } catch {
+          el.scrollIntoView();
+        }
+      }
       const measure = () => {
         if (stop) return;
         const r = el.getBoundingClientRect();

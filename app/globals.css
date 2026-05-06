@@ -1147,7 +1147,7 @@ body {
   position: fixed;
   background: rgba(0,0,0,0.55);
   z-index: 499;
-  pointer-events: auto;
+  pointer-events: none;
   transition: opacity 0.18s ease-out;
 }
 [data-theme="dark"] .tour-mask { background: rgba(0,0,0,0.7); }

@@ -25,7 +25,7 @@ export default function Landing() {
             <a href="#features" className="topnav-link">Features</a>
             <a href="#built" className="topnav-link">Built with</a>
             <ThemeToggle />
-            <Link href="/highlights" className="topnav-cta ml-1">
+            <Link href="/highlights" className="topnav-cta ml-1" data-tour="landing-cta">
               Try HN++ now
               <ArrowRight size={12} strokeWidth={2.5} />
             </Link>
@@ -49,7 +49,7 @@ export default function Landing() {
               Now you can <strong>listen</strong> on your commute.
             </p>
             <div className="hero-cta-row">
-              <Link href="/highlights" className="btn-primary" data-tour="landing-hero-cta">
+              <Link href="/highlights" className="btn-primary">
                 Try HN++ now
                 <ArrowRight size={14} strokeWidth={2.5} />
               </Link>

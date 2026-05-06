@@ -18,7 +18,7 @@ export const TOUR_STORAGE_KEY = 'hnpp_tour';
 
 export const LANDING_STEPS: TourStep[] = [
   {
-    selector: '[data-tour="landing-hero-cta"]',
+    selector: '[data-tour="landing-cta"]',
     title: 'Welcome to HN++',
     body: "A complete Hacker News redesign — with a voice. Tap Try HN++ now to see it live.",
     placement: 'bottom',
@@ -49,10 +49,10 @@ export const HIGHLIGHTS_STEPS: TourStep[] = [
     cta: 'Next',
   },
   {
-    selector: '.hero-card .listen-overlay',
+    selector: '.audio-btn',
     title: 'Listen to any story',
-    body: 'Every story gets an AI narration in under three seconds — article + comment sentiment, streamed via ElevenLabs.',
-    placement: 'left',
+    body: 'Tap Listen on any story for an AI narration in under three seconds — article + comment sentiment, streamed via ElevenLabs.',
+    placement: 'bottom',
     cta: 'Next',
   },
   {
