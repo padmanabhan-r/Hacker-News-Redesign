@@ -13,6 +13,7 @@ import { generateThumbnail } from '@/lib/thumbnail';
 import { LoginModal, UserChip, getStoredUser, clearStoredUser, type HNUser } from '@/components/login-modal';
 import { TalkBotButton } from './talk-bot-button';
 import { SubmitButton } from './submit-button';
+import { KofiButton } from './kofi-button';
 
 const Ico = {
   Home: () => <svg width="13" height="13" fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9,22 9,12 15,12 15,22"/></svg>,
@@ -664,6 +665,7 @@ export function FeedShell() {
                 {l.label}
               </a>
             ))}
+            <KofiButton variant="sidebar" />
           </nav>
 
           {openStory ? (

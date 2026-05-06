@@ -5,6 +5,7 @@ import { Brand } from '@/components/brand';
 import { ThemeToggle } from '@/components/theme-toggle';
 import { LandingPreview } from '@/components/landing-preview';
 import { LandingAmbient } from '@/components/landing-ambient';
+import { KofiButton } from '@/components/kofi-button';
 
 export default function Landing() {
   return (
@@ -55,6 +56,10 @@ export default function Landing() {
                 <Headphones size={14} />
                 Listen to today's HN++ pod
               </Link>
+            </div>
+            <div className="kicker web-only-kicker">
+              <Globe2 size={11} strokeWidth={2.2} />
+              Designed for web · best on desktop for now
             </div>
             <div className="built-strip">
               <span>BUILT WITH</span>
@@ -218,7 +223,7 @@ export default function Landing() {
             <span className="footer-mark" style={{ position: 'relative', width: 24, height: 18 }}>
               Y
             </span>
-            HN++ &nbsp;·&nbsp; ElevenHacks 2026 &nbsp;·&nbsp; not affiliated with Y Combinator &nbsp;·&nbsp; built by <a href="https://x.com/__padmanabhan" target="_blank" rel="noopener" className="footer-link">Limb</a>
+            HN++ &nbsp;·&nbsp; ElevenHacks 2026 &nbsp;·&nbsp; not affiliated with Y Combinator &nbsp;·&nbsp; built by <a href="https://x.com/__padmanabhan" target="_blank" rel="noopener" className="footer-link">Limb</a> &nbsp;·&nbsp; <KofiButton variant="footer" />
           </div>
           <div className="footer-right">
             <Link className="footer-link" href="/feed">Feed</Link>
