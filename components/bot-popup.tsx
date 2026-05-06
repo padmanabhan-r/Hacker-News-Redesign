@@ -362,15 +362,7 @@ export function BotPopup({ open, onClose }: BotPopupProps) {
       aria-modal="true"
       aria-label="HN++ Bot"
       onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
-      style={{
-        position: "fixed", inset: 0, zIndex: 320,
-        background: "rgba(8,6,4,0.62)",
-        backdropFilter: "blur(14px)",
-        WebkitBackdropFilter: "blur(14px)",
-        display: "flex", alignItems: "center", justifyContent: "center",
-        padding: 24,
-        animation: "bot-fade 180ms ease-out",
-      }}
+      className="bot-overlay"
     >
       <ConversationProvider
         clientTools={clientTools}
@@ -380,7 +372,26 @@ export function BotPopup({ open, onClose }: BotPopupProps) {
       >
         <BotBody ctl={ctl} onClose={onClose} />
       </ConversationProvider>
-      <style>{`@keyframes bot-fade { from { opacity: 0; } to { opacity: 1; } }`}</style>
+      <style>{`
+        @keyframes bot-fade { from { opacity: 0; } to { opacity: 1; } }
+        .bot-overlay {
+          position: fixed;
+          top: 0; left: 0; right: 0; bottom: 0;
+          width: 100vw;
+          height: 100vh;
+          height: 100dvh;
+          z-index: 320;
+          background: rgba(8,6,4,0.62);
+          backdrop-filter: blur(14px);
+          -webkit-backdrop-filter: blur(14px);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          padding: 24px;
+          animation: bot-fade 180ms ease-out;
+          box-sizing: border-box;
+        }
+      `}</style>
     </div>
   );
 }
