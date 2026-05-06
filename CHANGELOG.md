@@ -1,5 +1,64 @@
 # Changelog
 
+## v0.2.0 — "Open Mic" — 2026-05-06
+
+First public release after the ElevenHacks hackathon polish pass. The product gets a real home on Cloudflare R2, a louder voice on the landing page, a "buy me a coffee" path for anyone who wants to keep the lights on, and a tighter, leaner codebase.
+
+---
+
+### Highlights
+
+**HN++ Pod moves to Cloudflare R2**
+- `lib/podcast-store.ts` rewritten on top of `@aws-sdk/client-s3` + new `lib/r2-client.ts`
+- Episodes now stored as `podcast/{date}.mp3` / `.json` / `.script.json` + `podcast/index.json`
+- `R2_ACCOUNT_ID` / `R2_ACCESS_KEY_ID` / `R2_SECRET_ACCESS_KEY` / `R2_BUCKET` / `R2_PUBLIC_BASE_URL` replace the old `PODCAST_STORE_DIR` filesystem store
+- Cron retimed to **01:30 UTC = 07:00 IST** (`.github/workflows/podcast-cron.yml: '30 1 * * *'`)
+
+**Support / Buy me a coffee**
+- New `components/kofi-button.tsx` — single component, two variants (sidebar + landing footer)
+- Click opens a centered popup with the ko-fi logomark, the discontinue/donate copy, and a "Buy me a coffee" CTA → `ko-fi.com/padmanabhan`
+- Sidebar variant pinned to the bottom of the Info section in `feed-shell.tsx`
+- Landing footer variant inline alongside the existing footer links
+- README gets a Support section with a live shields.io ko-fi badge
+
+**Landing page polish**
+- Tagline rewritten: "A complete Hacker News overhaul — redesigned, rethought, and now with a voice."
+- New web-only kicker pill below the hero CTAs ("Designed for web · best on desktop for now"), styled to match the existing top kicker
+- Safari bot popup centering fix (`100dvh` viewport)
+- Show HN feature surfaced
+
+**Voice-over assets**
+- `scripts/gen_hnpp_voiceover.py` generates the demo voice-over MP3s via the ElevenLabs API
+- Voice tuned for product-marketer delivery (stability 0.25, style 0.70, speed 1.05, speaker boost on)
+
+---
+
+### Codebase hygiene
+
+- **Dead code purge** — removed 8 unused components (`sidebar`, `page-transition`, `trending-sidebar`, `post-feed`, `story-detail`, `post-card`, `comments`, `listen-button`). Live nav/feed/detail/Listen logic all lives in `feed-shell.tsx`; `.pt-cover` route-transition JSX is inlined per route.
+- Removed 7 orphan assets from `public/` (placeholder images + Cloudflare/GH-Actions logos no longer rendered)
+- Removed empty `app/api/alignment/` placeholder dir
+- Confirmed clean: no hardcoded API keys, agent IDs, or secrets anywhere in source or git history; all credentials accessed via `process.env` in server-side code only
+- README Next.js version corrected: 15 → 16 (matches `package.json` 16.2.4)
+- CHANGELOG, MIT license, screenshots-first README, jargon trimmed
+- Podcast badge color: violet → accent orange (matches the rest of the palette)
+
+---
+
+### Cost / latency
+
+- Podcast duration halved from 10 minutes to ~5 minutes — cuts ElevenLabs `text-to-dialogue` spend roughly in half per daily episode
+- Voice-search prompt trimmed from 1500 → 700 tokens
+- `/api/listen` still hits ≤ 3s to first audio byte (Firecrawl 4s timeout + Gemini Flash thinking-LOW + ElevenLabs `optimizeStreamingLatency=4`)
+
+---
+
+### Acknowledgement
+
+HN++ will not run forever — every Listen, every Pod, every Bot turn costs real ElevenLabs / Gemini / Firecrawl credits. If you've been using it and want it to stay alive past the hackathon, consider buying me a coffee — the link is in the sidebar, in the landing footer, and at the bottom of the README.
+
+---
+
 ## v0.1.0 — 2026-05-04
 
 First public release. Built for the ElevenHacks hackathon.
