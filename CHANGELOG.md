@@ -1,5 +1,11 @@
 # Changelog
 
+## v0.2.1 — 2026-05-06
+
+- Read-only demo notice on upvote/reply. Story-card upvote, comment upvote, and comment reply buttons now surface a top-center accent toast: "HN++ is read-only — actions don't sync to Hacker News." Mounted via new `components/demo-toast.tsx`, dispatched through a custom event, 3.8s auto-dismiss.
+
+---
+
 ## v0.2.0 — "Open Mic" — 2026-05-06
 
 First public release after the ElevenHacks hackathon polish pass. The product gets a real home on Cloudflare R2, a louder voice on the landing page, a "buy me a coffee" path for anyone who wants to keep the lights on, and a tighter, leaner codebase.
