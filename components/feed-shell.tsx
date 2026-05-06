@@ -14,6 +14,10 @@ import { LoginModal, UserChip, getStoredUser, clearStoredUser, type HNUser } fro
 import { TalkBotButton } from './talk-bot-button';
 import { SubmitButton } from './submit-button';
 import { KofiButton } from './kofi-button';
+import { DemoToast, showDemoToast } from './demo-toast';
+
+const DEMO_VOTE_MSG = "HN++ is read-only — upvotes don't sync to Hacker News. Vote on news.ycombinator.com.";
+const DEMO_REPLY_MSG = "HN++ is read-only — replies aren't posted to Hacker News. Reply on news.ycombinator.com.";
 
 const Ico = {
   Home: () => <svg width="13" height="13" fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9,22 9,12 15,12 15,22"/></svg>,
@@ -226,8 +230,8 @@ function CommentNode({ node, depth = 0, storyAuthor }: { node: AlgoliaComment; d
           <>
             <div className="comment-text" dangerouslySetInnerHTML={{ __html: node.text || '<em style="opacity:.4">deleted</em>' }} />
             <div className="comment-acts">
-              <span className="comment-act"><Ico.Up /> upvote</span>
-              <span className="comment-act"><Ico.Msg /> reply</span>
+              <button type="button" className="comment-act" onClick={() => showDemoToast(DEMO_VOTE_MSG)}><Ico.Up /> upvote</button>
+              <button type="button" className="comment-act" onClick={() => showDemoToast(DEMO_REPLY_MSG)}><Ico.Msg /> reply</button>
             </div>
           </>
         )}
@@ -723,7 +727,7 @@ export function FeedShell() {
                       story={s}
                       onOpen={open}
                       voted={!!voted[s.id]}
-                      onVote={(id) => setVoted((v) => ({ ...v, [id]: !v[id] }))}
+                      onVote={(id) => { setVoted((v) => ({ ...v, [id]: !v[id] })); showDemoToast(DEMO_VOTE_MSG); }}
                       onListen={handleListen}
                       audioStoryId={audioStory?.id}
                       audioPlaying={audioPlaying}
@@ -770,6 +774,7 @@ export function FeedShell() {
         )}
       </div>
       {showLogin && <LoginModal onLogin={(u) => { setUser(u); setShowLogin(false); }} onClose={() => setShowLogin(false)} />}
+      <DemoToast />
     </div>
   );
 }

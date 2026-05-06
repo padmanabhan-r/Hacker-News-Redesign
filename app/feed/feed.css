@@ -767,7 +767,7 @@
 .feed-page .comment-text a { color: var(--accent); }
 .feed-page .comment-text pre, .feed-page .comment-text code { font-family: 'JetBrains Mono', monospace; font-size: 11px; background: var(--bg-alt); border: 1px solid var(--border); border-radius: 5px; padding: 1px 6px; }
 .feed-page .comment-acts { display: flex; gap: 12px; margin-top: 7px; }
-.feed-page .comment-act { font-size: 10.5px; color: var(--text-3); cursor: pointer; display: flex; align-items: center; gap: 3px; transition: color 0.12s; }
+.feed-page .comment-act { font-size: 10.5px; color: var(--text-3); cursor: pointer; display: inline-flex; align-items: center; gap: 3px; transition: color 0.12s; background: transparent; border: none; padding: 0; font-family: inherit; }
 .feed-page .comment-act:hover { color: var(--accent); }
 
 /* ── Audio player bar ── */
