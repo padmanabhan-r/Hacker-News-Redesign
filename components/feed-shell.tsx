@@ -214,7 +214,7 @@ function CommentNode({ node, depth = 0, storyAuthor }: { node: AlgoliaComment; d
   const [open, setOpen] = useState(true);
   if (!node) return null;
   const cls = depth === 0 ? 'comment-block' : depth === 1 ? 'comment-block d1' : 'comment-block d2';
-  const kids = (node.children || []).slice(0, depth < 2 ? 4 : 0);
+  const kids = node.children || [];
   const author = node.author || 'anon';
   const isOp = !!storyAuthor && author === storyAuthor;
   return (
@@ -302,7 +302,7 @@ function DetailView({ story, onBack, backLabel = 'Back to feed', onListen, audio
             </div>
           ))
         : thread?.children?.length
-          ? thread.children.slice(0, 20).map((c) => <CommentNode key={c.id} node={c} depth={0} storyAuthor={story.by} />)
+          ? thread.children.map((c) => <CommentNode key={c.id} node={c} depth={0} storyAuthor={story.by} />)
           : <p style={{ color: 'var(--text-3)', fontSize: 13, padding: '10px 0' }}>No comments yet.</p>}
     </div>
   );
