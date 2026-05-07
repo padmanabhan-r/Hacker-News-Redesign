@@ -16,6 +16,7 @@ const ALL_CATS = ['All', 'AI', 'Security', 'Hardware', 'Startups', 'Engineering'
 
 const SearchIco = () => <svg width="13" height="13" fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>;
 const MicIco = () => <svg width="12" height="12" fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24"><path d="M12 1a3 3 0 00-3 3v8a3 3 0 006 0V4a3 3 0 00-3-3z"/><path d="M19 10v2a7 7 0 01-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>;
+const FeedIco = () => <svg width="12" height="12" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" viewBox="0 0 24 24"><line x1="4" y1="6" x2="20" y2="6"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="18" x2="14" y2="18"/></svg>;
 const PlusIco = () => <svg width="11" height="11" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>;
 const SunIco = () => <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/></svg>;
 const MoonIco = () => <svg width="13" height="13" fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg>;
@@ -308,7 +309,7 @@ export function HighlightsShell() {
   const { items, isLoading } = useStories('top', 1, 40);
   const [activeCat, setActiveCat] = useState('All');
   const router = useRouter();
-  const openStory = (s: HNItem) => router.push(`/feed?id=${s.id}`);
+  const openStory = (s: HNItem) => router.push(`/feed?id=${s.id}&from=highlights`);
   const { theme, setTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
   const [user, setUser] = useState<HNUser | null>(null);
@@ -453,7 +454,7 @@ export function HighlightsShell() {
         </Link>
         <nav className="hnav">
           <button type="button" className="hnav-btn active">✦ Highlights</button>
-          <Link className="hnav-btn" href="/feed">Feed</Link>
+          <Link className="hnav-btn" href="/feed"><FeedIco /> Feed</Link>
           <Link className="hnav-btn" href="/podcast"><MicIco /> Podcast</Link>
         </nav>
         <div className="search-wrap">

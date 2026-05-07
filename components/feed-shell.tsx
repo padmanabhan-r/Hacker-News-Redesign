@@ -42,6 +42,7 @@ const Ico = {
   Moon: () => <svg width="13" height="13" fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg>,
   X: () => <svg width="11" height="11" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>,
   Spin: () => <svg className="hn-spinner" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round"><path d="M21 12a9 9 0 11-6.219-8.56"/></svg>,
+  Feed: () => <svg width="12" height="12" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" viewBox="0 0 24 24"><line x1="4" y1="6" x2="20" y2="6"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="18" x2="14" y2="18"/></svg>,
 };
 
 const NAV = [
@@ -241,8 +242,8 @@ function CommentNode({ node, depth = 0, storyAuthor }: { node: AlgoliaComment; d
   );
 }
 
-function DetailView({ story, onBack, onListen, audioStoryId, audioPlaying, audioLoading, audioMsg }: {
-  story: HNItem; onBack: () => void; onListen: (s: HNItem) => void;
+function DetailView({ story, onBack, backLabel = 'Back to feed', onListen, audioStoryId, audioPlaying, audioLoading, audioMsg }: {
+  story: HNItem; onBack: () => void; backLabel?: string; onListen: (s: HNItem) => void;
   audioStoryId?: number; audioPlaying?: boolean; audioLoading?: boolean; audioMsg?: string;
 }) {
   const { thread, isLoading } = useStoryThread(story.id);
@@ -263,7 +264,7 @@ function DetailView({ story, onBack, onListen, audioStoryId, audioPlaying, audio
 
   return (
     <div className="detail-wrap">
-      <button type="button" className="back-pill" onClick={onBack}><Ico.ChevL /> Back to feed</button>
+      <button type="button" className="back-pill" onClick={onBack}><Ico.ChevL /> {backLabel}</button>
       <div
         className="detail-hero"
         style={{
@@ -436,6 +437,7 @@ export function FeedShell() {
   const router = useRouter();
   const activeNav = (params.get('feed') || 'top') as FeedKind;
   const id = params.get('id');
+  const from = params.get('from') || '';
   const search = params.get('q') || '';
   const dayParam = params.get('day') || undefined;
   const [page, setPage] = useState(1);
@@ -572,7 +574,10 @@ export function FeedShell() {
   }
 
   function open(story: HNItem) { router.push(`/feed?feed=${activeNav}&id=${story.id}`); }
-  function back() { router.push(`/feed?feed=${activeNav}`); }
+  function back() {
+    if (from === 'highlights') { router.push('/highlights'); return; }
+    router.push(`/feed?feed=${activeNav}`);
+  }
 
   const openStory = id ? items.find((s) => String(s.id) === id) : null;
   const feedTitle = FEED_TITLES[activeNav] || 'Stories';
@@ -599,7 +604,7 @@ export function FeedShell() {
           </Link>
           <nav className="hnav">
             <Link className="hnav-btn" href="/highlights">✦ Highlights</Link>
-            <button type="button" className="hnav-btn active">Feed</button>
+            <button type="button" className="hnav-btn active"><Ico.Feed /> Feed</button>
             <Link className="hnav-btn" href="/podcast"><Ico.Mic /> Podcast</Link>
           </nav>
           <div className="search-wrap">
@@ -676,6 +681,7 @@ export function FeedShell() {
             <DetailView
               story={openStory}
               onBack={back}
+              backLabel={from === 'highlights' ? 'Back to highlights' : 'Back to feed'}
               onListen={handleListen}
               audioStoryId={audioStory?.id}
               audioPlaying={audioPlaying}
