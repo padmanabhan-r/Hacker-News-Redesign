@@ -60,19 +60,18 @@ HN++ has three distinct products built on top of the official Hacker News API:
 
 HN++ is a complete visual redesign of Hacker News — same data, entirely different surface.
 
-**Design language — glassmorphism on a warm SF palette.** Frosted-glass cards with backdrop blur, soft amber and orange tones, a warm late-afternoon light feel. Dense enough for power users who live in HN, calm enough for casual reading.
+**Design language — glassmorphism on a warm amber/orange palette.** Frosted-glass cards with backdrop blur.
 
-**Three views, each with a purpose:**
-- **Highlights** — editorial-style card grid. Hero story large, 4 secondary stories, a headlines panel for the rest. Filtered by 6 categories (AI, Science, Business, Engineering, Ask HN, Show HN).
+**Three views:**
+- **Highlights** — editorial-style card grid. Hero story large, 4 secondary stories, a headlines panel for the rest. Filtered by 8 categories (AI, Security, Hardware, Startups, Engineering, Web, Science, Business).
 - **Feed** — the full firehose. Infinite scroll, per-story thumbnails, collapsible comment threads color-coded by depth, voice search.
-- **Podcast** — a dedicated player UI with waveform visualiser, chapter scrubber, archive browser, and ambient music bed.
+- **Podcast** — dedicated player UI with waveform visualiser, chapter scrubber, archive browser, and ambient music bed.
 
 **Details:**
-- Dark / light mode with smooth system-aware switching
+- Dark / light mode with system-aware switching
 - Frosted-glass page transition overlay on every route change
-- Syne display font for headings, Inter for body, JetBrains Mono for code
-- Responsive — works on mobile and desktop
-- Scaffolded in [v0](https://v0.dev), then heavily customised
+- Syne for headings, Inter for body, JetBrains Mono for code
+- Desktop-first — mobile layout not tuned yet
 
 ---
 
@@ -84,7 +83,7 @@ HN++ is a complete visual redesign of Hacker News — same data, entirely differ
 
 **3. Search by voice** — Tap the mic in the search bar on Feed or Highlights. ElevenLabs Scribe (`scribe_v2`, `language_code=en`) transcribes your query and filters stories instantly.
 
-**4. Listen to the Pod** — Today's HN++ Pod is pre-baked every day at 1:30 AM GMT. Open the Podcast tab, hit play. Chapter markers let you skip to any story segment. Last 14 days are always available.
+**4. Listen to the Pod** — Today's HN++ Pod is pre-baked every day at 01:30 UTC (07:00 IST). Open the Podcast tab, hit play. Chapter markers let you skip to any story segment. Last 14 days are always available.
 
 **5. Talk to the Bot** — Hit the HN++ Bot button. ElevenLabs Conversational AI connects. Ask what's trending, who's hiring, what the top thread is about — it answers in real time with live HN context.
 
@@ -287,9 +286,6 @@ R2_ACCESS_KEY_ID=...
 R2_SECRET_ACCESS_KEY=...
 R2_BUCKET=...
 R2_PUBLIC_BASE_URL=...
-
-# Podcast store path (optional — defaults to ./.podcast-store)
-PODCAST_STORE_DIR=...
 ```
 
 ### Setting up HN++ Bot
