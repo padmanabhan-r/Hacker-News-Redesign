@@ -718,8 +718,7 @@
   box-shadow: var(--shadow-sm);
 }
 .feed-page .comment-block:hover { border-color: var(--border-med); }
-.feed-page .comment-block.d1 { margin-left: 18px; background: var(--bg-alt); }
-.feed-page .comment-block.d2 { margin-left: 36px; background: var(--bg-alt); }
+.feed-page .comment-block.d-nested { background: var(--bg-alt); }
 .feed-page .comment-block[data-depth="1"]::before,
 .feed-page .comment-block[data-depth="2"]::before,
 .feed-page .comment-block[data-depth="3"]::before,

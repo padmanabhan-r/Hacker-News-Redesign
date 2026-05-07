@@ -210,16 +210,21 @@ function SkeletonCard() {
   );
 }
 
+const COMMENT_INDENT_PX = 16;
+const COMMENT_INDENT_MAX_DEPTH = 10;
+
 function CommentNode({ node, depth = 0, storyAuthor }: { node: AlgoliaComment; depth?: number; storyAuthor?: string }) {
   const [open, setOpen] = useState(true);
   if (!node) return null;
-  const cls = depth === 0 ? 'comment-block' : depth === 1 ? 'comment-block d1' : 'comment-block d2';
   const kids = node.children || [];
   const author = node.author || 'anon';
   const isOp = !!storyAuthor && author === storyAuthor;
+  const visualDepth = Math.min(depth, COMMENT_INDENT_MAX_DEPTH);
+  const colorDepth = depth === 0 ? 0 : ((depth - 1) % 4) + 1;
+  const blockCls = depth === 0 ? 'comment-block' : 'comment-block d-nested';
   return (
-    <div>
-      <div className={cls} data-depth={Math.min(depth, 4)}>
+    <div style={{ marginLeft: visualDepth * COMMENT_INDENT_PX }}>
+      <div className={blockCls} data-depth={colorDepth}>
         <div className="comment-hdr">
           <span className="comment-avatar">{author[0]?.toUpperCase() || '?'}</span>
           <span className="comment-author">{author}</span>
@@ -237,7 +242,7 @@ function CommentNode({ node, depth = 0, storyAuthor }: { node: AlgoliaComment; d
           </>
         )}
       </div>
-      {open && kids.map((c) => <CommentNode key={c.id} node={c} depth={Math.min(depth + 1, 2)} storyAuthor={storyAuthor} />)}
+      {open && kids.map((c) => <CommentNode key={c.id} node={c} depth={depth + 1} storyAuthor={storyAuthor} />)}
     </div>
   );
 }
