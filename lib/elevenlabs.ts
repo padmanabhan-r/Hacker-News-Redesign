@@ -14,7 +14,8 @@ export function eleven() {
 export const TTS_MODEL = "eleven_multilingual_v2";
 export const DIALOGUE_MODEL = "eleven_v3";
 export const FLASH_MODEL = "eleven_flash_v2_5";
-export const STT_MODEL = "scribe_v1";
+export const STT_MODEL = "scribe_v2";
+export const STT_LANGUAGE = "en";
 export const OUTPUT_FORMAT = "mp3_44100_192" as const;
 
 export const HOST_VOICE_SETTINGS = {

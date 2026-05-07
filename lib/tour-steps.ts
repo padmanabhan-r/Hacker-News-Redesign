@@ -42,13 +42,6 @@ export const HIGHLIGHTS_STEPS: TourStep[] = [
     cta: 'Next',
   },
   {
-    selector: 'button.search-kbd',
-    title: 'Search by voice',
-    body: 'Tap the mic to dictate a search. ElevenLabs Scribe transcribes you instantly and filters stories.',
-    placement: 'bottom',
-    cta: 'Next',
-  },
-  {
     selector: '.audio-btn',
     title: 'Listen to any story',
     body: 'Tap Listen on any story for an AI narration in under three seconds — article + comment sentiment, streamed via ElevenLabs.',

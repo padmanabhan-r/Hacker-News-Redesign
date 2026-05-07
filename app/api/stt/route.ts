@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { eleven, STT_MODEL } from "@/lib/elevenlabs";
+import { eleven, STT_MODEL, STT_LANGUAGE } from "@/lib/elevenlabs";
 
 export const runtime = "nodejs";
 export const maxDuration = 30;
@@ -13,6 +13,8 @@ export async function POST(req: NextRequest) {
     const result = await eleven().speechToText.convert({
       file,
       modelId: STT_MODEL,
+      languageCode: STT_LANGUAGE,
+      tagAudioEvents: false,
     });
     return NextResponse.json({ text: (result as { text?: string })?.text ?? "" });
   } catch (e) {

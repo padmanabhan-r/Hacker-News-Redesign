@@ -248,16 +248,25 @@ export function Tour({ route }: { route: Route }) {
 
   return (
     <>
-      {/* Spotlight: 4 dark rects around the target */}
-      {rect ? (
-        <>
-          <div className="tour-mask" style={{ top: 0, left: 0, width: '100vw', height: Math.max(0, rect.top - 6) }} />
-          <div className="tour-mask" style={{ top: rect.top - 6, left: 0, width: Math.max(0, rect.left - 6), height: rect.height + 12 }} />
-          <div className="tour-mask" style={{ top: rect.top - 6, left: rect.left + rect.width + 6, width: '100vw', height: rect.height + 12 }} />
-          <div className="tour-mask" style={{ top: rect.top + rect.height + 6, left: 0, width: '100vw', height: '100vh' }} />
-          <div className="tour-ring" style={{ top: rect.top - 6, left: rect.left - 6, width: rect.width + 12, height: rect.height + 12 }} />
-        </>
-      ) : (
+      {/* Spotlight: 4 dark rects around the target, all clamped to viewport */}
+      {rect && vw && vh ? (() => {
+        const tt = Math.max(0, Math.min(vh, rect.top - 6));
+        const bb = Math.max(0, Math.min(vh, rect.top + rect.height + 6));
+        const ll = Math.max(0, Math.min(vw, rect.left - 6));
+        const rr = Math.max(0, Math.min(vw, rect.left + rect.width + 6));
+        const ringVisible = tt < bb && ll < rr;
+        return (
+          <>
+            <div className="tour-mask" style={{ top: 0, left: 0, width: vw, height: tt }} />
+            <div className="tour-mask" style={{ top: bb, left: 0, width: vw, height: Math.max(0, vh - bb) }} />
+            <div className="tour-mask" style={{ top: tt, left: 0, width: ll, height: Math.max(0, bb - tt) }} />
+            <div className="tour-mask" style={{ top: tt, left: rr, width: Math.max(0, vw - rr), height: Math.max(0, bb - tt) }} />
+            {ringVisible ? (
+              <div className="tour-ring" style={{ top: tt, left: ll, width: rr - ll, height: bb - tt }} />
+            ) : null}
+          </>
+        );
+      })() : (
         <div className="tour-mask tour-mask-full" />
       )}
 

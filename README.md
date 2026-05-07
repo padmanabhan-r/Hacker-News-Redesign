@@ -82,7 +82,7 @@ HN++ is a complete visual redesign of Hacker News — same data, entirely differ
 
 **2. Listen (per article)** — Tap the Listen button on any story. Firecrawl scrapes the linked article, Gemini Flash writes a 180–220-word narration blending article content with comment sentiment, ElevenLabs Flash v2.5 streams it back. First audio byte in under 3 seconds.
 
-**3. Search by voice** — Tap the mic in the search bar on Feed or Highlights. ElevenLabs Scribe (`scribe_v1`) transcribes your query and filters stories instantly.
+**3. Search by voice** — Tap the mic in the search bar on Feed or Highlights. ElevenLabs Scribe (`scribe_v2`, `language_code=en`) transcribes your query and filters stories instantly.
 
 **4. Listen to the Pod** — Today's HN++ Pod is pre-baked every day at 1:30 AM GMT. Open the Podcast tab, hit play. Chapter markers let you skip to any story segment. Last 7 days are always available.
 
@@ -190,7 +190,7 @@ Four ElevenLabs products are active in production:
 |---------|-------------|------------|
 | **Flash TTS** (`eleven_flash_v2_5`) | `textToSpeech.convert` with `optimizeStreamingLatency=4` | Listen — per-article narration streamed on demand |
 | **Text-to-Dialogue** (`eleven_v3`) | `textToDialogue.convertWithTimestamps` | HN++ Pod — multi-voice host/guest podcast, chapter timings |
-| **Scribe STT** (`scribe_v1`) | `speechToText.convert` | Voice search in Feed + Highlights — mic input → query text |
+| **Scribe STT** (`scribe_v2`) | `speechToText.convert` (`languageCode: "en"`, `tagAudioEvents: false`) | Voice search in Feed + Highlights — mic input → query text |
 | **Conversational AI** | `@elevenlabs/react` `ConversationProvider` + `useConversation`, signed-URL flow | HN++ Bot — real-time agent with live HN context, 7 tools wired in the ElevenLabs console (3 client + 4 webhook → public Algolia + Firecrawl APIs) |
 | **Music API** | `music.compose` | Ambient music bed playing under the podcast player — generated once, baked as a static asset |
 
@@ -204,7 +204,7 @@ Four ElevenLabs products are active in production:
 | **Styling** | Tailwind CSS 4, shadcn/ui (new-york, neutral) |
 | **TTS / Narration** | ElevenLabs `eleven_flash_v2_5` |
 | **Dialogue / Podcast** | ElevenLabs `eleven_v3` text-to-dialogue |
-| **STT / Voice Search** | ElevenLabs `scribe_v1` |
+| **STT / Voice Search** | ElevenLabs `scribe_v2` |
 | **Conversational AI** | ElevenLabs Conversational AI (`@elevenlabs/react` browser SDK + signed-URL flow) |
 | **AI Scripting** | Google Gemini Flash (`gemini-flash-latest`), tunable `thinkingLevel` |
 | **Article Scraping** | Firecrawl (`@mendable/firecrawl-js`), markdown-only, fast mode |
