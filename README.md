@@ -84,7 +84,7 @@ HN++ is a complete visual redesign of Hacker News — same data, entirely differ
 
 **3. Search by voice** — Tap the mic in the search bar on Feed or Highlights. ElevenLabs Scribe (`scribe_v2`, `language_code=en`) transcribes your query and filters stories instantly.
 
-**4. Listen to the Pod** — Today's HN++ Pod is pre-baked every day at 1:30 AM GMT. Open the Podcast tab, hit play. Chapter markers let you skip to any story segment. Last 7 days are always available.
+**4. Listen to the Pod** — Today's HN++ Pod is pre-baked every day at 1:30 AM GMT. Open the Podcast tab, hit play. Chapter markers let you skip to any story segment. Last 14 days are always available.
 
 **5. Talk to the Bot** — Hit the HN++ Bot button. ElevenLabs Conversational AI connects. Ask what's trending, who's hiring, what the top thread is about — it answers in real time with live HN context.
 

@@ -439,7 +439,7 @@ export function PodcastShell() {
 
         {archive.length > 0 && (
           <div className="script-section">
-            <div className="script-section-title">Past 7 days</div>
+            <div className="script-section-title">Past 14 days</div>
             <div className="stories-grid">
               {filteredArchive.map((ep) => {
                 const isCurrent = ep.date === activeDate;
