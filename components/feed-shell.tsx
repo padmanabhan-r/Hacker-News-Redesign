@@ -210,8 +210,8 @@ function SkeletonCard() {
   );
 }
 
-const COMMENT_INDENT_PX = 16;
-const COMMENT_INDENT_MAX_DEPTH = 10;
+const COMMENT_INDENT_PX = 10;
+const COMMENT_INDENT_MAX_DEPTH = 8;
 
 function CommentNode({ node, depth = 0, storyAuthor }: { node: AlgoliaComment; depth?: number; storyAuthor?: string }) {
   const [open, setOpen] = useState(true);
