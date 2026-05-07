@@ -170,10 +170,40 @@ export async function getRecentComments(
   return { items, totalIds: r?.nbHits ?? items.length, hasMore: false };
 }
 
+/**
+ * Reorder an Algolia comment array to match HN's official `kids` ordering.
+ * Algolia returns comments chronologically; HN's site uses a ranked order
+ * exposed only via Firebase. Comments not present in `kids` (e.g. dead ones
+ * Firebase still lists) are dropped from the rank pass and appended at the end
+ * in their original chronological order.
+ */
+function reorderByKids<T extends { id: number }>(children: T[], kids: number[] | undefined): T[] {
+  if (!kids || !kids.length || !children.length) return children;
+  const byId = new Map(children.map((c) => [c.id, c]));
+  const ordered: T[] = [];
+  const seen = new Set<number>();
+  for (const k of kids) {
+    const c = byId.get(k);
+    if (c) {
+      ordered.push(c);
+      seen.add(k);
+    }
+  }
+  for (const c of children) if (!seen.has(c.id)) ordered.push(c);
+  return ordered;
+}
+
 export async function getStoryThread(id: number): Promise<AlgoliaStory> {
-  return fetch(`${ALGOLIA}/items/${id}`, { next: { revalidate: 300 } }).then(
-    (r) => r.json()
-  );
+  const [story, fb] = await Promise.all([
+    fetch(`${ALGOLIA}/items/${id}`, { next: { revalidate: 300 } }).then((r) => r.json()) as Promise<AlgoliaStory>,
+    fetch(`${HN}/item/${id}.json`, { next: { revalidate: 300 } })
+      .then((r) => r.json() as Promise<HNItem>)
+      .catch(() => null),
+  ]);
+  if (story?.children && fb?.kids) {
+    story.children = reorderByKids(story.children, fb.kids);
+  }
+  return story;
 }
 
 export async function getNewestShowStories(
