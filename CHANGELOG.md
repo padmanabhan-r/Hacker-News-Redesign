@@ -13,6 +13,8 @@ First Beta. All three audio products (Listen, HN++ Pod, HN++ Bot) live in produc
 - **Button visibility pass** (`cfbb2fb`). Active nav tabs now solid accent (was translucent); `.listen-btn` gets a visible border in both themes.
 - **Feed icon refresh** (`02706dc`).
 - **README tightened** (`4d5a4b1`). Categories list corrected, cron timezone normalised to `01:30 UTC (07:00 IST)`, dead `PODCAST_STORE_DIR` env var removed, Desktop-first note added, support blurb softened.
+- **Stale code + dep purge** (`6ebd26a`). Deleted 4 unused one-off scripts (`gen-intros`, `generate-music`, `generate-bed-music`, `copy-to-v0`) and removed `date-fns` from `package.json` (zero source imports; still resolved transitively by `react-day-picker`). −247 lines.
+- **Security pass — all clear.** No hardcoded secrets in source; all keys via `process.env.*`. Git history sweep for `sk-` / `eleven_` / `AKIA` / `AIza` / `fc-` / `agent_` returns zero hits. `.env` gitignored and never committed.
 
 **Carried into Beta from v0.2.0 / v0.3.0**
 
