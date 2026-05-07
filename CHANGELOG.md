@@ -1,5 +1,28 @@
 # Changelog
 
+## v1 — "HN++ Beta" — 2026-05-07
+
+First Beta. All three audio products (Listen, HN++ Pod, HN++ Bot) live in production, glassmorphic redesign shipped, daily cron baking episodes to Cloudflare R2, conversational agent wired to public Algolia + Firecrawl with no self-hosted webhook layer. Desktop-first — mobile layout not tuned yet.
+
+**Changes since v0.3.0**
+
+- **Podcast archive extended 7 → 14 days** (`8e17eed`). `app/api/podcast/archive/route.ts` now returns the last 14 manifests; podcast-shell archive list shows the same window.
+- **STT locked to English** (`95f7e13`). `/api/stt` now sends `languageCode: "en"` to ElevenLabs Scribe — stops occasional auto-detect drift on accented English queries.
+- **Tour spotlight clamped to viewport** (`95f7e13`). `components/tour.tsx` `getBoundingClientRect` results clamped before mask/ring math, so spotlight no longer overflows offscreen on edge cards.
+- **Tour final step trimmed** (`5100188`). Last step copy simplified, ko-fi mention dropped from the tour itself (still in sidebar + landing footer).
+- **Button visibility pass** (`cfbb2fb`). Active nav tabs now solid accent (was translucent); `.listen-btn` gets a visible border in both themes.
+- **Feed icon refresh** (`02706dc`).
+- **README tightened** (`4d5a4b1`). Categories list corrected, cron timezone normalised to `01:30 UTC (07:00 IST)`, dead `PODCAST_STORE_DIR` env var removed, Desktop-first note added, support blurb softened.
+
+**Carried into Beta from v0.2.0 / v0.3.0**
+
+- Cloudflare R2 podcast store (`podcast/{date}.mp3` + `.json` + `.script.json` + `index.json`)
+- First-run guided tour (`components/tour.tsx`, persisted via `localStorage.hnpp_tour`)
+- ko-fi support button (sidebar + landing-footer variants)
+- Read-only demo toast on upvote/reply
+
+---
+
 ## v0.3.0 — "Spotlight" — 2026-05-06
 
 First-time visitors get a guided tour. Two stops: one on the landing page nudging them toward "Try HN++ now", four+finale on `/highlights` walking through the nav tabs, the HN++ Bot, voice search, and per-story Listen.
