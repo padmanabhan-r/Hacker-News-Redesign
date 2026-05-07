@@ -50,8 +50,8 @@ export const HIGHLIGHTS_STEPS: TourStep[] = [
   },
   {
     selector: null,
-    title: "You're set",
-    body: 'HN++ runs on real ElevenLabs, Gemini, and Firecrawl credits. If you like it and want it to stay alive past the hackathon, the ko-fi link is in the sidebar.',
+    title: "You're all set",
+    body: 'Enjoy HN++.',
     placement: 'center',
     cta: 'Done',
     showSkip: false,
