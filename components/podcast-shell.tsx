@@ -278,6 +278,9 @@ export function PodcastShell() {
               <span className="el-label">Powered by ElevenLabs</span>
             </span>
           </div>
+          <div style={{ marginTop: 10, padding: '8px 12px', borderRadius: 6, background: 'color-mix(in srgb, var(--accent) 10%, transparent)', border: '1px solid color-mix(in srgb, var(--accent) 25%, transparent)', fontSize: 12, color: 'var(--text-2)', lineHeight: 1.5 }}>
+            <strong style={{ color: 'var(--accent)' }}>Podcast paused</strong> — new episodes have been stopped to conserve ElevenLabs credits. Archive episodes below are still available.
+          </div>
           <div className="key-section-sub">
             A daily ~5 min show. Standard host plus a rotating guest dig into the day's top Hacker News stories,
             with the article and the comment crowd in mind. Fresh every morning at 7:00 AM IST · 1:30 AM GMT · 6:30 PM PT (prev day).
