@@ -81,3 +81,4 @@ docs/
 
 # Generated daily podcast episodes (mp3 + manifest)
 .podcast-store/
+.vercel
